@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arcade Hub | Custom Game Grid</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles for a modern, dark theme look */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d1117; /* Dark background */
+            color: #e6edf3;
+            min-height: 100vh;
+        }
+        .game-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+            background-color: #161b22; /* Slightly lighter card background */
+            border: 1px solid #30363d;
+            cursor: pointer;
+        }
+        .game-card:hover {
+            transform: translateY(-5px); /* Lift effect on hover */
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.5);
+            border-color: #58a6ff;
+        }
+        .header-bg {
+            background: linear-gradient(135deg, #1f2b3a, #0d1117);
+        }
+    </style>
+</head>
+<body class="selection:bg-cyan-500 selection:text-white">
+
+    <!-- Header Section -->
+    <header class="header-bg p-6 shadow-xl">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <h1 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
+                🚀 The Arcade Hub
+            </h1>
+            <nav>
+                <a href="#about" class="text-sm font-medium hover:text-cyan-400 transition duration-150 mr-4">About</a>
+                <a href="#" class="text-sm font-medium hover:text-cyan-400 transition duration-150">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto p-6 lg:p-10">
+        <h2 class="text-4xl font-bold mb-8 text-white text-center">Featured Games Grid</h2>
+
+        <!-- Game Grid Container -->
+        <div id="game-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+            <!-- Game Cards will be injected here by JavaScript -->
+        </div>
+
+        <!-- About Section Placeholder -->
+        <section id="about" class="mt-20 p-8 bg-gray-800 rounded-xl shadow-inner">
+            <h3 class="text-3xl font-bold text-cyan-400 mb-4">What is the Arcade Hub?</h3>
+            <p class="text-gray-300">
+                This is your custom-built game portal, completely outside of GoDaddy's default templates. You have full control over the code, design, and content. The site is fully responsive, ensuring a great experience on any device.
+            </p>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-12 p-4 text-center text-sm text-gray-500 border-t border-gray-700">
+        &copy; <span id="current-year"></span> The Arcade Hub. Fully Custom HTML/CSS/JS Page.
+    </footer>
+
+    <script>
+        // --- DATA SECTION ---
+        const games = [
+            { title: "Block Buster", description: "A fast-paced puzzle game.", link: "/games/blockbuster.html", icon: "🧱" },
+            { title: "Space Shooter", description: "Defeat alien invaders.", link: "/games/shooter.html", icon: "🚀" },
+            { title: "Retro Racer", description: "Pixel-perfect street racing.", link: "/games/racer.html", icon: "🏎️" },
+            { title: "Tower Defense", description: "Strategically defend your base.", link: "/games/tower.html", icon: "🛡️" },
+            { title: "Maze Runner", description: "Solve complex labyrinths.", link: "/games/maze.html", icon: "🧭" },
+            { title: "Idle Clicker", description: "Endless progress, minimal effort.", link: "/games/idle.html", icon: "💰" },
+            { title: "Platform Jumper", description: "Classic 2D jump and run.", link: "/games/platform.html", icon: "🏃" },
+            { title: "Card Battle", description: "Assemble your winning deck.", link: "/games/cards.html", icon: "🃏" },
+        ];
+
+        // --- RENDER LOGIC ---
+        const gameGrid = document.getElementById('game-grid');
+
+        /**
+         * Creates the HTML for a single game card.
+         * @param {object} game - The game data object.
+         * @returns {string} - The HTML string for the card.
+         */
+        const createGameCard = (game) => {
+            return `
+                <a href="${game.link}" class="game-card block rounded-xl p-6 text-center shadow-lg transition duration-300 ease-in-out">
+                    <div class="text-5xl mb-4">${game.icon}</div>
+                    <h4 class="text-xl font-bold text-white mb-2">${game.title}</h4>
+                    <p class="text-sm text-gray-400">${game.description}</p>
+                    <button class="mt-4 inline-block px-4 py-2 bg-cyan-600 text-white text-xs font-semibold rounded-lg hover:bg-cyan-500 transition duration-150">
+                        Play Now
+                    </button>
+                </a>
+            `;
+        };
+
+        // Render all game cards to the grid
+        games.forEach(game => {
+            gameGrid.innerHTML += createGameCard(game);
+        });
+
+        // Set current year in the footer
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+
+        // Optional: Implement simple link click logic if the link is a placeholder
+        document.querySelectorAll('.game-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                const link = card.getAttribute('href');
+                if (link.includes('#')) {
+                    e.preventDefault();
+                    // Scroll or show a message instead of navigating
+                    // For a real app, this would navigate to the game
+                    console.log(\`Clicked on \${card.querySelector('h4').textContent}. Link: \${link}\`);
+
+                    // Simple "Game Loading" simulation (using a custom modal replacement for alert)
+                    showNotification(\`Loading \${card.querySelector('h4').textContent}...\`);
+                }
+            });
+        });
+
+        // Custom Notification/Modal Logic (Replacement for alert() and confirm())
+        function showNotification(message) {
+            let notification = document.getElementById('custom-notification');
+            if (!notification) {
+                notification = document.createElement('div');
+                notification.id = 'custom-notification';
+                notification.className = 'fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-75 hidden';
+                notification.innerHTML = `
+                    <div class="bg-gray-900 p-6 rounded-xl shadow-2xl max-w-sm w-full text-center border border-cyan-500 transform transition-transform duration-300 scale-95">
+                        <p class="text-white text-lg mb-4" id="notification-message"></p>
+                        <button onclick="closeNotification()" class="px-6 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-500 transition">OK</button>
+                    </div>
+                `;
+                document.body.appendChild(notification);
+            }
+            document.getElementById('notification-message').textContent = message;
+            notification.classList.remove('hidden');
+            // Animate in
+            setTimeout(() => {
+                notification.querySelector('div').classList.remove('scale-95');
+                notification.querySelector('div').classList.add('scale-100');
+            }, 50);
+        }
+
+        function closeNotification() {
+            const notification = document.getElementById('custom-notification');
+            // Animate out
+            notification.querySelector('div').classList.remove('scale-100');
+            notification.querySelector('div').classList.add('scale-95');
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 300);
+        }
+
+    </script>
+</body>
+</html>
