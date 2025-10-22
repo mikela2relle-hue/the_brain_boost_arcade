@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Arcade Hub - Custom Games Grid</title>
     
-    <!-- 1. TAILWIND CONFIGURATION -->
+    <!-- TAILWIND SETUP: Simplified to the standard template for guaranteed styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        // NOTE: This MUST be defined in a script tag for the CDN to read it.
+        // NOTE: Config placed immediately after the CDN link for stability.
         tailwind.config = {
             theme: {
                 extend: {
@@ -16,6 +17,7 @@
                         'secondary-dark': '#1f2937',
                         'accent-blue': '#3b82f6',
                         'text-light': '#f3f4f6',
+                        'snake-green': '#00ffcc',
                     },
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
@@ -25,12 +27,8 @@
         }
     </script>
     
-    <!-- 2. TAILWIND SCRIPT (Must be loaded AFTER config) -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- The original empty style block is now removed -->
-    
 </head>
+<!-- Restored dark background classes -->
 <body class="bg-primary-dark text-text-light min-h-screen p-4 sm:p-8">
 
     <!-- Header Section -->
@@ -41,17 +39,16 @@
         <p class="text-lg text-gray-400">Your collection of custom HTML/JS games, deployed via GitHub Pages.</p>
     </header>
 
-    <!-- Game Grid Container -->
-    <!-- Added explicit wrapper classes to ensure the grid renders correctly across devices -->
+    <!-- Game Grid Container (Simplified, structurally rigid HTML) -->
     <section class="max-w-7xl mx-auto">
         <div id="gameGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
 
-            <!-- Snake Game Card -->
+            <!-- Snake Game Card (Link: snake.html - SIMPLEST POSSIBLE PATH) -->
             <div class="bg-secondary-dark p-4 rounded-xl shadow-lg hover:shadow-2xl hover:scale-[1.02] transition duration-300 ease-in-out border-2 border-gray-700">
                 <h2 class="text-2xl font-bold text-cyan-400 mb-2">Neon Snake</h2>
                 <p class="text-gray-400 text-sm mb-4">A minimalist, glowing survival game. Eat and grow!</p>
                 <div class="text-6xl text-center mb-4">🐍</div>
-                <a href="games/snake.html" class="block w-full text-center py-2 bg-accent-blue text-white font-semibold rounded-lg hover:bg-blue-600 transition duration-150">
+                <a href="snake.html" class="block w-full text-center py-2 bg-snake-green text-primary-dark font-semibold rounded-lg hover:bg-cyan-500 transition duration-150">
                     PLAY NOW
                 </a>
             </div>
@@ -61,7 +58,7 @@
                 <h2 class="text-2xl font-bold text-red-400 mb-2">Neon Breaker</h2>
                 <p class="text-gray-400 text-sm mb-4">A futuristic, neon take on the classic brick-breaking game.</p>
                 <div class="text-6xl text-center mb-4">🧱</div>
-                <a href="games/NeonBreaker.html" class="block w-full text-center py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition duration-150">
+                <a href="NeonBreaker.html" class="block w-full text-center py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition duration-150">
                     PLAY NOW
                 </a>
             </div>
@@ -71,7 +68,7 @@
                 <h2 class="text-2xl font-bold text-emerald-400 mb-2">Meteor Mayhem</h2>
                 <p class="text-gray-400 text-sm mb-4">Collect power-up gems and survive against alien rocks!</p>
                 <div class="text-6xl text-center mb-4">🚀</div>
-                <a href="games/MeteorMayhem.html" class="block w-full text-center py-2 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 transition duration-150">
+                <a href="MeteorMayhem.html" class="block w-full text-center py-2 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 transition duration-150">
                     PLAY NOW
                 </a>
             </div>
@@ -81,7 +78,7 @@
                 <h2 class="text-2xl font-bold text-yellow-400 mb-2">Neon Pop</h2>
                 <p class="text-gray-400 text-sm mb-4">A challenging bubble shooter with vibrant colors and aiming beam.</p>
                 <div class="text-6xl text-center mb-4">🟣</div>
-                <a href="games/NeonPop.html" class="block w-full text-center py-2 bg-yellow-600 text-white font-semibold rounded-lg hover:bg-yellow-700 transition duration-150">
+                <a href="NeonPop.html" class="block w-full text-center py-2 bg-yellow-600 text-white font-semibold rounded-lg hover:bg-yellow-700 transition duration-150">
                     PLAY NOW
                 </a>
             </div>
