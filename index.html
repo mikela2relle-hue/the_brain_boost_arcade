@@ -4,16 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Arcade Hub - Custom Games Grid</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- CRITICAL FIX: Base Path Tag for GitHub Pages -->
-    <!-- This tells the browser that all relative links start from the /Arcade-Hub/ folder. -->
-    <base href="/Arcade-Hub/"> 
-
-    <style>
-/* ... (styles remain the same) ... */
-    </style>
+    <!-- 1. TAILWIND CONFIGURATION -->
     <script>
+        // NOTE: This MUST be defined in a script tag for the CDN to read it.
         tailwind.config = {
             theme: {
                 extend: {
@@ -30,6 +24,12 @@
             }
         }
     </script>
+    
+    <!-- 2. TAILWIND SCRIPT (Must be loaded AFTER config) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- The original empty style block is now removed -->
+    
 </head>
 <body class="bg-primary-dark text-text-light min-h-screen p-4 sm:p-8">
 
@@ -42,10 +42,11 @@
     </header>
 
     <!-- Game Grid Container -->
-    <div class="max-w-7xl mx-auto">
+    <!-- Added explicit wrapper classes to ensure the grid renders correctly across devices -->
+    <section class="max-w-7xl mx-auto">
         <div id="gameGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
 
-            <!-- Links use lowercase 'games/' and are resolved correctly by the <base> tag -->
+            <!-- Snake Game Card -->
             <div class="bg-secondary-dark p-4 rounded-xl shadow-lg hover:shadow-2xl hover:scale-[1.02] transition duration-300 ease-in-out border-2 border-gray-700">
                 <h2 class="text-2xl font-bold text-cyan-400 mb-2">Neon Snake</h2>
                 <p class="text-gray-400 text-sm mb-4">A minimalist, glowing survival game. Eat and grow!</p>
@@ -55,7 +56,7 @@
                 </a>
             </div>
 
-            <!-- Links use lowercase 'games/' and are resolved correctly by the <base> tag -->
+            <!-- Neon Breaker Card -->
             <div class="bg-secondary-dark p-4 rounded-xl shadow-lg hover:shadow-2xl hover:scale-[1.02] transition duration-300 ease-in-out border-2 border-gray-700">
                 <h2 class="text-2xl font-bold text-red-400 mb-2">Neon Breaker</h2>
                 <p class="text-gray-400 text-sm mb-4">A futuristic, neon take on the classic brick-breaking game.</p>
@@ -65,7 +66,7 @@
                 </a>
             </div>
 
-            <!-- Links use lowercase 'games/' and are resolved correctly by the <base> tag -->
+            <!-- Meteor Mayhem Card -->
             <div class="bg-secondary-dark p-4 rounded-xl shadow-lg hover:shadow-2xl hover:scale-[1.02] transition duration-300 ease-in-out border-2 border-gray-700">
                 <h2 class="text-2xl font-bold text-emerald-400 mb-2">Meteor Mayhem</h2>
                 <p class="text-gray-400 text-sm mb-4">Collect power-up gems and survive against alien rocks!</p>
@@ -75,7 +76,7 @@
                 </a>
             </div>
 
-            <!-- Links use lowercase 'games/' and are resolved correctly by the <base> tag -->
+            <!-- Neon Pop Card -->
             <div class="bg-secondary-dark p-4 rounded-xl shadow-lg hover:shadow-2xl hover:scale-[1.02] transition duration-300 ease-in-out border-2 border-gray-700">
                 <h2 class="text-2xl font-bold text-yellow-400 mb-2">Neon Pop</h2>
                 <p class="text-gray-400 text-sm mb-4">A challenging bubble shooter with vibrant colors and aiming beam.</p>
@@ -86,6 +87,6 @@
             </div>
             
         </div>
-    </div>
+    </section>
 </body>
 </html>
