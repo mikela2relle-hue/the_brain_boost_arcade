@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Game - Retro Edition</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- We'll use Inter as a base, but apply font-mono (Monospace) extensively for retro look -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind Configuration and Custom Styles -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'black-bg': '#000000',
+                        'light-gray': '#E0E0E0',
+                        'medium-gray': '#AAAAAA',
+                        'snake-head': '#FFFFFF',   /* White head */
+                        'snake-body': '#AAAAAA',   /* Medium Gray body */
+                        'food-color': '#FFFFFF',   /* White food */
+                        'status-ok': '#E0E0E0',
+                        'status-alert': '#FF4444', /* Keeping a subtle red for alerts/game over */
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    },
+                },
+            },
+        }
+    </script>
+
+    <style>
+        /*
+         * MONOCHROME RETRO STYLING 
+         * Replaced the neon glow with a sharp, high-contrast border and subtle inner shadow.
+         */
+        .mono-panel {
+            box-shadow: 0 0 0 2px #E0E0E0, inset 0 0 15px rgba(255, 255, 255, 0.05);
+            border-radius: 0; /* Sharp corners for retro feel */
+        }
+
+        /* Retro Button Styling */
+        .mono-button {
+            transition: all 0.1s ease-in-out;
+            /* Initial state */
+            border: 2px solid #E0E0E0;
+            color: #E0E0E0;
+            background-color: transparent;
+            text-shadow: none;
+        }
+
+        .mono-button:hover {
+            /* Hover/Selected State: Inverted colors */
+            background-color: #E0E0E0;
+            border-color: #000000;
+            color: #000000; /* Dark text on light background */
+            box-shadow: inset 0 0 5px #AAAAAA;
+            transform: scale(1.01);
+        }
+
+        /* Typography for Data - using light gray and mono font */
+        .stat-label {
+            color: var(--tw-colors-medium-gray);
+            font-weight: 400;
+        }
+
+        .stat-value {
+            color: var(--tw-colors-light-gray);
+            font-weight: 700;
+            text-shadow: none;
+        }
+
+        /* Ensure the body takes up the full viewport */
+        body {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--tw-colors-black-bg);
+            font-family: 'Roboto Mono', monospace; /* Set global retro font */
+        }
+
+        /* Canvas container styles */
+        #simulation-viewport {
+            position: relative;
+            background-color: #000000;
+            border-radius: 0;
+            flex-grow: 1;
+        }
+        
+        #gameCanvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Menu overlay styling */
+        .menu-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 10;
+        }
+
+    </style>
+</head>
+<body class="bg-black-bg font-mono p-4 sm:p-8">
+
+    <!-- Main Wrapper: Handles the two-column structure and global padding -->
+    <div id="main-wrapper" class="flex flex-col lg:flex-row gap-6 max-w-7xl mx-auto w-full h-full lg:h-[800px]">
+
+        <!-- UI/HUD Panel (Left Column) -->
+        <div id="ui-panel" class="mono-panel bg-black-bg p-6 lg:w-1/3 flex flex-col space-y-8 min-h-[300px] lg:min-h-full">
+            
+            <h1 class="text-xl font-bold text-light-gray tracking-wider uppercase text-center border-b pb-3 border-medium-gray">
+                // SYSTEM STATUS: LOG
+            </h1>
+
+            <!-- Dynamic Status Display (Connected to Game) -->
+            <div class="space-y-4">
+                <div class="flex justify-between items-center text-lg">
+                    <span class="stat-label">SCORE:</span>
+                    <span id="score-value" class="stat-value text-3xl">0</span>
+                </div>
+                <div class="flex justify-between items-center text-lg">
+                    <span class="stat-label">LEVEL:</span>
+                    <span id="level-value" class="stat-value text-3xl text-light-gray">1</span>
+                </div>
+                <div class="flex justify-between items-center text-lg">
+                    <span class="stat-label">SPEED (MS):</span>
+                    <span id="speed-value" class="stat-value">200</span>
+                </div>
+                <div class="flex justify-between items-center text-lg">
+                    <span class="stat-label">STATUS:</span>
+                    <span id="game-status" class="stat-value text-light-gray">READY</span>
+                </div>
+            </div>
+
+            <!-- Controls/Menu -->
+            <div class="flex-grow space-y-4 pt-6 border-t border-medium-gray">
+                <button id="start-button" class="mono-button w-full px-4 py-3 text-lg font-semibold tracking-widest">
+                    RESTART GAME
+                </button>
+                <button id="controls-button" class="mono-button w-full px-4 py-3 text-lg font-semibold tracking-widest">
+                    CONTROLS (W/A/S/D or Arrows)
+                </button>
+                <button id="pause-button" class="mono-button w-full px-4 py-3 text-lg font-semibold tracking-widest">
+                    PAUSE
+                </button>
+            </div>
+
+            <!-- Footer/Controls Explanation -->
+            <div class="text-xs text-medium-gray text-center pt-4">
+                <p>COMMAND: SPACEBAR [START/RESTART]</p>
+                <p>COMMAND: P [PAUSE/RESUME]</p>
+            </div>
+
+        </div>
+
+        <!-- Game Area (Right Column - Snake Game) -->
+        <div id="game-wrapper" class="mono-panel bg-black-bg p-6 lg:w-2/3 flex flex-col overflow-hidden min-h-[500px] lg:min-h-full">
+            <h2 class="text-2xl font-extrabold text-light-gray tracking-widest uppercase border-b pb-4 border-medium-gray mb-6">
+                >> EXECUTE: SNAKE.EXE
+            </h2>
+
+            <!-- Main Game Area -->
+            <div id="simulation-viewport" class="p-1 flex-grow">
+                <canvas id="gameCanvas" width="600" height="600"></canvas>
+
+                <!-- Game Menu Overlay -->
+                <div id="menu-overlay" class="menu-overlay flex flex-col justify-center items-center text-center text-light-gray">
+                    <h3 id="menu-title" class="text-5xl font-extrabold mb-4">
+                        SNAKE V1985.01
+                    </h3>
+                    <p id="menu-message" class="text-xl mb-8">
+                        PRESS SPACEBAR TO INITIATE.
+                    </p>
+                    <p class="text-medium-gray">
+                        USE ARROW KEYS (OR W/A/S/D) FOR DIRECTIONAL INPUT.
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Command Input Simulation (Kept for Aesthetic) -->
+            <div class="mt-6 flex items-center border-t pt-4 border-medium-gray">
+                <span class="text-medium-gray text-lg mr-2">></span>
+                <input type="text" value="AWAITING COMMAND..." disabled class="flex-grow bg-transparent text-light-gray text-lg focus:outline-none placeholder-medium-gray" />
+                <button class="mono-button text-sm px-4 py-2 opacity-50 cursor-not-allowed">EXEC</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Game Logic and Interaction -->
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const overlay = document.getElementById('menu-overlay');
+        const menuTitle = document.getElementById('menu-title');
+        const menuMessage = document.getElementById('menu-message');
+
+        // HUD Elements
+        const scoreValue = document.getElementById('score-value');
+        const levelValue = document.getElementById('level-value');
+        const speedValue = document.getElementById('speed-value');
+        const gameStatus = document.getElementById('game-status');
+        const startButton = document.getElementById('start-button');
+        const pauseButton = document.getElementById('pause-button');
+        
+        // --- GAME CONSTANTS & STATE ---
+        const TILE_SIZE = 20;
+        let snake = [];
+        let food = {};
+        let dx = TILE_SIZE; // velocity X
+        let dy = 0;        // velocity Y
+        let score = 0;
+        let level = 1;
+        let gameSpeed = 200; // milliseconds
+        let gameLoopInterval;
+        let isPaused = false;
+        let isGameOver = true;
+        let changingDirection = false;
+        let canvasWidth = 600;
+        let canvasHeight = 600;
+
+        // --- INITIALIZATION ---
+
+        function setCanvasSize() {
+            const viewport = document.getElementById('simulation-viewport');
+            // Calculate size based on container, ensuring it's a multiple of TILE_SIZE
+            canvasWidth = Math.floor((viewport.clientWidth - 2) / TILE_SIZE) * TILE_SIZE;
+            canvasHeight = Math.floor((viewport.clientHeight - 2) / TILE_SIZE) * TILE_SIZE;
+            
+            // Adjust to ensure a minimum size on small screens
+            if (canvasWidth < 400 || canvasHeight < 400) {
+                 canvasWidth = Math.min(600, Math.floor((viewport.clientWidth - 2) / TILE_SIZE) * TILE_SIZE);
+                 canvasHeight = Math.min(400, Math.floor((viewport.clientHeight - 2) / TILE_SIZE) * TILE_SIZE);
+            }
+
+            canvas.width = canvasWidth;
+            canvas.height = canvasHeight;
+            drawGrid(); // Redraw grid on resize
+        }
+
+        window.addEventListener('resize', setCanvasSize);
+        window.onload = function() {
+            setCanvasSize(); // Initial call
+            drawMenu('SNAKE V1985.01', 'PRESS SPACEBAR TO INITIATE.');
+            updateHUD();
+        };
+
+        function initGame() {
+            isGameOver = false;
+            isPaused = false;
+            score = 0;
+            level = 1;
+            gameSpeed = 200;
+            dx = TILE_SIZE;
+            dy = 0;
+            
+            snake = [
+                { x: TILE_SIZE * 4, y: TILE_SIZE * 2 },
+                { x: TILE_SIZE * 3, y: TILE_SIZE * 2 },
+                { x: TILE_SIZE * 2, y: TILE_SIZE * 2 }
+            ];
+
+            createFood();
+            updateHUD();
+            overlay.classList.add('hidden');
+            
+            if (gameLoopInterval) clearInterval(gameLoopInterval);
+            gameLoopInterval = setInterval(main, gameSpeed);
+        }
+
+        function createFood() {
+            function randomCoord(min, max) {
+                return Math.round((Math.random() * (max - min) + min) / TILE_SIZE) * TILE_SIZE;
+            }
+
+            food = {
+                x: randomCoord(0, canvas.width - TILE_SIZE),
+                y: randomCoord(0, canvas.height - TILE_SIZE)
+            };
+
+            // Ensure food is not placed on the snake
+            for (let i = 0; i < snake.length; i++) {
+                if (snake[i].x === food.x && snake[i].y === food.y) {
+                    createFood(); // Recurse if collision
+                    return;
+                }
+            }
+        }
+
+        // --- GAME LOOP & DRAWING ---
+
+        function main() {
+            if (isGameOver || isPaused) return;
+
+            changingDirection = false;
+            // Use setTimeout to ensure the game logic runs once per interval
+            setTimeout(function onTick() { 
+                clearCanvas();
+                drawGrid();
+                drawFood();
+                updateSnake();
+                drawSnake();
+
+                if (checkCollision()) {
+                    gameOver();
+                    return;
+                }
+                
+                // Recursive call to main using the interval pattern
+                if (!isGameOver && !isPaused) {
+                   // Nothing here, the setInterval loop handles the timing
+                }
+
+            }, 0); // Execute immediately on interval tick
+        }
+
+        function clearCanvas() {
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function drawGrid() {
+            ctx.strokeStyle = '#FFFFFF10'; // Very faint white grid
+            ctx.lineWidth = 1;
+            for (let x = 0; x < canvas.width; x += TILE_SIZE) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            for (let y = 0; y < canvas.height; y += TILE_SIZE) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+        }
+
+        function drawSnake() {
+            // Draw head (White)
+            drawSnakePart(snake[0], 'snake-head');
+            // Draw body (Medium Gray)
+            for (let i = 1; i < snake.length; i++) {
+                drawSnakePart(snake[i], 'snake-body');
+            }
+        }
+
+        function drawSnakePart(part, colorName) {
+            const color = tailwind.config.theme.extend.colors[colorName];
+            ctx.fillStyle = color;
+            
+            // Draw square part
+            ctx.fillRect(part.x, part.y, TILE_SIZE, TILE_SIZE);
+            
+            // Retro look: Add a black border/outline for crisp edges
+            ctx.strokeStyle = '#000000'; 
+            ctx.lineWidth = 1;
+            ctx.strokeRect(part.x, part.y, TILE_SIZE, TILE_SIZE);
+        }
+
+        function drawFood() {
+            const color = tailwind.config.theme.extend.colors['food-color'];
+            ctx.fillStyle = color;
+
+            // Draw a square for food (White)
+            ctx.fillRect(food.x, food.y, TILE_SIZE, TILE_SIZE);
+            
+            // Retro look: Add a slightly smaller inner box for contrast
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(food.x + 2, food.y + 2, TILE_SIZE - 4, TILE_SIZE - 4);
+            
+            // Set fill back to food color for the pixel dot in the middle
+            ctx.fillStyle = color;
+            ctx.fillRect(food.x + TILE_SIZE / 2 - 1, food.y + TILE_SIZE / 2 - 1, 2, 2);
+        }
+
+        function updateSnake() {
+            // Create the new head
+            const head = { x: snake[0].x + dx, y: snake[0].y + dy };
+            snake.unshift(head);
+
+            const didEatFood = snake[0].x === food.x && snake[0].y === food.y;
+
+            if (didEatFood) {
+                score += 10;
+                // Check for level up (e.g., every 5 food items)
+                if (score % 50 === 0) {
+                    level++;
+                    // Increase speed: The minimum speed is 80ms
+                    gameSpeed = Math.max(80, gameSpeed - 15); 
+                    
+                    // Restart interval with new speed
+                    clearInterval(gameLoopInterval);
+                    gameLoopInterval = setInterval(main, gameSpeed);
+                }
+                updateHUD();
+                createFood();
+            } else {
+                // Remove the tail only if food was NOT eaten
+                snake.pop();
+            }
+        }
+
+        function checkCollision() {
+            // Check if the snake hits itself (start checking from body segment 4)
+            for (let i = 4; i < snake.length; i++) {
+                if (snake[i].x === snake[0].x && snake[i].y === snake[0].y) return true;
+            }
+
+            // Check if the snake hits the wall
+            const hitLeftWall = snake[0].x < 0;
+            const hitRightWall = snake[0].x >= canvas.width;
+            const hitTopWall = snake[0].y < 0;
+            const hitBottomWall = snake[0].y >= canvas.height;
+
+            return hitLeftWall || hitRightWall || hitTopWall || hitBottomWall;
+        }
+
+        function gameOver() {
+            isGameOver = true;
+            clearInterval(gameLoopInterval);
+            updateHUD();
+            drawMenu('SYSTEM FAILURE: CRASH', `FINAL SCORE: ${score}. PRESS SPACEBAR TO RETRY.`);
+        }
+
+        // --- HUD & MENU LOGIC ---
+
+        function updateHUD() {
+            scoreValue.textContent = score.toLocaleString();
+            levelValue.textContent = level;
+            speedValue.textContent = gameSpeed;
+            
+            if (isGameOver) {
+                gameStatus.textContent = 'TERMINATED';
+                gameStatus.className = 'stat-value text-status-alert';
+            } else if (isPaused) {
+                 gameStatus.textContent = 'PAUSED';
+                 gameStatus.className = 'stat-value text-medium-gray';
+            } else {
+                gameStatus.textContent = 'ONLINE';
+                gameStatus.className = 'stat-value text-light-gray';
+            }
+            pauseButton.textContent = isPaused ? 'RESUME' : 'PAUSE';
+        }
+
+        function drawMenu(title, message) {
+            menuTitle.textContent = title;
+            menuMessage.textContent = message;
+            overlay.classList.remove('hidden');
+        }
+
+        function togglePause() {
+            if (isGameOver) return;
+
+            isPaused = !isPaused;
+            if (isPaused) {
+                clearInterval(gameLoopInterval);
+                drawMenu('SYSTEM PAUSED', 'PRESS P OR RESUME TO CONTINUE.');
+            } else {
+                gameLoopInterval = setInterval(main, gameSpeed);
+                overlay.classList.add('hidden');
+            }
+            updateHUD();
+        }
+
+        // --- INPUT HANDLING ---
+
+        function changeDirection(event) {
+            if (changingDirection) return;
+            changingDirection = true;
+
+            const LEFT = 37;
+            const UP = 38;
+            const RIGHT = 39;
+            const DOWN = 40;
+            const SPACE = 32;
+            const P_KEY = 80;
+
+            const keyPressed = event.keyCode;
+
+            // Handle Game Start/Restart
+            if (keyPressed === SPACE) {
+                if (isGameOver) {
+                    event.preventDefault(); // Prevent scrolling
+                    initGame();
+                } else if (!overlay.classList.contains('hidden') && isPaused) {
+                    // If game is paused and menu is showing, resume it
+                    togglePause(); 
+                }
+                return;
+            }
+            
+            // Handle Pause
+            if (keyPressed === P_KEY) {
+                togglePause();
+                return;
+            }
+
+            if (isPaused || isGameOver) return; // Ignore movement keys if paused/over
+
+            const goingUp = dy === -TILE_SIZE;
+            const goingDown = dy === TILE_SIZE;
+            const goingRight = dx === TILE_SIZE;
+            const goingLeft = dx === -TILE_SIZE;
+
+            if ((keyPressed === LEFT || keyPressed === 65) && !goingRight) { // 65 = A
+                dx = -TILE_SIZE;
+                dy = 0;
+            } else if ((keyPressed === UP || keyPressed === 87) && !goingDown) { // 87 = W
+                dx = 0;
+                dy = -TILE_SIZE;
+            } else if ((keyPressed === RIGHT || keyPressed === 68) && !goingLeft) { // 68 = D
+                dx = TILE_SIZE;
+                dy = 0;
+            } else if ((keyPressed === DOWN || keyPressed === 83) && !goingUp) { // 83 = S
+                dx = 0;
+                dy = TILE_SIZE;
+            }
+        }
+
+        document.addEventListener('keydown', changeDirection);
+        startButton.addEventListener('click', () => { 
+            if (isGameOver) { initGame(); } else { gameOver(); }
+        });
+        pauseButton.addEventListener('click', togglePause);
+    </script>
+
+</body>
+</html>
