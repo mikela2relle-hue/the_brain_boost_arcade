@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Brick Breaker</title>
+    <!-- Load Tailwind CSS for utility classes and the Inter font -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for the neon effect */
+        @import url('https://fonts.googleapis.com/css2?family=Audiowide&display=swap');
+        
+        body {
+            background-color: #000;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        #gameCanvas {
+            border: 4px solid #00f7ff; /* Primary neon border color */
+            box-shadow: 0 0 20px #00f7ff, 0 0 30px #00f7ff inset; /* Neon glow */
+            background-color: rgba(0, 0, 0, 0.7);
+            display: block;
+            margin: auto;
+            cursor: none; /* Hide default cursor */
+            touch-action: none; /* Disable default touch actions */
+        }
+        
+        .game-container {
+            position: relative;
+            background: #0d0d0d;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 0 50px rgba(0, 247, 255, 0.5); /* Outer glow for the container */
+        }
+
+        .neon-text {
+            color: #00f7ff;
+            text-shadow: 0 0 5px #00f7ff, 0 0 10px #00f7ff, 0 0 20px #00f7ff;
+            font-family: 'Audiowide', cursive;
+            font-size: 3rem;
+            text-align: center;
+            letter-spacing: 5px;
+            margin-bottom: 20px;
+        }
+
+        .menu-item {
+            cursor: pointer;
+            padding: 10px 20px;
+            margin: 10px 0;
+            border-radius: 6px;
+            color: #fff;
+            text-align: center;
+            transition: all 0.2s;
+            font-family: 'Audiowide', cursive;
+            letter-spacing: 1px;
+            background-color: rgba(0, 0, 0, 0.4);
+            border: 2px solid #333;
+        }
+
+        .menu-item.selected {
+            color: #ff00c1;
+            background-color: rgba(255, 0, 193, 0.1);
+            border-color: #ff00c1;
+            box-shadow: 0 0 10px #ff00c1, 0 0 20px #ff00c1 inset;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 10px;
+                margin: 10px;
+            }
+            .neon-text {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+
+    <div class="game-container">
+        <h1 class="neon-text">NEON BREAKER</h1>
+        <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <script>
+        // --- CONSTANTS AND INITIAL SETUP ---
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Set up the canvas dimensions (responsive)
+        // INCREASED MAX WIDTH from 600 to 800
+        const CANVAS_WIDTH = Math.min(800, window.innerWidth - 40);
+        const CANVAS_HEIGHT = CANVAS_WIDTH * 0.75; // 4:3 aspect ratio
+        canvas.width = CANVAS_WIDTH;
+        canvas.height = CANVAS_HEIGHT;
+        
+        // LEVEL DEFINITIONS
+        const MAX_LEVEL = 3;
+        const LEVEL_CONFIG = {
+            1: { ballSpeed: 3, paddleRatio: 6, rowCount: 5 }, // Starting difficulty
+            2: { ballSpeed: 4.5, paddleRatio: 7, rowCount: 6 }, // Faster ball, slightly smaller paddle, more rows
+            3: { ballSpeed: 6, paddleRatio: 8, rowCount: 7 }    // Even faster ball, smaller paddle, max rows
+        };
+
+        // Game State Management
+        const GAME_STATE = {
+            MENU: 'MENU',
+            PLAYING: 'PLAYING',
+            PAUSED: 'PAUSED',
+            GAME_OVER: 'GAME_OVER',
+            WIN: 'WIN',
+            LEVEL_CLEARED: 'LEVEL_CLEARED' // New state for level transitions
+        };
+        let currentState = GAME_STATE.MENU;
+        let score = 0;
+        let lives = 3;
+        let currentLevel = 1; // Track the current level
+        let animationFrameId;
+
+        // Menu Data (unchanged)
+        const menuOptions = [
+            { text: "START GAME", action: 'start' },
+            { text: "CONTROLS", action: 'controls' },
+            { text: "QUIT", action: 'exit' }
+        ];
+        let menuIndex = 0;
+
+        // Pause Menu Data (unchanged)
+        const pauseOptions = [
+            { text: "RESUME", action: 'resume' },
+            { text: "RESTART", action: 'restart' },
+            { text: "MAIN MENU", action: 'main_menu' }
+        ];
+        let pauseIndex = 0;
+        
+        // --- GAME OBJECTS ---
+
+        // Paddle (properties defined, dimensions set in loadLevel)
+        const paddle = {
+            height: 10,
+            width: 0, 
+            x: 0,
+            y: CANVAS_HEIGHT - 30,
+            dx: 0,
+            speed: 7,
+            color: '#00eaff', 
+            glow: '0 0 8px #00eaff'
+        };
+
+        // Ball (properties defined, speed/position set in loadLevel)
+        const ball = {
+            radius: 5,
+            x: 0,
+            y: 0,
+            dx: 0,
+            dy: 0,
+            color: '#ff00c1', 
+            glow: '0 0 8px #ff00c1'
+        };
+
+        // Bricks (row count set in loadLevel)
+        const brick = {
+            rowCount: 0, 
+            columnCount: 8,
+            width: 0, 
+            height: 15,
+            padding: 4,
+            offsetTop: 40,
+            offsetLeft: 40,
+            color: ['#00ff22', '#ffaa00', '#00eaff', '#ff00c1', '#f0f0f0'], 
+            glow: ['0 0 8px #00ff22', '0 0 8px #ffaa00', '0 0 8px #00eaff', '0 0 8px #ff00c1', '0 0 8px #f0f0f0'],
+            status: 1
+        };
+
+        let bricks = [];
+
+        // --- GAME FUNCTIONS ---
+
+        // Initializes the bricks array based on the current brick.rowCount
+        function initBricks() {
+            bricks = [];
+            // Recalculate brick width based on current canvas size
+            brick.width = (CANVAS_WIDTH - brick.offsetLeft * 2 - (brick.columnCount - 1) * brick.padding) / brick.columnCount;
+
+            for (let c = 0; c < brick.columnCount; c++) {
+                bricks[c] = [];
+                for (let r = 0; r < brick.rowCount; r++) {
+                    const colorIndex = r % brick.color.length;
+                    bricks[c][r] = {
+                        x: 0,
+                        y: 0,
+                        status: 1,
+                        color: brick.color[colorIndex],
+                        glow: brick.glow[colorIndex]
+                    };
+                }
+            }
+        }
+        
+        // NEW: Loads configuration settings for the specified level
+        function loadLevel(level) {
+            // Ensure level is within bounds
+            currentLevel = Math.min(level, MAX_LEVEL);
+
+            // Get difficulty configuration, defaulting to level 1 if needed
+            const config = LEVEL_CONFIG[currentLevel] || LEVEL_CONFIG[1];
+
+            // 1. Configure Paddle Size
+            paddle.width = CANVAS_WIDTH / config.paddleRatio;
+            paddle.x = (CANVAS_WIDTH - paddle.width) / 2;
+            paddle.dx = 0;
+
+            // 2. Configure Ball Speed and Position
+            const speed = config.ballSpeed;
+            ball.dx = speed * (Math.random() > 0.5 ? 1 : -1);
+            ball.dy = -speed;
+            ball.x = CANVAS_WIDTH / 2;
+            ball.y = CANVAS_HEIGHT - 40;
+            
+            // 3. Configure Brick Layout and Rebuild
+            brick.rowCount = config.rowCount; 
+            initBricks();
+        }
+
+        // Resets lives, score, and starts at Level 1
+        function resetGame() {
+            lives = 3;
+            score = 0;
+            currentLevel = 1;
+            loadLevel(currentLevel);
+        }
+        
+        function drawScore() {
+            ctx.font = "12px 'Inter', sans-serif";
+            ctx.fillStyle = "#f0f0f0";
+            ctx.shadowColor = "#f0f0f0";
+            ctx.shadowBlur = 5;
+            // Display current level in the score area
+            ctx.fillText(`SCORE: ${score} | LEVEL: ${currentLevel}`, 8, 20);
+            ctx.shadowBlur = 0;
+        }
+
+        function drawLives() {
+            ctx.font = "12px 'Inter', sans-serif";
+            ctx.fillStyle = "#f0f0f0";
+            ctx.shadowColor = "#f0f0f0";
+            ctx.shadowBlur = 5;
+            ctx.fillText("LIVES: " + lives, CANVAS_WIDTH - 60, 20);
+            ctx.shadowBlur = 0;
+        }
+
+        function drawBall() {
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+            ctx.fillStyle = ball.color;
+            ctx.shadowColor = ball.color;
+            ctx.shadowBlur = 10;
+            ctx.fill();
+            ctx.closePath();
+            ctx.shadowBlur = 0;
+        }
+
+        function drawPaddle() {
+            ctx.beginPath();
+            ctx.rect(paddle.x, paddle.y, paddle.width, paddle.height);
+            ctx.fillStyle = paddle.color;
+            ctx.shadowColor = paddle.color;
+            ctx.shadowBlur = 15;
+            ctx.fill();
+            ctx.closePath();
+            ctx.shadowBlur = 0;
+        }
+
+        function drawBricks() {
+            let allBroken = true;
+            for (let c = 0; c < brick.columnCount; c++) {
+                for (let r = 0; r < brick.rowCount; r++) {
+                    const b = bricks[c][r];
+                    if (b.status === 1) {
+                        allBroken = false;
+                        const brickX = c * (brick.width + brick.padding) + brick.offsetLeft;
+                        const brickY = r * (brick.height + brick.padding) + brick.offsetTop;
+                        b.x = brickX;
+                        b.y = brickY;
+                        
+                        ctx.beginPath();
+                        ctx.rect(brickX, brickY, brick.width, brick.height);
+                        ctx.fillStyle = b.color;
+                        ctx.shadowColor = b.color;
+                        ctx.shadowBlur = 10;
+                        ctx.fill();
+                        ctx.closePath();
+                        ctx.shadowBlur = 0;
+                    }
+                }
+            }
+
+            if (allBroken) {
+                // Check if there are more levels
+                if (currentLevel < MAX_LEVEL) {
+                    currentState = GAME_STATE.LEVEL_CLEARED;
+                } else {
+                    currentState = GAME_STATE.WIN;
+                }
+            }
+        }
+
+        function collisionDetection() {
+            for (let c = 0; c < brick.columnCount; c++) {
+                for (let r = 0; r < brick.rowCount; r++) {
+                    const b = bricks[c][r];
+                    if (b.status === 1) {
+                        if (ball.x + ball.radius > b.x && ball.x - ball.radius < b.x + brick.width &&
+                            ball.y + ball.radius > b.y && ball.y - ball.radius < b.y + brick.height) {
+                            
+                            ball.dy = -ball.dy; 
+                            b.status = 0; 
+                            score += 10;
+                        }
+                    }
+                }
+            }
+        }
+
+        function moveBall() {
+            ball.x += ball.dx;
+            ball.y += ball.dy;
+
+            // Wall collisions (left/right)
+            if (ball.x + ball.dx > CANVAS_WIDTH - ball.radius || ball.x + ball.dx < ball.radius) {
+                ball.dx = -ball.dx;
+            }
+
+            // Wall collision (top)
+            if (ball.y + ball.dy < ball.radius + 30) { 
+                ball.dy = -ball.dy;
+            } 
+            
+            // Paddle collision
+            if (ball.y + ball.radius > paddle.y && ball.y - ball.radius < paddle.y + paddle.height &&
+                ball.x > paddle.x && ball.x < paddle.x + paddle.width) {
+                
+                const hitPoint = ball.x - (paddle.x + paddle.width / 2);
+                const normalizedHitPoint = hitPoint / (paddle.width / 2);
+                
+                // Adjust DX based on hit point for realistic deflection
+                ball.dx = normalizedHitPoint * LEVEL_CONFIG[currentLevel].ballSpeed * 1.5; 
+                ball.dy = -Math.abs(ball.dy); 
+            }
+
+            // Bottom wall (Missed the paddle)
+            if (ball.y + ball.dy > CANVAS_HEIGHT - ball.radius) {
+                lives--;
+                if (!lives) {
+                    currentState = GAME_STATE.GAME_OVER;
+                } else {
+                    // Reset ball and paddle position for next life (using current level config)
+                    loadLevel(currentLevel); 
+                }
+            }
+        }
+
+        function movePaddle() {
+            paddle.x += paddle.dx;
+
+            // Keep paddle within boundaries
+            if (paddle.x < 0) {
+                paddle.x = 0;
+            } else if (paddle.x + paddle.width > CANVAS_WIDTH) {
+                paddle.x = CANVAS_WIDTH - paddle.width;
+            }
+        }
+        
+        // --- UI RENDERING ---
+
+        function drawScreenOverlay(title, options, selectedIndex) {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
+            ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+            ctx.font = "48px 'Audiowide', cursive";
+            ctx.textAlign = 'center';
+            ctx.shadowColor = "#ff00c1";
+            ctx.shadowBlur = 15;
+            ctx.fillStyle = '#ff00c1';
+            ctx.fillText(title, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 4);
+            ctx.shadowBlur = 0;
+
+            const startY = CANVAS_HEIGHT / 2 - (options.length * 30 / 2);
+
+            options.forEach((option, index) => {
+                const isSelected = index === selectedIndex;
+                ctx.font = isSelected ? "24px 'Audiowide', cursive" : "20px 'Inter', sans-serif";
+                ctx.fillStyle = isSelected ? '#00eaff' : '#f0f0f0';
+                ctx.shadowColor = isSelected ? '#00eaff' : 'transparent';
+                ctx.shadowBlur = isSelected ? 15 : 0;
+                
+                ctx.fillText(option.text, CANVAS_WIDTH / 2, startY + index * 45);
+            });
+            ctx.shadowBlur = 0;
+        }
+
+        function drawControlsScreen() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
+            ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+            ctx.font = "36px 'Audiowide', cursive";
+            ctx.textAlign = 'center';
+            ctx.shadowColor = "#ff00c1";
+            ctx.shadowBlur = 15;
+            ctx.fillStyle = '#ff00c1';
+            ctx.fillText("CONTROLS", CANVAS_WIDTH / 2, 80);
+            ctx.shadowBlur = 0;
+
+            ctx.font = "18px 'Inter', sans-serif";
+            ctx.fillStyle = '#f0f0f0';
+            ctx.textAlign = 'left';
+            
+            const controls = [
+                { key: "LEFT / RIGHT ARROWS", action: "Move Paddle" },
+                { key: "UP / DOWN ARROWS", action: "Navigate Menus" },
+                { key: "ENTER", action: "Select / Start / Pause / Resume" },
+                { key: "P (or ESC)", action: "Toggle Pause" },
+            ];
+
+            let textY = 150;
+            const lineHeight = 30;
+
+            controls.forEach(c => {
+                ctx.font = "bold 18px 'Inter', sans-serif";
+                ctx.fillStyle = '#00eaff';
+                ctx.fillText(c.key, CANVAS_WIDTH / 4, textY);
+                
+                ctx.font = "18px 'Inter', sans-serif";
+                ctx.fillStyle = '#f0f0f0';
+                ctx.fillText(`- ${c.action}`, CANVAS_WIDTH / 4 + 200, textY);
+                textY += lineHeight;
+            });
+            
+            // Back button
+            ctx.font = "bold 24px 'Audiowide', cursive";
+            ctx.fillStyle = '#ff00c1';
+            ctx.shadowColor = "#ff00c1";
+            ctx.shadowBlur = 10;
+            ctx.textAlign = 'center';
+            ctx.fillText("PRESS ENTER TO RETURN", CANVAS_WIDTH / 2, CANVAS_HEIGHT - 60);
+            ctx.shadowBlur = 0;
+        }
+
+
+        // --- MAIN GAME LOOP ---
+
+        function draw() {
+            // 1. Clear the canvas
+            ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+            // 2. Draw game elements (in all states except MENU/CONTROLS/GAMEOVER/WIN/LEVEL_CLEARED overlay)
+            if (currentState === GAME_STATE.PLAYING || currentState === GAME_STATE.PAUSED) {
+                drawBricks();
+                drawPaddle();
+                drawBall();
+                drawScore();
+                drawLives();
+            }
+
+            // 3. Handle state overlays
+            switch (currentState) {
+                case GAME_STATE.MENU:
+                    drawScreenOverlay("START MENU", menuOptions, menuIndex);
+                    break;
+                case 'CONTROLS_SCREEN':
+                    drawControlsScreen();
+                    break;
+                case GAME_STATE.PAUSED:
+                    drawScreenOverlay("PAUSED", pauseOptions, pauseIndex);
+                    break;
+                case GAME_STATE.LEVEL_CLEARED:
+                    drawScreenOverlay(`LEVEL ${currentLevel} CLEARED!`, [{ text: "NEXT LEVEL (ENTER)", action: 'next_level' }, { text: "MAIN MENU", action: 'main_menu' }], 0);
+                    break;
+                case GAME_STATE.GAME_OVER:
+                    drawScreenOverlay("GAME OVER", [{ text: "RESTART (ENTER)", action: 'restart' }, { text: "MAIN MENU", action: 'main_menu' }], 0);
+                    break;
+                case GAME_STATE.WIN:
+                    drawScreenOverlay(`CONGRATULATIONS! (Level ${MAX_LEVEL} Complete!)`, [{ text: "PLAY AGAIN (ENTER)", action: 'restart' }, { text: "MAIN MENU", action: 'main_menu' }], 0);
+                    break;
+                case GAME_STATE.PLAYING:
+                    // 4. Update game logic only when playing
+                    movePaddle();
+                    moveBall();
+                    collisionDetection();
+                    break;
+            }
+            
+            animationFrameId = requestAnimationFrame(draw);
+        }
+
+        // --- INPUT HANDLING ---
+
+        document.addEventListener("keydown", (e) => {
+            if (currentState === GAME_STATE.PLAYING) {
+                if (e.key === "ArrowRight" || e.key === "Right") {
+                    paddle.dx = paddle.speed;
+                } else if (e.key === "ArrowLeft" || e.key === "Left") {
+                    paddle.dx = -paddle.speed;
+                } else if (e.key === "Enter" || e.key.toLowerCase() === 'p' || e.key === 'Escape') {
+                    currentState = GAME_STATE.PAUSED;
+                    pauseIndex = 0;
+                }
+            } else if (currentState === GAME_STATE.MENU) {
+                if (e.key === "ArrowUp" || e.key === "Up") {
+                    menuIndex = (menuIndex - 1 + menuOptions.length) % menuOptions.length;
+                } else if (e.key === "ArrowDown" || e.key === "Down") {
+                    menuIndex = (menuIndex + 1) % menuOptions.length;
+                } else if (e.key === "Enter") {
+                    handleMenuAction(menuOptions[menuIndex].action);
+                }
+            } else if (currentState === GAME_STATE.PAUSED) {
+                 if (e.key === "ArrowUp" || e.key === "Up") {
+                    pauseIndex = (pauseIndex - 1 + pauseOptions.length) % pauseOptions.length;
+                } else if (e.key === "ArrowDown" || e.key === "Down") {
+                    pauseIndex = (pauseIndex + 1) % pauseOptions.length;
+                } else if (e.key === "Enter") {
+                    handlePauseAction(pauseOptions[pauseIndex].action);
+                } else if (e.key.toLowerCase() === 'p' || e.key === 'Escape') {
+                    currentState = GAME_STATE.PLAYING; // Quick unpause
+                }
+            } else if (currentState === GAME_STATE.GAME_OVER || currentState === GAME_STATE.WIN || currentState === GAME_STATE.LEVEL_CLEARED) {
+                // Handle Enter for Game Over, Win, and Level Cleared screens
+                if (e.key === "Enter") {
+                     if (currentState === GAME_STATE.LEVEL_CLEARED) {
+                        handlePauseAction('next_level'); 
+                     } else {
+                        handlePauseAction('restart'); 
+                     }
+                }
+            } else if (currentState === 'CONTROLS_SCREEN') {
+                 if (e.key === "Enter") {
+                    currentState = GAME_STATE.MENU; // Back to main menu
+                }
+            }
+        });
+
+        document.addEventListener("keyup", (e) => {
+            if (currentState === GAME_STATE.PLAYING) {
+                if (e.key === "ArrowRight" || e.key === "Right" || e.key === "ArrowLeft" || e.key === "Left") {
+                    paddle.dx = 0;
+                }
+            }
+        });
+
+        function handleMenuAction(action) {
+            switch(action) {
+                case 'start':
+                    resetGame();
+                    currentState = GAME_STATE.PLAYING;
+                    break;
+                case 'controls':
+                    currentState = 'CONTROLS_SCREEN';
+                    break;
+                case 'exit':
+                    alertMessage("Goodbye!", "Thanks for playing Neon Breaker. Refresh to start again.");
+                    break;
+            }
+        }
+        
+        function handlePauseAction(action) {
+            switch(action) {
+                case 'resume':
+                    currentState = GAME_STATE.PLAYING;
+                    break;
+                case 'restart':
+                    resetGame();
+                    currentState = GAME_STATE.PLAYING;
+                    break;
+                case 'main_menu':
+                    currentState = GAME_STATE.MENU;
+                    menuIndex = 0; // Reset menu selection
+                    break;
+                case 'next_level':
+                    currentLevel++;
+                    loadLevel(currentLevel);
+                    currentState = GAME_STATE.PLAYING;
+                    break;
+            }
+        }
+
+        // Custom Message/Alert Box (Replaces window.alert/confirm)
+        function alertMessage(title, message) {
+            const container = document.querySelector('.game-container');
+            let messageBox = document.getElementById('customMessageBox');
+            if (!messageBox) {
+                messageBox = document.createElement('div');
+                messageBox.id = 'customMessageBox';
+                messageBox.className = 'absolute top-0 left-0 w-full h-full bg-black bg-opacity-90 flex flex-col justify-center items-center z-10 p-4 rounded-lg';
+                messageBox.innerHTML = `
+                    <div class="p-6 rounded-lg border-2 border-pink-500 shadow-xl" style="background: #0d0d0d; box-shadow: 0 0 15px #ff00c1;">
+                        <h2 id="msgTitle" class="neon-text text-xl mb-3" style="text-shadow: 0 0 5px #ff00c1; font-size: 1.5rem;"></h2>
+                        <p id="msgText" class="text-white text-center mb-6"></p>
+                        <button id="msgBtn" class="bg-pink-600 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded-md transition duration-150 shadow-md">OK</button>
+                    </div>
+                `;
+                container.appendChild(messageBox);
+                
+                document.getElementById('msgBtn').onclick = () => {
+                    messageBox.style.display = 'none';
+                    if (currentState === 'EXIT') currentState = GAME_STATE.MENU; 
+                };
+            }
+
+            document.getElementById('msgTitle').textContent = title;
+            document.getElementById('msgText').textContent = message;
+            messageBox.style.display = 'flex';
+        }
+
+        // --- INITIALIZATION ---
+        window.onload = function() {
+            // Load Level 1 configuration on initial load
+            loadLevel(1); 
+            // Start the main game loop
+            draw(); 
+        };
+
+        // Handle resizing (optional, but good for responsiveness)
+        window.addEventListener('resize', () => {
+            // Logic for responsive resizing is complex for canvas games, 
+            // so we rely on the container styles and initial canvas size calculation.
+        });
+
+    </script>
+</body>
+</html>
