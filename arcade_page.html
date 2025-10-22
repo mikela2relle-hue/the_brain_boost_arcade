@@ -38,34 +38,33 @@
             }
         }
         
-        /* --- SHARED BACKGROUND STYLES (Pulled from index.html) --- */
+        /* --- SUBTLE STATIC BACKGROUND STYLES --- */
         @keyframes star-drift-left { from { background-position: 0 0; } to { background-position: -8% -100%; } }
         @keyframes star-drift-right { from { background-position: 0 0; } to { background-position: 8% -100%; } }
-        
-        /* No more pulsing/flickering */
 
         body {
             background-color: #1A1A1A; position: relative; overflow-x: hidden; min-height: 100vh; color: #ccc;
         }
-        /* Only showing two layers for simplicity on sub-pages */
-        body::before, body::after { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 150%; z-index: -3; }
 
+        /* Ambient Static Background Layers */
+        body::before, body::after { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 150%; z-index: -3; opacity: 0.1; }
+
+        /* Farthest layer - SLOWER drift, small glow */
         body::before { 
-            /* Static Opacity & Slower Drift */
-            opacity: 0.1; /* Static, dim background */
-            /* UPDATED: Smaller core (0.3px) and tighter glow (transparent 4px) */
-            background: radial-gradient(circle at 10% 80%, rgba(46, 255, 64, 0.3) 0.3px, transparent 4px), radial-gradient(circle at 70% 20%, rgba(180, 50, 255, 0.2) 0.3px, transparent 4px);
+            background: 
+                radial-gradient(circle at 10% 80%, rgba(46, 255, 64, 0.3) 0.5px, transparent 2px),
+                radial-gradient(circle at 70% 20%, rgba(180, 50, 255, 0.2) 0.5px, transparent 2px);
             background-size: 150px 150px; z-index: -4;
-            animation: star-drift-left 90s linear infinite; /* Only continuous drift remains */
+            animation: star-drift-left 120s linear infinite; 
         }
 
+        /* Closest layer - FASTER drift, small glow */
         body::after { 
-            /* Static Opacity & Faster Drift */
-            opacity: 0.1; /* Static, dim background */
-            /* UPDATED: Smaller core (0.7px) and tighter glow (transparent 6px) */
-            background: radial-gradient(circle at 5% 50%, rgba(255, 50, 50, 0.6) 0.7px, transparent 6px), radial-gradient(circle at 60% 10%, rgba(255, 220, 0, 0.6) 0.7px, transparent 6px);
+            background: 
+                radial-gradient(circle at 5% 50%, rgba(255, 50, 50, 0.6) 1px, transparent 4px),
+                radial-gradient(circle at 60% 10%, rgba(255, 220, 0, 0.6) 1px, transparent 4px);
             background-size: 260px 260px; z-index: -1;
-            animation: star-drift-right 25s linear infinite; /* Only continuous drift remains */
+            animation: star-drift-right 60s linear infinite; 
         }
         
         /* --- ARCADE PAGE SPECIFIC STYLES --- */
@@ -102,7 +101,7 @@
 <body class="bg-hub-bg text-gray-300 p-4 sm:p-8 font-sans">
 
     <header class="max-w-6xl mx-auto text-center pt-8 pb-10">
-        <!-- HOME BUTTON (Always visible for easy navigation) -->
+        <!-- HOME BUTTON -->
         <a href="index.html" class="absolute top-4 left-4 sm:top-8 sm:left-8 arcade-button bg-gray-500/50 border-gray-700 hover:bg-gray-500/70 text-gray-200">
             <span class="text-xl">🏠</span> HOME
         </a>
@@ -118,33 +117,42 @@
     <main class="max-w-6xl mx-auto mt-10">
         
         <div id="game-list-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Game cards will be dynamically inserted here by the script -->
+            <!-- Game cards will be dynamically inserted here -->
         </div>
+
+        <section class="max-w-4xl mx-auto mt-16 p-8 bg-card-bg rounded-2xl shadow-2xl">
+            <div class="h-1 bg-arcade-red w-1/4 mx-auto mb-6 rounded-full"></div>
+            <h3 class="text-2xl font-bold text-gray-100 text-center mb-4">
+                The Retro Gaming Experience
+            </h3>
+            <div class="grid grid-cols-2 gap-x-6 text-sm text-gray-300">
+                <ul class="list-disc list-inside ml-2 space-y-1">
+                    <li class="text-arcade-red font-bold">Monochrome Mastery</li>
+                    <li>**High Contrast:** Sharper focus with black, white, and red.</li>
+                    <li>**Deep Focus:** No distractions from flashy colors.</li>
+                </ul>
+                <ul class="list-disc list-inside ml-2 space-y-1">
+                    <li class="text-arcade-red font-bold">Skill and Speed</li>
+                    <li>**Pure Mechanics:** Success relies only on player skill.</li>
+                    <li>**Low Latency:** Optimized for maximum responsiveness.</li>
+                </ul>
+            </div>
+            <div class="h-1 bg-arcade-red w-1/4 mx-auto mt-6 rounded-full"></div>
+        </section>
 
     </main>
     
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const container = document.getElementById('game-list-container');
-            let gameList;
+            let gameList = [];
 
-            try {
-                // Attempt to retrieve and parse the game list from localStorage
-                const storedGames = localStorage.getItem('gameList');
-                if (storedGames) {
-                    gameList = JSON.parse(storedGames);
-                } else {
-                    // Fallback data (directly using the uploaded file names)
-                    gameList = [
-                        { name: "Snake 1985", file: "Snake1985.html", color: "play-green", description: "The classic retro challenge! Grow your snake on the monochrome grid, avoid walls and your own tail." },
-                        { name: "Breakout 1985", file: "Breakout1985.html", color: "play-red", description: "Use your paddle to reflect the ball and smash the blocks above. Clear the screen to win!" },
-                        { name: "Galaga 1985", file: "Galaga1985.html", color: "play-blue", description: "Defend the galaxy in this vertical space shooter against insect-like aliens. Fire quickly!" },
-                        { name: "Gradius 1985", file: "Gradius1985.html", color: "play-red", description: "A monochrome side-scrolling odyssey. Navigate dangerous terrain, turrets, and hostile ships." }
-                    ];
-                }
-            } catch (error) {
-                console.error("Error loading games from localStorage:", error);
-                // Use fallback list if local storage fails
+            // CRITICAL FIX: Attempt to read the list from the parent window object (index.html's scope).
+            // This ensures we always get the latest list data defined on the homepage.
+            if (window.opener && window.opener.GAME_LIST_DATA) {
+                gameList = window.opener.GAME_LIST_DATA;
+            } else {
+                // Fallback (for direct access or when opener context is lost)
                 gameList = [
                     { name: "Snake 1985", file: "Snake1985.html", color: "play-green", description: "The classic retro challenge! Grow your snake on the monochrome grid, avoid walls and your own tail." },
                     { name: "Breakout 1985", file: "Breakout1985.html", color: "play-red", description: "Use your paddle to reflect the ball and smash the blocks above. Clear the screen to win!" },
@@ -153,9 +161,9 @@
                 ];
             }
 
+
             if (gameList && gameList.length > 0) {
                 gameList.forEach(game => {
-                    // Determine the border color based on the defined color in the object
                     const borderColor = `var(--tw-colors-${game.color})`;
                     
                     const cardHtml = `
@@ -170,7 +178,7 @@
                     container.insertAdjacentHTML('beforeend', cardHtml);
                 });
             } else {
-                container.innerHTML = '<p class="text-center text-gray-500 col-span-full">No games available. Check the homepage to ensure the list is defined!</p>';
+                container.innerHTML = '<p class="text-center text-gray-500 col-span-full">Error: Could not load the game list. Please return to the Home page to refresh data.</p>';
             }
         });
     </script>
