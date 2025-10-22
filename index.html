@@ -243,14 +243,14 @@
                             <li>**Shooters:** Dodge and aim rockets.</li>
                             <li>**Avoidance:** Fast reflex challenges.</li>
                             <li>**Survival:** Keep your snake growing!</li>
-                            <li>**Platforming:** Coming soon!</li>
+                            <li>**Logic:** Breakout and puzzle solving.</li>
                         </ul>
                         <ul class="list-disc list-inside ml-2 space-y-0.5">
                             <li class="text-arcade-red font-bold">Skill Building 🧠</li>
-                            <li>**Logic:** Breakout and puzzle solving.</li>
-                            <li>**Strategy:** Planning your next move.</li>
                             <li>**Hand-Eye:** Precision control skills.</li>
-                            <li>**Patterns:** Recognizing enemy movements.</li>
+                            <li>**Strategy:** Planning your next move.</li>
+                            <li>**Patterns:** Recognizing movements.</li>
+                            <li>**Endurance:** Long-play concentration.</li>
                         </ul>
                     </div>
                 </div>
@@ -264,23 +264,23 @@
                     </h2>
                     
                     <p class="text-gray-300 mb-4 text-lg">
-                        Let's make your brain stronger! Explore new topics and gain powerful cognitive skills with our engaging resources, including **typing games** to boost your keyboard speed and accuracy.
+                        Let's make your brain stronger! Explore new topics and gain powerful cognitive skills with our engaging resources, including typing games to boost your keyboard speed and accuracy.
                     </p>
 
                     <div class="grid grid-cols-2 gap-x-4 text-sm text-gray-300 mb-6">
                         <ul class="list-disc list-inside ml-2 space-y-0.5">
                             <li class="text-arcade-blue font-bold">New Things to Know</li>
                             <li>Read about history and science.</li>
-                            <li>See what's happening in the world.</li>
                             <li>Discover amazing animals and planets.</li>
                             <li>Explore how technology works.</li>
+                            <li>See what's happening in the world.</li>
                         </ul>
                         <ul class="list-disc list-inside ml-2 space-y-0.5">
                             <li class="text-arcade-blue font-bold">New Superpowers</li>
                             <li>Practice solving hard problems.</li>
                             <li>Get better at remembering facts.</li>
-                            <li>Learn how to ask big questions.</li>
                             <li>**NEW:** Practice typing fast and correctly.</li>
+                            <li>Learn how to ask big questions.</li>
                         </ul>
                     </div>
                 </div>
@@ -303,12 +303,14 @@
                             <li>**NEW:** Use the online painting canvas!</li>
                             <li>Design fun sticker pages.</li>
                             <li>Print cool coloring pages.</li>
+                            <li>Build and save your masterpieces.</li>
                         </ul>
                         <ul class="list-disc list-inside ml-2 space-y-0.5">
                             <li class="text-arcade-green font-bold">Offline Puzzles 🧩</li>
                             <li>Solve awesome mazes.</li>
                             <li>Try tricky word searches.</li>
                             <li>Print logic grid challenges.</li>
+                            <li>Practice drawing and tracing.</li>
                         </ul>
                     </div>
                 </div>
@@ -347,19 +349,16 @@
         };
 
         // --- GAME LIST DATA (Used by arcade_page.html) ---
-        // CRITICAL FIX: The GAME_LIST is defined here. We need to ensure arcade_page.html
-        // pulls this data directly from the DOM rather than relying on cached localStorage.
+        // CRITICAL FIX: Added 'games/' prefix to all file paths.
         const GAME_LIST = [
-            { name: "Snake 1985", file: "Snake1985.html", color: "play-green", description: "The classic retro challenge! Grow your snake on the monochrome grid, avoid walls and your own tail." },
-            { name: "Breakout 1985", file: "Breakout1985.html", color: "play-red", description: "Use your paddle to reflect the ball and smash the blocks above. Clear the screen to win!" },
-            { name: "Galaga 1985", file: "Galaga1985.html", color: "play-blue", description: "Defend the galaxy in this vertical space shooter against insect-like aliens. Fire quickly!" },
-            { name: "Gradius 1985", file: "Gradius1985.html", color: "play-red", description: "A monochrome side-scrolling odyssey. Navigate dangerous terrain, turrets, and hostile ships." }
+            { name: "Snake 1985", file: "games/Snake1985.html", color: "play-green", description: "The classic retro challenge! Grow your snake on the monochrome grid, avoid walls and your own tail." },
+            { name: "Breakout 1985", file: "games/Breakout1985.html", color: "play-red", description: "Use your paddle to reflect the ball and smash the blocks above. Clear the screen to win!" },
+            { name: "Galaga 1985", file: "games/Galaga1985.html", color: "play-blue", description: "Defend the galaxy in this vertical space shooter against insect-like aliens. Fire quickly!" },
+            { name: "Gradius 1985", file: "games/Gradius1985.html", color: "play-red", description: "A monochrome side-scrolling odyssey. Navigate dangerous terrain, turrets, and hostile ships." }
         ];
         
-        // This is where we need to ensure the data transfer happens correctly, without caching issues.
-        // We will remove localStorage usage on the homepage for simplicity and reliable loading.
-        // Instead, we define the list globally on the window object.
-        window.GAME_LIST_DATA = GAME_LIST;
+        // CRITICAL FIX: Store data in Session Storage (reliable, non-cached transfer for one session)
+        sessionStorage.setItem('GAME_LIST_DATA', JSON.stringify(GAME_LIST));
 
 
         // --- Initialization ---
