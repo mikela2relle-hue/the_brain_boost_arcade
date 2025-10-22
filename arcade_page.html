@@ -38,7 +38,7 @@
             }
         }
         
-        /* --- SUBTLE STATIC BACKGROUND STYLES --- */
+        /* --- SUBTLE STATIC BACKGROUND STYLES (Copied from secondary pages) --- */
         @keyframes star-drift-left { from { background-position: 0 0; } to { background-position: -8% -100%; } }
         @keyframes star-drift-right { from { background-position: 0 0; } to { background-position: 8% -100%; } }
 
@@ -46,10 +46,9 @@
             background-color: #1A1A1A; position: relative; overflow-x: hidden; min-height: 100vh; color: #ccc;
         }
 
-        /* Ambient Static Background Layers */
         body::before, body::after { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 150%; z-index: -3; opacity: 0.1; }
 
-        /* Farthest layer - SLOWER drift, small glow */
+        /* Farthest layer - SLOWER drift, tight glow */
         body::before { 
             background: 
                 radial-gradient(circle at 10% 80%, rgba(46, 255, 64, 0.3) 0.5px, transparent 2px),
@@ -58,7 +57,7 @@
             animation: star-drift-left 120s linear infinite; 
         }
 
-        /* Closest layer - FASTER drift, small glow */
+        /* Closest layer - FASTER drift, tight glow */
         body::after { 
             background: 
                 radial-gradient(circle at 5% 50%, rgba(255, 50, 50, 0.6) 1px, transparent 4px),
@@ -147,20 +146,26 @@
             const container = document.getElementById('game-list-container');
             let gameList = [];
 
-            // CRITICAL FIX: Attempt to read the list from the parent window object (index.html's scope).
-            // This ensures we always get the latest list data defined on the homepage.
-            if (window.opener && window.opener.GAME_LIST_DATA) {
-                gameList = window.opener.GAME_LIST_DATA;
-            } else {
-                // Fallback (for direct access or when opener context is lost)
-                gameList = [
-                    { name: "Snake 1985", file: "Snake1985.html", color: "play-green", description: "The classic retro challenge! Grow your snake on the monochrome grid, avoid walls and your own tail." },
-                    { name: "Breakout 1985", file: "Breakout1985.html", color: "play-red", description: "Use your paddle to reflect the ball and smash the blocks above. Clear the screen to win!" },
-                    { name: "Galaga 1985", file: "Galaga1985.html", color: "play-blue", description: "Defend the galaxy in this vertical space shooter against insect-like aliens. Fire quickly!" },
-                    { name: "Gradius 1985", file: "Gradius1985.html", color: "play-red", description: "A monochrome side-scrolling odyssey. Navigate dangerous terrain, turrets, and hostile ships." }
-                ];
+            // CRITICAL FIX: Retrieve the game list data from session storage (written by index.html)
+            const storedGames = sessionStorage.getItem('GAME_LIST_DATA');
+            
+            try {
+                if (storedGames) {
+                    gameList = JSON.parse(storedGames);
+                } else {
+                    // Fallback list using the CORRECT file paths (for direct access/debugging)
+                    gameList = [
+                        { name: "Snake 1985", file: "games/Snake1985.html", color: "play-green", description: "The classic retro challenge! Grow your snake on the monochrome grid, avoid walls and your own tail." },
+                        { name: "Breakout 1985", file: "games/Breakout1985.html", color: "play-red", description: "Use your paddle to reflect the ball and smash the blocks above. Clear the screen to win!" },
+                        { name: "Galaga 1985", file: "games/Galaga1985.html", color: "play-blue", description: "Defend the galaxy in this vertical space shooter against insect-like aliens. Fire quickly!" },
+                        { name: "Gradius 1985", file: "games/Gradius1985.html", color: "play-red", description: "A monochrome side-scrolling odyssey. Navigate dangerous terrain, turrets, and hostile ships." }
+                    ];
+                }
+            } catch (error) {
+                console.error("Error loading games from session storage:", error);
+                // Fallback to empty list
+                gameList = [];
             }
-
 
             if (gameList && gameList.length > 0) {
                 gameList.forEach(game => {
