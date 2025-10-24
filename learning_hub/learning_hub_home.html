@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher/Parent Resource Hub - Select Grade</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Custom Tailwind Config for Brain Boost Arcade Theme
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'hub-bg': '#1A1A1A',        // Dark Gray Background
+                        'card-bg': '#2d2d2d',       // Slightly lighter card bg
+                        'card-bg-alt': '#374151',   // Alternate card bg for contrast
+                        'header-bg': '#2F3742',     // Header background
+                        'strand-a': '#9CA3AF',      // Neutral Gray for Strand A
+                        'arcade-red': '#FF4136',    // Bright Red Accent (C)
+                        'arcade-blue': '#0074D9',   // Action Blue Accent (B1)
+                        'arcade-green': '#2ECC40',  // Bright Green Accent (B2)
+                        'arcade-yellow': '#FFDC00', // Lemon Yellow Accent (D)
+                        'arcade-magenta': '#F012BE', // Magenta Accent (E)
+                        'arcade-orange': '#FF851B', // Orange Accent (F)
+                        'text-light': '#E5E7EB',    // Light Gray Text (Main)
+                        'text-medium': '#9CA3AF',   // Medium Gray Text (Subtle)
+                        'text-dark': '#374151',     // Dark text (unused in dark mode)
+                        'border-light': '#4B5563',  // Subtle border color
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Base styles - ENFORCE DARK MODE */
+        body {
+            background-color: #1A1A1A; /* Force dark background */
+            font-family: var(--tw-font-sans);
+            color: #E5E7EB; /* Main light text color */
+            position: relative; /* Added for back button positioning */
+            min-height: 100vh;
+        }
+
+        /* Styling for Grade Selection Buttons (More Professional Look) */
+        .grade-select-button {
+            transition: all 0.2s ease;
+            border: 1px solid #4B5563; /* border-light */
+        }
+        .grade-select-button:hover {
+            transform: translateY(-3px);
+            border-color: #FFDC00; /* arcade-yellow on hover */
+            box-shadow: 0 5px 15px rgba(255, 220, 0, 0.2);
+        }
+         .grade-select-button.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+         }
+         .grade-select-button.disabled:hover {
+             transform: none;
+             box-shadow: none;
+             border-color: #4B5563;
+         }
+
+        /* Back button styling */
+        .back-button {
+             position: absolute;
+             top: 1.5rem;
+             left: 1.5rem;
+             z-index: 10;
+        }
+         @media (min-width: 640px) {
+            .back-button {
+                 top: 2.5rem;
+                 left: 2.5rem;
+            }
+        }
+         /* --- PARALLAX STARFIELD BACKGROUND (Copied from index.html) --- */
+         @keyframes star-drift-left { from { background-position: 0 0; } to { background-position: -8% -100%; } }
+         @keyframes star-drift-right { from { background-position: 0 0; } to { background-position: 8% -100%; } }
+         @keyframes neon-flicker { 0% { opacity: 1.0; } 50% { opacity: 0.5; } }
+
+         body::before, body::after, #background-layer-3, #background-layer-4 {
+            content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 150%; z-index: -3;
+         }
+         body::before { /* Layer 1 */
+            background: radial-gradient(circle at 10% 80%, rgba(46, 255, 64, 0.3) 0.5px, transparent 4px), radial-gradient(circle at 70% 20%, rgba(180, 50, 255, 0.2) 0.5px, transparent 4px), radial-gradient(circle at 35% 50%, rgba(255, 255, 0, 0.3) 0.5px, transparent 4px);
+            background-size: 150px 150px; z-index: -4; transform: translateY(var(--bg-scroll-y-l1, 0px));
+            animation: star-drift-left 60s linear infinite, neon-flicker 6s ease-in-out infinite alternate;
+         }
+         body::after { /* Layer 2 */
+            background: radial-gradient(circle at 20% 10%, rgba(50, 50, 255, 0.4) 0.5px, transparent 6px), radial-gradient(circle at 90% 40%, rgba(255, 50, 50, 0.3) 0.5px, transparent 6px), radial-gradient(circle at 55% 75%, rgba(46, 255, 64, 0.4) 0.5px, transparent 6px);
+            background-size: 180px 180px; z-index: -3; transform: translateY(var(--bg-scroll-y-l2, 0px));
+            animation: star-drift-right 40s linear infinite, neon-flicker 4s 2s infinite alternate;
+         }
+         #background-layer-3 { /* Layer 3 */
+            background: radial-gradient(circle at 80% 5%, rgba(255, 255, 0, 0.5) 1px, transparent 8px), radial-gradient(circle at 15% 90%, rgba(180, 50, 255, 0.4) 1px, transparent 8px), radial-gradient(circle at 40% 30%, rgba(50, 50, 255, 0.5) 1px, transparent 8px);
+            background-size: 220px 220px; z-index: -2; transform: translateY(var(--bg-scroll-y-l3, 0px));
+            animation: star-drift-left 25s linear infinite, neon-flicker 2.5s infinite alternate;
+         }
+         #background-layer-4 { /* Layer 4 */
+            background: radial-gradient(circle at 5% 50%, rgba(255, 50, 50, 0.6) 1px, transparent 10px), radial-gradient(circle at 60% 10%, rgba(46, 255, 64, 0.5) 1px, transparent 10px), radial-gradient(circle at 95% 70%, rgba(255, 220, 0, 0.6) 1px, transparent 10px);
+            background-size: 260px 260px; z-index: -1; transform: translateY(var(--bg-scroll-y-l4, 0px));
+            animation: star-drift-right 15s linear infinite, neon-flicker 1.5s 0.75s infinite alternate;
+         }
+        /* --- END PARALLAX --- */
+    </style>
+</head>
+<body class="bg-hub-bg text-text-light min-h-screen p-4 sm:p-8 font-sans">
+
+     {/* Background Layers */}
+    <div id="background-layer-3"></div>
+    <div id="background-layer-4"></div>
+
+    <div class="max-w-6xl mx-auto bg-card-bg shadow-xl rounded-2xl p-6 sm:p-10 relative">
+
+        {/* Back Button - Points back to the Student Hub */}
+        <a href="learning_hub.html" class="back-button inline-flex items-center px-4 py-2 bg-card-bg-alt border border-border-light rounded-md text-sm font-medium text-text-medium hover:bg-gray-700 hover:text-text-light focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-arcade-yellow transition-colors">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Back to Student Hub
+        </a>
+
+        <header class="mb-10 border-b-4 border-arcade-yellow pb-4 pt-8">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-100 text-center mb-2">
+                Teacher & Parent Resource Hub
+            </h1>
+            <p class="text-center text-text-medium italic font-medium">
+                Select a grade level to view detailed Ontario Math Curriculum expectations.
+            </p>
+        </header>
+
+        <main>
+             {/* Grid for Grade Selection Buttons */}
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 max-w-4xl mx-auto">
+
+                {/* JK Button (Placeholder) */}
+                <a href="#" class="grade-select-button disabled bg-card-bg-alt p-6 rounded-lg text-center">
+                    <span class="block text-4xl mb-2">🍎</span>
+                    <span class="block text-lg font-semibold text-text-medium">JK</span>
+                    <span class="block text-xs text-text-medium">(Coming Soon)</span>
+                </a>
+
+                {/* SK Button (Placeholder) */}
+                 <a href="#" class="grade-select-button disabled bg-card-bg-alt p-6 rounded-lg text-center">
+                    <span class="block text-4xl mb-2">🖍️</span>
+                    <span class="block text-lg font-semibold text-text-medium">SK</span>
+                    <span class="block text-xs text-text-medium">(Coming Soon)</span>
+                </a>
+
+                 {/* Grade 1 Button (Placeholder) */}
+                 <a href="#" class="grade-select-button disabled bg-card-bg-alt p-6 rounded-lg text-center">
+                    <span class="block text-4xl mb-2">1️⃣</span>
+                    <span class="block text-lg font-semibold text-text-medium">Grade 1</span>
+                    <span class="block text-xs text-text-medium">(Coming Soon)</span>
+                </a>
+
+                {/* Grade 2 Button (Placeholder) */}
+                <a href="#" class="grade-select-button disabled bg-card-bg-alt p-6 rounded-lg text-center">
+                    <span class="block text-4xl mb-2">2️⃣</span>
+                    <span class="block text-lg font-semibold text-text-medium">Grade 2</span>
+                    <span class="block text-xs text-text-medium">(Coming Soon)</span>
+                </a>
+
+                 {/* Grade 3 Button (ACTIVE) - Links to the new details page */}
+                <a href="grade3_teacher_details.html" class="grade-select-button bg-card-bg-alt p-6 rounded-lg text-center">
+                    <span class="block text-4xl mb-2">3️⃣</span>
+                    <span class="block text-lg font-semibold text-arcade-blue">Grade 3</span>
+                    <span class="block text-xs text-text-medium">(View Details)</span>
+                </a>
+
+                {/* Grade 4 Button (Placeholder) */}
+                <a href="#" class="grade-select-button disabled bg-card-bg-alt p-6 rounded-lg text-center">
+                    <span class="block text-4xl mb-2">4️⃣</span>
+                    <span class="block text-lg font-semibold text-text-medium">Grade 4</span>
+                     <span class="block text-xs text-text-medium">(Coming Soon)</span>
+                 </a>
+
+                 {/* Grade 5 Button (Placeholder) */}
+                 <a href="#" class="grade-select-button disabled bg-card-bg-alt p-6 rounded-lg text-center">
+                    <span class="block text-4xl mb-2">5️⃣</span>
+                    <span class="block text-lg font-semibold text-text-medium">Grade 5</span>
+                    <span class="block text-xs text-text-medium">(Coming Soon)</span>
+                </a>
+
+                {/* Grade 6 Button (Placeholder) */}
+                <a href="#" class="grade-select-button disabled bg-card-bg-alt p-6 rounded-lg text-center">
+                    <span class="block text-4xl mb-2">6️⃣</span>
+                    <span class="block text-lg font-semibold text-text-medium">Grade 6</span>
+                    <span class="block text-xs text-text-medium">(Coming Soon)</span>
+                </a>
+
+                {/* Grade 7 Button (Placeholder) */}
+                <a href="#" class="grade-select-button disabled bg-card-bg-alt p-6 rounded-lg text-center">
+                    <span class="block text-4xl mb-2">7️⃣</span>
+                    <span class="block text-lg font-semibold text-text-medium">Grade 7</span>
+                     <span class="block text-xs text-text-medium">(Coming Soon)</span>
+                 </a>
+
+                 {/* Grade 8 Button (Placeholder) */}
+                 <a href="#" class="grade-select-button disabled bg-card-bg-alt p-6 rounded-lg text-center">
+                    <span class="block text-4xl mb-2">8️⃣</span>
+                    <span class="block text-lg font-semibold text-text-medium">Grade 8</span>
+                    <span class="block text-xs text-text-medium">(Coming Soon)</span>
+                </a>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="text-center py-6 text-sm border-t border-border-light max-w-6xl mx-auto mt-16">
+            <p class="text-text-medium">
+                &copy; 2025 THE BRAIN BOOST ARCADE. <span class="text-arcade-yellow">SYSTEMS ONLINE.</span>
+            </p>
+             <div class="mt-2 space-x-4">
+                 <a href="#" class="text-text-medium hover:text-arcade-yellow transition-colors">Privacy Protocol</a>
+                 <a href="#" class="text-text-medium hover:text-arcade-yellow transition-colors">Contact Support</a>
+             </div>
+        </footer>
+
+    </div>
+
+     <script>
+         // --- PARALLAX EFFECT SCRIPT (Copied from index.html) ---
+        window.addEventListener('scroll', function() {
+            const scrollPosition = window.scrollY;
+            const factorL1 = 0.05, factorL2 = 0.20, factorL3 = 0.45, factorL4 = 0.70;
+            document.body.style.setProperty('--bg-scroll-y-l1', `-${scrollPosition * factorL1}px`);
+            document.body.style.setProperty('--bg-scroll-y-l2', `-${scrollPosition * factorL2}px`);
+            document.body.style.setProperty('--bg-scroll-y-l3', `-${scrollPosition * factorL3}px`);
+            document.body.style.setProperty('--bg-scroll-y-l4', `-${scrollPosition * factorL4}px`);
+        });
+    </script>
+
+</body>
+</html>

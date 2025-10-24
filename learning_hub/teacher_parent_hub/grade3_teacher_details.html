@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade 3 Curriculum Details - Ontario Math</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Custom Tailwind Config for Brain Boost Arcade Theme
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'hub-bg': '#1A1A1A',
+                        'card-bg': '#2d2d2d',
+                        'card-bg-alt': '#374151',
+                        'header-bg': '#2F3742',
+                        'strand-a': '#9CA3AF',
+                        'arcade-red': '#FF4136',
+                        'arcade-blue': '#0074D9',
+                        'arcade-green': '#2ECC40',
+                        'arcade-yellow': '#FFDC00',
+                        'arcade-magenta': '#F012BE',
+                        'arcade-orange': '#FF851B',
+                        'text-light': '#E5E7EB',
+                        'text-medium': '#9CA3AF',
+                        'text-dark': '#374151',
+                        'border-light': '#4B5563',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Base styles */
+        body { background-color: #1A1A1A; font-family: var(--tw-font-sans); color: #E5E7EB; position: relative; }
+        /* Collapsible tree view styles */
+        .strand-header, .expectation-header { cursor: pointer; transition: background-color 0.2s ease; }
+        .strand-header:hover, .expectation-header:hover { background-color: #374151; }
+        .strand-content, .expectation-content { overflow: hidden; transition: max-height 0.3s ease-out, padding 0.3s ease-out; max-height: 0; padding-top: 0; padding-bottom: 0; }
+        .strand-content.expanded, .expectation-content.expanded { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+        /* Strand borders */
+        .border-a { border-left-color: #9CA3AF; } .border-b1 { border-left-color: #0074D9; } .border-b2 { border-left-color: #2ECC40; } .border-c1 { border-left-color: #FF4136; } .border-d { border-left-color: #FFDC00; } .border-e { border-left-color: #F012BE; } .border-f { border-left-color: #FF851B; }
+        /* Detail section styles */
+        .detail-section h4 { color: #9CA3AF; font-weight: 600; margin-top: 1rem; margin-bottom: 0.5rem; padding-bottom: 0.25rem; border-bottom: 1px solid #4B5563; }
+        .detail-section ul { list-style-type: disc; margin-left: 1.5rem; margin-bottom: 1rem; color: #E5E7EB; }
+        .detail-section li { margin-bottom: 0.5rem; line-height: 1.6; }
+        .visual-example { font-family: monospace; background-color: #374151; padding: 0.5rem; border-radius: 0.25rem; margin-top: 0.25rem; margin-bottom: 0.5rem; display: inline-block; white-space: pre; color: #f3f4f6; line-height: 1.2; }
+        .detail-section p { margin-bottom: 0.75rem; line-height: 1.6; color: #E5E7EB; }
+        .detail-section strong { color: #d1d5db; font-weight: 600; }
+        .detail-section code { background-color: #374151; padding: 0.1rem 0.4rem; border-radius: 0.25rem; font-family: monospace; font-size: 0.9em; color: #f3f4f6; }
+        /* KaTeX dark mode */
+        .katex { color: #E5E7EB !important; }
+        /* Back button */
+        .back-button { position: absolute; top: 1.5rem; left: 1.5rem; z-index: 10; }
+         @media (min-width: 640px) { .back-button { top: 2.5rem; left: 2.5rem; } }
+        /* Processes Grid */
+        .processes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+        .process-item { background-color: #374151; padding: 0.75rem; border-radius: 0.375rem; border-left: 4px solid #4B5563; }
+        .process-item strong { color: #E5E7EB; display: block; margin-bottom: 0.25rem; }
+        .process-item span { font-size: 0.875rem; color: #9CA3AF; }
+    </style>
+    <!-- Load KaTeX -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+</head>
+<body class="bg-hub-bg text-text-light min-h-screen p-4 sm:p-8 font-sans">
+
+    <div class="max-w-6xl mx-auto bg-card-bg shadow-xl rounded-2xl p-6 sm:p-10 relative">
+
+         {/* Back Button - Links to the Teacher/Parent Hub Grade Selector */}
+        <a href="teacher_parent_hub.html" class="back-button inline-flex items-center px-4 py-2 bg-card-bg-alt border border-border-light rounded-md text-sm font-medium text-text-medium hover:bg-gray-700 hover:text-text-light focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-arcade-yellow transition-colors">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Back to Resource Hub
+        </a>
+
+        <header class="mb-8 border-b-4 border-arcade-blue pb-4 pt-8"> {/* Changed border color */}
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-100 text-center mb-2">
+                Grade 3 Curriculum Details
+            </h1>
+            <p class="text-center text-text-medium italic font-medium">
+                Ontario Mathematics Curriculum Expectations.
+            </p>
+        </header>
+
+        {/* Curriculum Tree Structure (Grade 3 content) */}
+        <div id="curriculum-tree" class="space-y-4">
+
+             <!-- A. SEL Skills & Processes -->
+            <div class="strand-container bg-card-bg-alt rounded-lg overflow-hidden border border-border-light">
+                <div class="strand-header p-4 flex justify-between items-center border-l-8 border-a" onclick="toggleExpand(this)">
+                    <h2 class="text-2xl font-bold text-strand-a flex items-center">
+                        <span class="text-3xl mr-3">❤️</span> A. Social-Emotional Learning & Mathematical Processes
+                    </h2>
+                    <span class="expand-icon text-xl text-text-medium transform transition-transform">▼</span>
+                </div>
+                <div class="strand-content px-4 pb-4">
+                    <div class="expectation-container border border-border-light rounded bg-card-bg">
+                        <div class="expectation-header p-3 flex justify-between items-center" onclick="toggleExpand(this, true)">
+                             <h3 class="text-xl font-semibold text-gray-200">A1: Apply SEL Skills & Mathematical Processes</h3>
+                             <span class="expand-icon text-lg text-text-medium transform transition-transform">▼</span>
+                        </div>
+                        <div class="expectation-content px-3 pb-3">
+                            <div class="detail-section pl-4 border-l-2 border-border-light">
+                                <p><strong>Focus:</strong> Developing and applying social-emotional learning (SEL) skills while using mathematical processes to support learning across all math strands. This strand is integrated, not taught in isolation.</p>
+                                <h4>Key SEL Skills Developed:</h4>
+                                <ul>
+                                    <li>1. Identify and manage emotions</li>
+                                    <li>2. Recognize sources of stress and cope with challenges</li>
+                                    <li>3. Maintain positive motivation and perseverance</li>
+                                    <li>4. Build relationships and communicate effectively</li>
+                                    <li>5. Develop self-awareness and sense of identity</li>
+                                    <li>6. Think critically and creatively</li>
+                                </ul>
+                                <h4>Mathematical Processes Applied:</h4>
+                                <div class="processes-grid mt-2 mb-4">
+                                     <div class="process-item"><strong>Problem Solving:</strong><span>Develop & apply strategies.</span></div>
+                                     <div class="process-item"><strong>Reasoning & Proving:</strong><span>Justify thinking, make conjectures.</span></div>
+                                     <div class="process-item"><strong>Reflecting:</strong><span>Monitor thinking, check reasonableness.</span></div>
+                                     <div class="process-item"><strong>Connecting:</strong><span>Link concepts & real-world contexts.</span></div>
+                                     <div class="process-item"><strong>Communicating:</strong><span>Express mathematical thinking clearly.</span></div>
+                                     <div class="process-item"><strong>Representing:</strong><span>Use models, pictures, numbers, graphs.</span></div>
+                                     <div class="process-item"><strong>Selecting Tools & Strategies:</strong><span>Choose appropriate methods.</span></div>
+                                </div>
+                                <h4>Note:</h4>
+                                <ul>
+                                    <li>SEL skills help students engage positively, build resilience, collaborate, see themselves as capable learners, and make informed decisions.</li>
+                                    <li>Learning occurs within the context of Strands B-F.</li>
+                                    <li>Assessment/evaluation of SEL skills specifically is not required (as per 2021-22 note), but instruction continues.</li>
+                                    <li>Emphasis on culturally responsive and relevant pedagogy.</li>
+                                </ul>
+                                <h4>Sample Integration Examples (Grade 3 Focus):</h4>
+                                <ul>
+                                    <li><strong>Coding (C3) & Emotions:</strong> Students reflect on feelings (pride, confusion) while coding, learning debugging is like practicing a sport - adjust and try again.</li>
+                                    <li><strong>Financial Literacy (F1) & Coping:</strong> Students use tools (manipulatives, counting up) to manage potential stress when calculating change in cash transactions, acknowledging financial context matters.</li>
+                                    <li><strong>Measurement (E2) & Critical Thinking:</strong> Students reflect on reasoning used when estimating measurements with different units (larger units = smaller counts).</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- B. Number -->
+            <div class="strand-container bg-card-bg-alt rounded-lg overflow-hidden border border-border-light">
+                <div class="strand-header p-4 flex justify-between items-center border-l-8 border-b1" onclick="toggleExpand(this)">
+                    <h2 class="text-2xl font-bold text-arcade-blue flex items-center">
+                        <span class="text-3xl mr-3">🔢</span> B. Number
+                    </h2>
+                    <span class="expand-icon text-xl text-text-medium transform transition-transform">▼</span>
+                </div>
+                <div class="strand-content px-4 pb-4">
+                    <!-- B1. Number Sense -->
+                    <div class="expectation-container mb-3 border border-border-light rounded bg-card-bg">
+                        <div class="expectation-header p-3 flex justify-between items-center" onclick="toggleExpand(this, true)">
+                            <h3 class="text-xl font-semibold text-gray-200">B1: Number Sense</h3>
+                             <span class="expand-icon text-lg text-text-medium transform transition-transform">▼</span>
+                        </div>
+                        <div class="expectation-content px-3 pb-3 space-y-4">
+                            <!-- B1.1 Details -->
+                            <div>
+                                <h4 class="text-lg font-semibold text-text-medium mb-2">B1.1 Read, represent, compose, and decompose whole numbers up to 1000...</h4>
+                                <div class="detail-section pl-4 border-l-2 border-border-light">
+                                    <p><strong>Focus:</strong> Understanding numbers to 1000 in different forms (words, numerals, expanded: $600 + 30 + 8$) and using tools like base ten blocks or number lines.</p>
+                                    <h4>Examples:</h4>
+                                    <ul>
+                                        <li>Words: "six hundred thirty-eight"</li>
+                                        <li>Standard: 638</li>
+                                        <li>Expanded: $600 + 30 + 8$</li>
+                                        <li>Base Ten: 327 = <code class="visual-example">⏹️⏹️⏹️ ┃┃ ▪️▪️▪️▪️▪️▪️▪️</code> (3 flats, 2 rods, 7 units)</li>
+                                        <li>Number Line (Location): <code class="visual-example">|----|----|----★----|----| (★ ≈ 638 on 0-1000 line)</code></li>
+                                        <li>Number Line (Distance): <code class="visual-example">0 ---&lt;-- 638 units --&gt;--- ★</code></li>
+                                        <li>Open Number Line Hops: <code class="visual-example">Start --(+100)--> 100 --(+50)--> 150 --(+8)--> 158</code></li>
+                                    </ul>
+                                    <h4>Key Concepts:</h4>
+                                    <ul>
+                                        <li>Place value determines a digit's value.</li>
+                                        <li>Numbers can be decomposed/composed flexibly.</li>
+                                        <li>Tools visualize representation.</li>
+                                        <li>Numbers describe quantities.</li>
+                                    </ul>
+                                    <h4>Note:</h4>
+                                    <ul>
+                                        <li>Conservation principle.</li>
+                                        <li>Flexibility supports mental math.</li>
+                                        <li>Number lines are key tools.</li>
+                                        <li>Connect concrete models with written forms.</li>
+                                    </ul>
+                                    <h4>Sample Tasks:</h4>
+                                    <ul>
+                                        <li>Show ways to reach 638 on an open number line.</li>
+                                        <li>"Which Number Am I?" clues.</li>
+                                        <li>Represent/regroup numbers with base ten blocks.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- B1.2 Details -->
+                             <div>
+                                <h4 class="text-lg font-semibold text-text-medium mb-2">B1.2 Compare and order whole numbers up to 1000...</h4>
+                                <div class="detail-section pl-4 border-l-2 border-border-light">
+                                     <p><strong>Focus:</strong> Using strategies like benchmark numbers and place value to compare ($<, >, =$) and order numbers.</p>
+                                     <h4>Examples:</h4>
+                                    <ul>
+                                        <li>Benchmarks: 512 is closer to 500 than 465.</li>
+                                        <li>Place Value: Compare 535 vs 542 using tens place.</li>
+                                        <li>Ordering: Ascending/Descending lists.</li>
+                                    </ul>
+                                     <h4>Key Concepts:</h4>
+                                    <ul>
+                                        <li>Magnitude comparison.</li>
+                                        <li>Compare greatest differing place value.</li>
+                                    </ul>
+                                     <h4>Note:</h4>
+                                    <ul>
+                                        <li>Place value enables comparison.</li>
+                                        <li>Metre stick (mm) as number line.</li>
+                                    </ul>
+                                     <h4>Sample Tasks:</h4>
+                                    <ul>
+                                        <li>Number line clothesline task.</li>
+                                        <li>"Close, Far, or In Between" game.</li>
+                                        <li>Use metre stick (mm) to compare.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- B1.3 Details -->
+                            <div>
+                                <h4 class="text-lg font-semibold text-text-medium mb-2">B1.3 Round whole numbers to the nearest ten or hundred...</h4>
+                                <div class="detail-section pl-4 border-l-2 border-border-light">
+                                    <p><strong>Focus:</strong> Understanding rounding for estimation, using the midpoint rule (5+ rounds up).</p>
+                                    <h4>Examples:</h4>
+                                    <ul>
+                                        <li>Context: Estimating sums, measuring, cash.</li>
+                                        <li>Rule: 237 -> 240 (ten), 237 -> 200 (hundred).</li>
+                                        <li>Midpoint: 235 -> 240 (ten).</li>
+                                    </ul>
+                                    <h4>Key Concepts:</h4>
+                                    <ul>
+                                        <li>Rounding simplifies for estimation.</li>
+                                        <li>Midpoint Rule (5+ rounds up).</li>
+                                    </ul>
+                                    <h4>Note:</h4>
+                                    <ul>
+                                        <li>Precision needs vary.</li>
+                                    </ul>
+                                    <h4>Sample Tasks:</h4>
+                                    <ul>
+                                        <li>Number line rounding task with benchmarks.</li>
+                                        <li>Real-life rounding scenarios.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- B1.4 Details -->
+                            <div>
+                                <h4 class="text-lg font-semibold text-text-medium mb-2">B1.4 Count to 1000, including by 50s, 100s, and 200s...</h4>
+                                <div class="detail-section pl-4 border-l-2 border-border-light">
+                                    <p><strong>Focus:</strong> Fluency in counting sequences and skip counting by larger units.</p>
+                                     <h4>Examples:</h4>
+                                    <ul>
+                                         <li>Counting by 200s: <code class="visual-example">0 -> 200 -> 400 ...</code></li>
+                                    </ul>
+                                     <h4>Key Concepts:</h4>
+                                    <ul>
+                                        <li>Counting has purpose.</li>
+                                        <li>Skip counting unit = group size.</li>
+                                        <li>0-9 pattern repeats.</li>
+                                    </ul>
+                                     <h4>Note:</h4>
+                                    <ul>
+                                        <li>Foundation for mult/div.</li>
+                                    </ul>
+                                     <h4>Sample Tasks:</h4>
+                                    <ul>
+                                        <li>Count across hundreds (196-230).</li>
+                                        <li>Financial scenario (making $680).</li>
+                                        <li>Class 0-1000 chart activities.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- B1.5 Details -->
+                            <div>
+                                <h4 class="text-lg font-semibold text-text-medium mb-2">B1.5 Use place value when describing and representing multi-digit numbers...</h4>
+                                <div class="detail-section pl-4 border-l-2 border-border-light">
+                                    <p><strong>Focus:</strong> Understanding place determines value, using tools.</p>
+                                     <h4>Examples:</h4>
+                                    <ul>
+                                        <li>Materials: Show 1 (▪️), 10 (┃), 100 (⏹️).</li>
+                                        <li>Value of '5': in 500 (⏹️⏹️⏹️⏹️⏹️), 50 (┃┃┃┃┃), 5 (▪️▪️▪️▪️▪️).</li>
+                                    </ul>
+                                     <h4>Key Concepts:</h4>
+                                    <ul>
+                                        <li>Place determines value. Order matters. Zero is placeholder. Expanded notation.</li>
+                                    </ul>
+                                     <h4>Note:</h4>
+                                    <ul>
+                                        <li>"Times ten" pattern. Base ten materials key.</li>
+                                    </ul>
+                                     <h4>Sample Tasks:</h4>
+                                    <ul>
+                                        <li>Compare 905, 509 etc. (digit vs value).</li>
+                                        <li>Calculator "wipe out" tasks.</li>
+                                        <li>Model 777 on grid paper, compare areas.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                             <!-- B1.6 Details -->
+                            <div>
+                                <h4 class="text-lg font-semibold text-text-medium mb-2">B1.6 Use drawings for fair-share problems...</h4>
+                                <div class="detail-section pl-4 border-l-2 border-border-light">
+                                     <p><strong>Focus:</strong> Solving division visually, resulting in whole, fraction, or mixed numbers.</p>
+                                     <h4>Examples (Drawings):</h4>
+                                    <ul>
+                                         <li>16 ÷ 2: <code class="visual-example">Gr1: OOOOOOOO | Gr2: OOOOOOOO</code></li>
+                                         <li>16 ÷ 3: <code class="visual-example">Gr1: OOOOO 1/3 | Gr2: OOOOO 1/3 | Gr3: OOOOO 1/3</code></li>
+                                    </ul>
+                                     <h4>Key Concepts:</h4>
+                                    <ul>
+                                        <li>Fair share = equal. Results vary. Comparison logic.</li>
+                                    </ul>
+                                     <h4>Note:</h4>
+                                    <ul>
+                                        <li>Clarify "fair". Connects division/fractions. Use notation.</li>
+                                    </ul>
+                                     <h4>Sample Tasks:</h4>
+                                    <ul>
+                                        <li>Solve word problems with drawings.</li>
+                                        <li>Compare sharing scenarios.</li>
+                                        <li>Equalize shares task.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- B1.7 Details -->
+                            <div>
+                                <h4 class="text-lg font-semibold text-text-medium mb-2">B1.7 Represent and solve fair-share problems focusing on equivalent fractions...</h4>
+                                <div class="detail-section pl-4 border-l-2 border-border-light">
+                                    <p><strong>Focus:</strong> Using sharing to find equivalent fractions.</p>
+                                     <h4>Examples:</h4>
+                                    <ul>
+                                         <li>Drawing: 1/5 piece split = 2/10. <code class="visual-example">[1/5] -> [1/10][1/10]</code></li>
+                                    </ul>
+                                     <h4>Key Concepts:</h4>
+                                    <ul>
+                                        <li>Equivalents = same quantity ($\frac{1}{2} = \frac{2}{4}$).</li>
+                                    </ul>
+                                     <h4>Note:</h4>
+                                    <ul>
+                                        <li>Context for equivalence. Patterns between equivalents.</li>
+                                    </ul>
+                                     <h4>Sample Tasks:</h4>
+                                    <ul>
+                                        <li>Sharing problems yielding equivalents (2 items / 8 people = 2/8 or 1/4).</li>
+                                        <li>Revisit equalizing shares task, model fractions.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                     <!-- B2. Operations -->
+                    <div class="expectation-container border border-border-light rounded bg-card-bg">
+                        <div class="expectation-header p-3 flex justify-between items-center" onclick="toggleExpand(this, true)">
+                            <h3 class="text-xl font-semibold text-gray-200">B2: Operations</h3>
+                             <span class="expand-icon text-lg text-text-medium transform transition-transform">▼</span>
+                        </div>
+                        <div class="expectation-content px-3 pb-3 space-y-4">
+                             <!-- B2.1 Details -->
+                             <div>
+                                <h4 class="text-lg font-semibold text-text-medium mb-2">B2.1 Use properties of operations and relationships (mult/div)...</h4>
+                                <div class="detail-section pl-4 border-l-2 border-border-light">
+                                     <p><strong>Focus:</strong> Applying properties (commutative, distributive) and inverse relationship (mult/div) to solve/check.</p>
+                                     <h4>Examples:</h4>
+                                    <ul>
+                                         <li>Commutative (Mult): Array for $4 \times 5 = 5 \times 4$.</li>
+                                         <li>Distributive: $4 \times 6 = (4 \times 5) + (4 \times 1)$.</li>
+                                         <li>Inverse: $10 \div 2 = ?$ think $? \times 2 = 10$.</li>
+                                    </ul>
+                                     <h4>Key Concepts:</h4>
+                                    <ul>
+                                        <li>Inverse operations.</li>
+                                    </ul>
+                                     <h4>Sample Tasks:</h4>
+                                    <ul>
+                                        <li>Show $4 \times 8 = 8 \times 4$ with tools.</li>
+                                        <li>Model $6 \times 4$ using $(5 \times 4) + (1 \times 4)$.</li>
+                                        <li>Connect visuals to mult/div facts.</li>
+                                        <li>Memory game with facts & representation.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- B2.2 Details -->
+                            <div>
+                                <h4 class="text-lg font-semibold text-text-medium mb-2">B2.2 Recall and demonstrate multiplication facts of 2, 5, and 10...</h4>
+                                <div class="detail-section pl-4 border-l-2 border-border-light">
+                                     <p><strong>Focus:</strong> Automaticity with 2s, 5s, 10s facts and related division.</p>
+                                     <h4>Examples:</h4>
+                                    <ul>
+                                         <li>Skip counting connection.</li>
+                                         <li>Array for $4 \times 10$.</li>
+                                         <li>$35 \div 5 = ?$ think $5 \times 7 = 35$.</li>
+                                         <li>Strategy: $4 \times 5 = \frac{1}{2} \times (4 \times 10)$.</li>
+                                    </ul>
+                                     <h4>Key Concepts:</h4>
+                                    <ul>
+                                         <li>Inverse relationship.</li>
+                                    </ul>
+                                     <h4>Note:</h4>
+                                    <ul>
+                                         <li>Recall frees working memory. Doubling/halving strategies.</li>
+                                    </ul>
+                                     <h4>Sample Tasks:</h4>
+                                    <ul>
+                                         <li>Model $\times 10$ vs $\times 5$ facts.</li>
+                                         <li>Find patterns on multiplication grid.</li>
+                                         <li>Memory game.</li>
+                                         <li>Number strings.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                             <!-- B2.3 Details -->
+                            <div>
+                                <h4 class="text-lg font-semibold text-text-medium mb-2">B2.3 Use mental math strategies, including estimation...</h4>
+                                <div class="detail-section pl-4 border-l-2 border-border-light">
+                                     <p><strong>Focus:</strong> Flexible mental calculation for +/- up to 1000.</p>
+                                     <h4>Examples (Strategies):</h4>
+                                    <ul>
+                                         <li>Add: Counting on, Making 10, Compensation.</li>
+                                         <li>Subtract: Counting on/back, Parts, Back thru 10, Compensation, Using Addition.</li>
+                                    </ul>
+                                     <h4>Key Concepts:</h4>
+                                    <ul>
+                                         <li>Mental math flexibility. Estimation check.</li>
+                                    </ul>
+                                     <h4>Sample Tasks:</h4>
+                                    <ul>
+                                         <li>Number Talks ($398+123$).</li>
+                                         <li>Mental subtraction ($452-137$).</li>
+                                         <li>Estimate costs, make change.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- B2.4/B2.5 Details -->
+                            <div>
+                                <h4 class="text-lg font-semibold text-text-medium mb-2">B2.4/B2.5 Demonstrate understanding of +/- algorithms & solve problems...</h4>
+                                <div class="detail-section pl-4 border-l-2 border-border-light">
+                                     <p><strong>Focus:</strong> Connect base ten blocks to standard algorithms (regrouping/trading) & solve word problems.</p>
+                                     <h4>Examples:</h4>
+                                    <ul>
+                                         <li>Connect blocks to algorithm steps ($241+174$, $452-269$).</li>
+                                         <li>Problem Types: Change, Combine, Compare visuals.</li>
+                                    </ul>
+                                     <h4>Key Concepts:</h4>
+                                    <ul>
+                                         <li>Algorithms use place value. Problem structures.</li>
+                                    </ul>
+                                     <h4>Note:</h4>
+                                    <ul>
+                                         <li>Emphasize place *value*.</li>
+                                    </ul>
+                                     <h4>Sample Tasks:</h4>
+                                    <ul>
+                                         <li>Model computation with blocks & algorithm side-by-side.</li>
+                                         <li>Solve various word problems.</li>
+                                         <li>Write equivalent equations for problems.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- B2.6/B2.7 Details -->
+                             <div>
+                                <h4 class="text-lg font-semibold text-text-medium mb-2">B2.6/B2.7 Represent and solve multiplication (up to 10x10) and division (up to 100÷10)...</h4>
+                                <div class="detail-section pl-4 border-l-2 border-border-light">
+                                     <p><strong>Focus:</strong> Model mult/div (including fractions) with arrays, number lines, drawings.</p>
+                                     <h4>Examples:</h4>
+                                    <ul>
+                                         <li>Array ($3 \times 6$). Array Division ($36 \div 4$).</li>
+                                         <li>Number Line Hops (Mult $6 \times 5$, Div $35 \div 5$, Fraction $12 \times \frac{1}{3}$).</li>
+                                    </ul>
+                                     <h4>Key Concepts:</h4>
+                                    <ul>
+                                         <li>Mult finds total. Div finds size or #groups (Sharing vs Grouping). Repeated +/-.</li>
+                                    </ul>
+                                     <h4>Sample Tasks:</h4>
+                                    <ul>
+                                         <li>Create arrays, count creatively.</li>
+                                         <li>Model division scenarios.</li>
+                                         <li>Solve equal-group word problems (whole/fraction).</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- B2.8 Details -->
+                             <div>
+                                <h4 class="text-lg font-semibold text-text-medium mb-2">B2.8 Represent connection between numerator and repeated addition of unit fraction...</h4>
+                                <div class="detail-section pl-4 border-l-2 border-border-light">
+                                     <p><strong>Focus:</strong> Understand numerator counts unit fractions added.</p>
+                                     <h4>Examples:</h4>
+                                    <ul>
+                                         <li>Fraction Strips: $\frac{4}{5} = \frac{1}{5}+\frac{1}{5}+\frac{1}{5}+\frac{1}{5}$.</li>
+                                    </ul>
+                                     <h4>Key Concepts:</h4>
+                                    <ul>
+                                         <li>Denominator = size, Numerator = count.</li>
+                                    </ul>
+                                     <h4>Sample Tasks:</h4>
+                                    <ul>
+                                         <li>Model fraction with strip, relate to equation.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- B2.9 Details -->
+                             <div>
+                                <h4 class="text-lg font-semibold text-text-medium mb-2">B2.9 Use ratios of 1:2, 1:5, and 1:10 to scale up...</h4>
+                                <div class="detail-section pl-4 border-l-2 border-border-light">
+                                     <p><strong>Focus:</strong> Apply simple multiplicative ratios (scaling).</p>
+                                     <h4>Examples:</h4>
+                                    <ul>
+                                         <li>Ratio 1:2 -> $\square \bigcirc\bigcirc$. Pictograph Key. Double Number Line.</li>
+                                    </ul>
+                                     <h4>Key Concepts:</h4>
+                                    <ul>
+                                         <li>Ratios = multiplicative relationship.</li>
+                                    </ul>
+                                     <h4>Sample Tasks:</h4>
+                                    <ul>
+                                         <li>Solve ratio problems (marbles).</li>
+                                         <li>Draw diagram for 1:10.</li>
+                                         <li>Convert pictograph key.</li>
+                                         <li>Use number lines for scaling.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- C. Algebra -->
+             <div class="strand-container bg-card-bg-alt rounded-lg overflow-hidden border border-border-light">
+                 <div class="strand-header p-4 flex justify-between items-center border-l-8 border-c1" onclick="toggleExpand(this)">
+                     <h2 class="text-2xl font-bold text-arcade-red flex items-center">
+                         <span class="text-3xl mr-3">🧮</span> C. Algebra
+                     </h2>
+                      <span class="expand-icon text-xl text-text-medium transform transition-transform">▼</span>
+                 </div>
+                  <div class="strand-content px-4 pb-4">
+                      <!-- C1. Patterns -->
+                     <div class="expectation-container mb-3 border border-border-light rounded bg-card-bg">
+                         <div class="expectation-header p-3 flex justify-between items-center" onclick="toggleExpand(this, true)">
+                             <h3 class="text-xl font-semibold text-gray-200">C1: Patterns and Relationships</h3>
+                              <span class="expand-icon text-lg text-text-medium transform transition-transform">▼</span>
+                         </div>
+                          <div class="expectation-content px-3 pb-3 space-y-4">
+                             <!-- C1.1 Details -->
+                             <div>
+                                 <h4 class="text-lg font-semibold text-text-medium mb-2">C1.1 Identify and describe repeating elements and operations...</h4>
+                                 <div class="detail-section pl-4 border-l-2 border-border-light">
+                                     <p><strong>Focus:</strong> Recognizing patterns based on repeating elements or operations.</p>
+                                     <h4>Examples:</h4>
+                                    <ul>
+                                        <li>Repeating Elements: <code class="visual-example">▲ ■ ■ ▲ ■ ■ ...</code></li>
+                                        <li>Repeating Operations: $2, 4, 6, 8...$ (+2)</li>
+                                    </ul>
+                                     <h4>Key Concepts:</h4>
+                                    <ul><li>Pattern Core, Repeating Operation.</li></ul>
+                                     <h4>Sample Tasks:</h4>
+                                    <ul><li>Describe real-life patterns.</li></ul>
+                                 </div>
+                             </div>
+                             <!-- C1.2 Details -->
+                             <div>
+                                 <h4 class="text-lg font-semibold text-text-medium mb-2">C1.2 Create and translate patterns... using various representations...</h4>
+                                 <div class="detail-section pl-4 border-l-2 border-border-light">
+                                     <p><strong>Focus:</strong> Representing the same pattern in different ways.</p>
+                                      <h4>Examples:</h4>
+                                    <ul>
+                                        <li>$1, 2, 1, 2...$ to <code class="visual-example">● ■ ● ■ ...</code></li>
+                                        <li>Shape pattern to T-chart.</li>
+                                    </ul>
+                                     <h4>Key Concepts:</h4>
+                                    <ul><li>Same structure, different look. Table of Values.</li></ul>
+                                     <h4>Sample Tasks:</h4>
+                                    <ul><li>Translate numeric to shape patterns. Create tile patterns & tables.</li></ul>
+                                 </div>
+                             </div>
+                             <!-- C1.3 Details -->
+                             <div>
+                                 <h4 class="text-lg font-semibold text-text-medium mb-2">C1.3 Determine pattern rules and use them to extend, predict, identify missing elements...</h4>
+                                 <div class="detail-section pl-4 border-l-2 border-border-light">
+                                      <p><strong>Focus:</strong> Generalizing patterns with rules to extend, predict, find gaps.</p>
+                                      <h4>Examples:</h4>
+                                    <ul>
+                                        <li>Extend: <code>☆ ○ ○ ☆ ○ ○</code> -> Before: <code>○</code>, After: <code>☆</code></li>
+                                        <li>Predict: $3, 6, 9...$ Rule: +3. 10th term = 30.</li>
+                                        <li>Missing: $50, 45, \underline{40}, 35$.</li>
+                                    </ul>
+                                     <h4>Key Concepts:</h4>
+                                    <ul><li>Pattern Rule. Near/Far Prediction.</li></ul>
+                                     <h4>Sample Tasks:</h4>
+                                    <ul><li>Extend patterns. Make predictions. Fill gaps.</li></ul>
+                                 </div>
+                             </div>
+                             <!-- C1.4 Details -->
+                              <div>
+                                 <h4 class="text-lg font-semibold text-text-medium mb-2">C1.4 Create and describe patterns to illustrate relationships...</h4>
+                                 <div class="detail-section pl-4 border-l-2 border-border-light">
+                                      <p><strong>Focus:</strong> Using patterns to show connections between operations.</p>
+                                      <h4>Examples:</h4>
+                                    <ul>
+                                        <li>Addition/Subtraction fact families in 500s.</li>
+                                        <li>Multiplication/Division fact families for 5.</li>
+                                    </ul>
+                                     <h4>Key Concepts:</h4>
+                                    <ul><li>Patterns reveal relationships.</li></ul>
+                                     <h4>Sample Tasks:</h4>
+                                    <ul><li>Create number strings showing relationships.</li></ul>
+                                 </div>
+                             </div>
+                          </div>
+                     </div>
+                      <!-- C2. Equations -->
+                     <div class="expectation-container mb-3 border border-border-light rounded bg-card-bg">
+                         <div class="expectation-header p-3 flex justify-between items-center" onclick="toggleExpand(this, true)">
+                             <h3 class="text-xl font-semibold text-gray-200">C2: Equations and Inequalities</h3>
+                              <span class="expand-icon text-lg text-text-medium transform transition-transform">▼</span>
+                         </div>
+                         <div class="expectation-content px-3 pb-3 space-y-4">
+                             <!-- C2.1 Details -->
+                              <div>
+                                 <h4 class="text-lg font-semibold text-text-medium mb-2">C2.1 Describe how variables are used, and use them...</h4>
+                                 <div class="detail-section pl-4 border-l-2 border-border-light">
+                                      <p><strong>Focus:</strong> Understanding variables represent unknowns or changing values.</p>
+                                      <h4>Examples:</h4>
+                                    <ul><li>Properties ($a+b=b+a$), Formulas ($P=4s$), Unknowns ($8+x=16$).</li></ul>
+                                      <h4>Sample Tasks:</h4>
+                                    <ul><li>Use 's' for perimeter. Use 'n' in $n+2=7$.</li></ul>
+                                 </div>
+                             </div>
+                             <!-- C2.2 Details -->
+                             <div>
+                                 <h4 class="text-lg font-semibold text-text-medium mb-2">C2.2 Determine whether given sets of expressions are equivalent or not.</h4>
+                                 <div class="detail-section pl-4 border-l-2 border-border-light">
+                                      <p><strong>Focus:</strong> Understanding '=' means "same as"; checking if expressions yield same value.</p>
+                                      <h4>Examples:</h4>
+                                    <ul><li>$3 \times 4$ vs $2 \times 6$ (Equivalent). $16+32$ vs $50-2$ (Equivalent).</li></ul>
+                                      <h4>Key Concepts:</h4>
+                                    <ul><li>Equivalent = same value. '=' means balance.</li></ul>
+                                      <h4>Sample Tasks:</h4>
+                                    <ul><li>Compare expressions with rods/calculation.</li></ul>
+                                 </div>
+                             </div>
+                             <!-- C2.3 Details -->
+                              <div>
+                                 <h4 class="text-lg font-semibold text-text-medium mb-2">C2.3 Identify and use equivalent relationships for whole numbers...</h4>
+                                 <div class="detail-section pl-4 border-l-2 border-border-light">
+                                      <p><strong>Focus:</strong> Recognizing multiple ways to represent a number; using properties for equivalence.</p>
+                                      <h4>Examples:</h4>
+                                    <ul><li>Ways to make 12. Commutative ($8+352=352+8$). Associative ($263+364+7 = 263+7+364$).</li></ul>
+                                      <h4>Key Concepts:</h4>
+                                    <ul><li>Equivalence = same value, different form.</li></ul>
+                                      <h4>Sample Tasks:</h4>
+                                    <ul><li>Show multiple ways to make 12. Use properties.</li></ul>
+                                 </div>
+                             </div>
+                         </div>
+                     </div>
+                      <!-- C3. Coding -->
+                      <div class="expectation-container mb-3 border border-border-light rounded bg-card-bg">
+                         <div class="expectation-header p-3 flex justify-between items-center" onclick="toggleExpand(this, true)">
+                             <h3 class="text-xl font-semibold text-gray-200">C3: Coding</h3>
+                              <span class="expand-icon text-lg text-text-medium transform transition-transform">▼</span>
+                         </div>
+                         <div class="expectation-content px-3 pb-3">
+                              <div class="detail-section pl-4 border-l-2 border-border-light">
+                                 <p><strong>Focus:</strong> Solve problems using coding concepts (sequence, loops, conditionals).</p>
+                                 <h4>Key Concepts:</h4>
+                                <ul><li>Sequence, Loops, Conditionals.</li></ul>
+                                 <h4>Note:</h4>
+                                <ul><li>Often block-based or unplugged.</li></ul>
+                                 <h4>Sample Tasks:</h4>
+                                <ul><li>Write steps for math task. Predict output. Follow grid commands.</li></ul>
+                             </div>
+                         </div>
+                     </div>
+                      <!-- C4. Mathematical Modelling (Note) -->
+                     <div class="expectation-container border border-border-light rounded bg-card-bg">
+                         <div class="expectation-header p-3 flex justify-between items-center" onclick="toggleExpand(this, true)">
+                             <h3 class="text-xl font-semibold text-gray-200">C4: Mathematical Modelling</h3>
+                              <span class="expand-icon text-lg text-text-medium transform transition-transform">▼</span>
+                         </div>
+                         <div class="expectation-content px-3 pb-3">
+                            <p class="text-text-medium italic p-3 bg-card-bg-alt rounded">Note: C4 involves applying the mathematical modelling process (understand problem -> analyze -> create model -> analyze model -> communicate) using concepts from other strands. It doesn't have standalone specific content expectations.</p>
+                         </div>
+                     </div>
+                  </div>
+             </div>
+
+             <!-- D. Data -->
+             <div class="strand-container bg-card-bg-alt rounded-lg overflow-hidden border border-border-light">
+                  <div class="strand-header p-4 flex justify-between items-center border-l-8 border-d" onclick="toggleExpand(this)">
+                     <h2 class="text-2xl font-bold text-arcade-yellow flex items-center">
+                          <span class="text-3xl mr-3">📊</span> D. Data
+                     </h2>
+                      <span class="expand-icon text-xl text-text-medium transform transition-transform">▼</span>
+                 </div>
+                  <div class="strand-content px-4 pb-4">
+                      <!-- D1. Data Literacy -->
+                     <div class="expectation-container mb-3 border border-border-light rounded bg-card-bg">
+                         <div class="expectation-header p-3 flex justify-between items-center" onclick="toggleExpand(this, true)">
+                             <h3 class="text-xl font-semibold text-gray-200">D1: Data Literacy</h3>
+                              <span class="expand-icon text-lg text-text-medium transform transition-transform">▼</span>
+                         </div>
+                         <div class="expectation-content px-3 pb-3">
+                             <div class="detail-section pl-4 border-l-2 border-border-light">
+                                 <p><strong>Focus:</strong> Collect, organize, display (tally, pictograph, bar graph), read, interpret data.</p>
+                                 <h4>Key Concepts:</h4>
+                                <ul><li>Collection, Organization, Display (many-to-one correspondence), Analysis (mode, compare).</li></ul>
+                                 <h4>Sample Tasks:</h4>
+                                <ul><li>Conduct survey, create charts/graphs. Read/interpret graphs. Find mode.</li></ul>
+                             </div>
+                         </div>
+                     </div>
+                      <!-- D2. Probability -->
+                      <div class="expectation-container border border-border-light rounded bg-card-bg">
+                         <div class="expectation-header p-3 flex justify-between items-center" onclick="toggleExpand(this, true)">
+                             <h3 class="text-xl font-semibold text-gray-200">D2: Probability</h3>
+                              <span class="expand-icon text-lg text-text-medium transform transition-transform">▼</span>
+                         </div>
+                         <div class="expectation-content px-3 pb-3">
+                              <div class="detail-section pl-4 border-l-2 border-border-light">
+                                 <p><strong>Focus:</strong> Describe likelihood (impossible, unlikely, equally likely, likely, certain). Conduct experiments.</p>
+                                 <h4>Key Concepts:</h4>
+                                <ul><li>Likelihood, Probability Scale, Experiment, Outcome.</li></ul>
+                                 <h4>Sample Tasks:</h4>
+                                <ul><li>Classify events. Conduct coin/die experiments. Predict outcomes.</li></ul>
+                             </div>
+                         </div>
+                     </div>
+                  </div>
+             </div>
+
+              <!-- E. Spatial Sense -->
+             <div class="strand-container bg-card-bg-alt rounded-lg overflow-hidden border border-border-light">
+                  <div class="strand-header p-4 flex justify-between items-center border-l-8 border-e" onclick="toggleExpand(this)">
+                     <h2 class="text-2xl font-bold text-arcade-magenta flex items-center">
+                          <span class="text-3xl mr-3">📐</span> E. Spatial Sense
+                     </h2>
+                      <span class="expand-icon text-xl text-text-medium transform transition-transform">▼</span>
+                 </div>
+                  <div class="strand-content px-4 pb-4">
+                      <!-- E1. Geometric Reasoning -->
+                     <div class="expectation-container mb-3 border border-border-light rounded bg-card-bg">
+                         <div class="expectation-header p-3 flex justify-between items-center" onclick="toggleExpand(this, true)">
+                             <h3 class="text-xl font-semibold text-gray-200">E1: Geometric and Spatial Reasoning</h3>
+                              <span class="expand-icon text-lg text-text-medium transform transition-transform">▼</span>
+                         </div>
+                         <div class="expectation-content px-3 pb-3">
+                             <div class="detail-section pl-4 border-l-2 border-border-light">
+                                 <p><strong>Focus:</strong> Identify, compare, sort 2D/3D shapes by properties. Explore symmetry, transformations (slide, flip, turn).</p>
+                                 <h4>Key Concepts:</h4>
+                                <ul><li>2D Attributes (sides, vertices). 3D Attributes (faces, edges, vertices). Properties (angles, parallel). Symmetry. Transformations. Location (grids).</li></ul>
+                                 <h4>Sample Tasks:</h4>
+                                <ul><li>Sort shapes/figures. Identify in environment. Draw shapes. Find symmetry lines. Perform transformations. Locate on grid.</li></ul>
+                            </div>
+                         </div>
+                     </div>
+                      <!-- E2. Measurement -->
+                      <div class="expectation-container border border-border-light rounded bg-card-bg">
+                         <div class="expectation-header p-3 flex justify-between items-center" onclick="toggleExpand(this, true)">
+                             <h3 class="text-xl font-semibold text-gray-200">E2: Measurement</h3>
+                              <span class="expand-icon text-lg text-text-medium transform transition-transform">▼</span>
+                         </div>
+                         <div class="expectation-content px-3 pb-3">
+                              <div class="detail-section pl-4 border-l-2 border-border-light">
+                                 <p><strong>Focus:</strong> Estimate, measure, compare length (cm, m), mass (g, kg), capacity (mL, L), perimeter, area (grids). Tell time (nearest min), elapsed time, temperature (°C).</p>
+                                 <h4>Key Concepts:</h4>
+                                <ul><li>Units (cm/m, g/kg, mL/L). Perimeter (distance around). Area (surface covered). Time (clocks, duration, calendar). Temperature. Estimation.</li></ul>
+                                 <h4>Sample Tasks:</h4>
+                                <ul><li>Estimate/measure objects. Choose units. Measure perimeter/area. Read clocks, calculate elapsed time. Read thermometers.</li></ul>
+                             </div>
+                         </div>
+                     </div>
+                  </div>
+             </div>
+
+              <!-- F. Financial Literacy -->
+             <div class="strand-container bg-card-bg-alt rounded-lg overflow-hidden border border-border-light">
+                  <div class="strand-header p-4 flex justify-between items-center border-l-8 border-f" onclick="toggleExpand(this)">
+                     <h2 class="text-2xl font-bold text-arcade-orange flex items-center">
+                          <span class="text-3xl mr-3">💰</span> F. Financial Literacy
+                     </h2>
+                      <span class="expand-icon text-xl text-text-medium transform transition-transform">▼</span>
+                 </div>
+                  <div class="strand-content px-4 pb-4">
+                      <!-- F1. Money -->
+                     <div class="expectation-container border border-border-light rounded bg-card-bg">
+                         <div class="expectation-header p-3 flex justify-between items-center" onclick="toggleExpand(this, true)">
+                             <h3 class="text-xl font-semibold text-gray-200">F1: Money and Finances</h3>
+                              <span class="expand-icon text-lg text-text-medium transform transition-transform">▼</span>
+                         </div>
+                         <div class="expectation-content px-3 pb-3">
+                             <div class="detail-section pl-4 border-l-2 border-border-light">
+                                 <p><strong>Focus:</strong> Identify Canadian currency, represent amounts, count money, make change up to $10.</p>
+                                 <h4>Key Concepts:</h4>
+                                <ul><li>Coin/Bill Values. $ and ¢ notation. Counting strategies. Making change (counting up). Financial decisions (simple).</li></ul>
+                                 <h4>Sample Tasks:</h4>
+                                <ul><li>Identify currency. Count collections. Represent amounts. Role-play shopping, make change. Discuss saving.</li></ul>
+                            </div>
+                         </div>
+                     </div>
+                  </div>
+             </div>
+
+         </div>
+
+         <!-- Footer -->
+         <footer class="text-center py-6 text-sm border-t border-border-light max-w-6xl mx-auto mt-12">
+             <p class="text-text-medium">
+                 &copy; 2025 THE BRAIN BOOST ARCADE. <span class="text-arcade-yellow">SYSTEMS ONLINE.</span>
+             </p>
+              <div class="mt-2 space-x-4">
+                  <a href="#" class="text-text-medium hover:text-arcade-yellow transition-colors">Privacy Protocol</a>
+                  <a href="#" class="text-text-medium hover:text-arcade-yellow transition-colors">Contact Support</a>
+              </div>
+         </footer>
+
+     </div>
+
+     <script>
+         // Function to recalculate parent height after child animation
+         function updateParentHeight(parentContent) {
+             if (parentContent && parentContent.classList.contains('expanded')) {
+                  // Use scrollHeight to get the full height of the content within the parent
+                 parentContent.style.maxHeight = parentContent.scrollHeight + "px";
+             }
+         }
+
+         function toggleExpand(element, isExpectation = false) {
+             const content = element.nextElementSibling;
+             const icon = element.querySelector('.expand-icon');
+             const isExpanded = content.classList.contains('expanded');
+
+             let parentStrandContent = null;
+             if (isExpectation) {
+                 parentStrandContent = element.closest('.strand-content');
+             }
+
+             if (isExpanded) {
+                 // Collapse the current section
+                 content.classList.remove('expanded');
+                 icon.style.transform = 'rotate(0deg)';
+                 content.style.maxHeight = null; // Use null to trigger transition back to 0
+
+                 // If collapsing an expectation, update the parent strand's height
+                 if (parentStrandContent) {
+                     // Delay update slightly to let child collapse start
+                     setTimeout(() => updateParentHeight(parentStrandContent), 50);
+                 }
+             } else {
+                 // Expand the current section
+                 // Set max-height based on its own scrollHeight first
+                 content.style.maxHeight = content.scrollHeight + "px";
+                 content.classList.add('expanded');
+                 icon.style.transform = 'rotate(180deg)';
+
+                 // If expanding an expectation, update the parent strand's height AFTER child is expanded
+                  if (parentStrandContent) {
+                      // Delay update slightly longer than transition to measure accurately
+                      setTimeout(() => updateParentHeight(parentStrandContent), 310); // Match or exceed transition duration
+                  }
+             }
+         }
+
+
+          // Auto-render KaTeX math elements on load
+         document.addEventListener("DOMContentLoaded", function() {
+             renderMathInElement(document.body, {
+                 delimiters: [
+                     {left: "$", right: "$", display: false},
+                     {left: "\\[", right: "\\]", display: true}
+                 ],
+                 throwOnError : false
+             });
+
+              // Initialize all content areas as collapsed
+             const allContent = document.querySelectorAll('.strand-content, .expectation-content');
+             allContent.forEach(content => {
+                 content.style.maxHeight = '0'; // Ensure initially collapsed via JS
+                 content.classList.remove('expanded');
+             });
+             const allIcons = document.querySelectorAll('.expand-icon');
+              allIcons.forEach(icon => {
+                 icon.style.transform = 'rotate(0deg)';
+             });
+         });
+     </script>
+
+ </body>
+ </html>
