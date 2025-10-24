@@ -1,344 +1,212 @@
-<!-- Chosen Palette: Dark Arcade Theme (hub-bg: #1A1A1A, card-bg: #374151, accent: arcade-blue) -->
-<!-- Application Structure Plan: Dashboard structure with left-side navigation (main strands B1, B2, C1) and a primary content panel. Content within the panel uses an expandable accordion/card system (one card per specific expectation, e.g., B1.1). This structure prioritizes explorability and focus for the child user, allowing them to delve into one concept at a time without overwhelming scrolling. -->
-<!-- Visualization & Content Choices: 1. Concept Navigation (B1, B2, C1) -> Goal: Organize -> Presentation: Tab/Button Menu -> Interaction: Click to load specific accordion content -> Justification: Breaks the large guide into manageable thematic units. 2. Specific Expectations (B1.1, B1.2, etc.) -> Goal: Inform/Organize -> Presentation: Accordion Cards -> Interaction: Click to expand/collapse details -> Justification: Hides complexity and maintains focus. 3. Place Value Composition (B1.5) -> Goal: Inform/Visualize Proportion -> Presentation: Doughnut Chart (Chart.js/Canvas) -> Interaction: Input field to change the number, updating the chart dynamically -> Justification: Visually reinforces the core idea of decomposition (B1.1/B1.5). 4. Textual Content -> Goal: Instruct -> Presentation: Formatted text -> Interaction: Displayed upon accordion expansion -> Justification: Provides clear, step-by-step instruction. -->
-<!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grade 3 Math Learning Hub</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'hub-bg': '#1A1A1A',
-                        'card-bg': '#374151',
-                        'arcade-red': '#FF4136',
-                        'arcade-blue': '#0074D9',
-                        'arcade-green': '#2ECC40',
-                        'arcade-yellow': '#FFDC00',
-                        'text-dark': '#374151',
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
+    <title>Grade 3 Student Learning Hub Content</title>
     <style>
-        .glow-blue { box-shadow: 0 0 17.5px rgba(0, 116, 217, 0.5); }
-        .glow-blue:hover { box-shadow: 0 0 25px rgba(0, 116, 217, 0.9); }
-        .accordion-content { overflow: hidden; max-height: 0; transition: max-height 0.3s ease-in-out; }
-        .accordion-content.open { max-height: 1000px; }
-        .chart-container { position: relative; width: 100%; max-width: 400px; margin-left: auto; margin-right: auto; height: 350px; }
+        /* Basic styles for embedding */
+        body {
+            font-family: 'Inter', sans-serif;
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #1a202c;
+            border-bottom: 3px solid #3182ce;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #2b6cb0;
+            margin-top: 30px;
+            padding-top: 10px;
+            border-bottom: 1px dashed #e2e8f0;
+        }
+        h3 {
+            color: #2c5282;
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        th, td {
+            border: 1px solid #e2e8f0;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f7fafc;
+            color: #2d3748;
+            font-weight: bold;
+        }
+        .pro-tip {
+            border-left: 5px solid #48bb78;
+            background-color: #f0fff4;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .math-symbol {
+            font-weight: bold;
+            color: #dd6b20;
+            font-size: 1.2em;
+        }
+        .example-list li {
+            margin-bottom: 8px;
+        }
     </style>
 </head>
-<body class="bg-hub-bg text-gray-300 font-sans min-h-screen">
+<body>
 
-    <div class="max-w-7xl mx-auto p-4 sm:p-8">
+    <h1 style="font-size: 2.5rem;">🚀 Math Mission: Grade 3 Learning Hub</h1>
 
-        <header class="text-center pt-4 pb-8 border-b border-gray-700">
-            <h1 class="text-3xl sm:text-4xl font-extrabold uppercase tracking-wider text-arcade-yellow glow-blue">
-                Grade 3 Math Learning Hub
-            </h1>
-            <p class="text-lg sm:text-xl text-gray-400 mt-2">
-                Explore Core Concepts: Number Sense, Operations, and Patterns.
-            </p>
-        </header>
+    <p>Hey Math Explorers! This is your special guide to the big ideas in Grade 3 Math. We'll learn the secrets of numbers, how to solve problems, and how to spot cool patterns!</p>
 
-        <main class="mt-8 grid grid-cols-1 lg:grid-cols-4 gap-8">
-            
-            <!-- LEFT NAVIGATION (STRANDS) -->
-            <nav class="lg:col-span-1 bg-card-bg p-4 rounded-xl shadow-lg h-fit sticky top-4">
-                <h2 class="text-xl font-bold text-gray-100 mb-4 border-b border-gray-600 pb-2">
-                    Curriculum Strands
-                </h2>
-                <div class="space-y-3">
-                    <button data-strand="B1" class="strand-btn w-full text-left p-3 rounded-lg font-semibold bg-arcade-blue/30 text-white transition-colors hover:bg-arcade-blue/50">
-                        🔢 B1: Number Sense
-                    </button>
-                    <button data-strand="B2" class="strand-btn w-full text-left p-3 rounded-lg font-semibold bg-card-bg/50 text-gray-300 transition-colors hover:bg-arcade-blue/20">
-                        ✖️ B2: Operations
-                    </button>
-                    <button data-strand="C1" class="strand-btn w-full text-left p-3 rounded-lg font-semibold bg-card-bg/50 text-gray-300 transition-colors hover:bg-arcade-blue/20">
-                        🔠 C1: Patterns
-                    </button>
-                </div>
-            </nav>
+    <h2 style="font-size: 1.8rem;">## 🔢 B1: The Secret Life of Numbers (Number Sense)</h2>
 
-            <!-- MAIN CONTENT DISPLAY AREA -->
-            <div class="lg:col-span-3">
+    <p>Your job is to become a detective and learn all about numbers up to <strong>1000</strong>!</p>
 
-                <!-- INTRO SECTION -->
-                <section id="intro" class="mb-8 p-6 bg-card-bg rounded-xl shadow-xl">
-                    <h2 class="text-2xl font-bold text-arcade-blue mb-3">Welcome, Future Math Master!</h2>
-                    <p class="text-gray-300">
-                        This hub helps you learn the biggest ideas in Grade 3 Math. Use the **Curriculum Strands** menu on the left to select a topic like Number Sense or Operations. Each topic will expand into cards with simple goals, strategies, and examples to make your brain stronger!
-                    </p>
-                </section>
-                
-                <!-- PLACE VALUE VISUALIZER (B1.5 - Interactive Chart) -->
-                <section id="visualizer-section" class="mb-8 p-6 bg-card-bg rounded-xl shadow-xl">
-                    <h2 class="text-2xl font-bold text-arcade-yellow mb-4 flex items-center">
-                        🧠 B1.5 Place Value Visualizer
-                    </h2>
-                    <p class="text-gray-400 mb-4">
-                        See how hundreds, tens, and ones make up any 3-digit number. Change the number below, and the chart instantly shows the proportion of each part!
-                    </p>
-                    <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-8 mb-6">
-                        <label for="numberInput" class="text-lg font-semibold text-gray-100">Enter a 3-Digit Number (100-999):</label>
-                        <input type="number" id="numberInput" min="100" max="999" value="471"
-                               class="bg-gray-700 text-arcade-yellow p-2 rounded-lg font-mono w-28 text-center focus:ring-2 focus:ring-arcade-blue border-none">
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="placeValueChart"></canvas>
-                    </div>
-                </section>
+    <h3 style="font-size: 1.4rem;">### 🔍 Place Value: What's a Digit Worth?</h3>
 
-                <!-- ACCORDION CONTENT (DYNAMICALLY POPULATED) -->
-                <section id="content-display" class="space-y-4">
-                    <!-- Accordions will be inserted here based on strand selection -->
-                </section>
+    <p>A number is like a secret code where the spot (place) matters most!</p>
 
-            </div>
-        </main>
+    <table>
+        <thead>
+            <tr>
+                <th><strong>Spot</strong></th>
+                <th><strong>Digit Name</strong></th>
+                <th><strong>Value Example in 549</strong></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>3rd Spot</strong></td>
+                <td><strong>Hundreds</strong></td>
+                <td>500 (Five Hundred)</td>
+            </tr>
+            <tr>
+                <td><strong>2nd Spot</strong></td>
+                <td><strong>Tens</strong></td>
+                <td>40 (Four Tens)</td>
+            </tr>
+            <tr>
+                <td><strong>1st Spot</strong></td>
+                <td><strong>Ones</strong></td>
+                <td>9 (Nine Ones)</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="pro-tip">
+        <p><strong>✅ Pro Tip: Expanded Form</strong></p>
+        <p>We can <strong>decompose</strong> (break apart) a number to see its value:</p>
+        <p style="text-align: center; font-size: 1.5rem; margin: 15px 0;">
+            $873 = 800 + 70 + 3$
+        </p>
+        <p>To <strong>compose</strong> (put together) the number, you just add the pieces up!</p>
     </div>
 
-    <script>
-        const GUIDE_DATA = {
-            "B1": {
-                title: "🔢 B1: Number Sense (Up to 1000)",
-                sections: [
-                    { id: 'B1_1', title: 'B1.1: Read, Represent, Compose, and Decompose', content: `
-                        <p class="text-gray-300">**Goal:** To show a number in different ways (words, numerals, parts).</p>
-                        <p class="text-gray-300">**Key Concept:** Any 3-digit number (e.g., 538) can be broken into hundreds, tens, and ones ($500 + 30 + 8$).</p>
-                        <p class="text-gray-300">**Example (471):** Words: Four hundred seventy-one. Expanded Form: $400 + 70 + 1$. Base Ten: 4 flats (hundreds), 7 rods (tens), 1 unit (one).</p>
-                    `},
-                    { id: 'B1_2', title: 'B1.2: Compare and Order Whole Numbers', content: `
-                        <p class="text-gray-300">**Goal:** To determine which number is greater, less than, or equal to another using the signs &lt;, &gt;, or =.</p>
-                        <p class="text-gray-300">**Strategy:** Start comparing the digits from the greatest place value (the hundreds place).</p>
-                        <p class="text-gray-300">**Example:** Compare 725 and 752. The hundreds are equal (7=7), but the tens are different (2 &lt; 5). Therefore, $725 < 752$.</p>
-                    `},
-                    { id: 'B1_3', title: 'B1.3: Rounding (Nearest 10 or 100)', content: `
-                        <p class="text-gray-300">**Goal:** To estimate a number to the nearest 10 or 100.</p>
-                        <p class="text-gray-300">**Rule for Nearest 10:** Look at the **ones digit**. If it's 5 or greater, round up. (e.g., 637 rounds up to 640).</p>
-                        <p class="text-gray-300">**Rule for Nearest 100:** Look at the **tens digit**. If it's 5 or greater (50-99), round up. (e.g., 485 rounds up to 500).</p>
-                    `},
-                    { id: 'B1_4', title: 'B1.4: Counting (Skip Counting)', content: `
-                        <p class="text-gray-300">**Goal:** To count forward or backward by specific units (50s, 100s, 200s).</p>
-                        <p class="text-gray-300">**Strategy:** Recognize the pattern in the place value that is changing.</p>
-                        <p class="text-gray-300">**Example (Counting by 200s):** The hundreds place changes by 2. Sequence: $100, 300, 500, 700, \ldots$</p>
-                    `},
-                    { id: 'B1_5', title: 'B1.5: Place Value', content: `
-                        <p class="text-gray-300">**Goal:** To identify the *value* of a specific digit based on its position.</p>
-                        <p class="text-gray-300">**Example:** In the number **893**: The value of 8 is **800** (8 hundreds). The value of 9 is **90** (9 tens). The value of 3 is **3** (3 ones).</p>
-                    `},
-                    { id: 'B1_6_7', title: 'B1.6 & B1.7: Fractions (Fair Share and Equivalent)', content: `
-                        <p class="text-gray-300">**Goal:** Use division to find parts of a whole (fair share) and find equal fractions.</p>
-                        <p class="text-gray-300">**Fair Share:** 15 cookies shared among 4 friends is $3 \frac{3}{4}$ each.</p>
-                        <p class="text-gray-300">**Equivalent Fractions:** Fractions that look different but have the same value.</p>
-                        <p class="text-gray-300">**Strategy:** Multiply the numerator and the denominator by the same number. Example: $\frac{1}{2}$ is the same as $\frac{4}{8}$ ($1 \times 4 = 4$ and $2 \times 4 = 8$).</p>
-                    `}
-                ]
-            },
-            "B2": {
-                title: "✖️ B2: Operations",
-                sections: [
-                    { id: 'B2_2_5', title: 'B2.2 - B2.5: Addition, Subtraction, and Math Facts', content: `
-                        <p class="text-gray-300">**Math Facts (B2.2):** Practice multiplication facts for 2, 5, and 10 and their related division facts. (e.g., $10 \times 7 = 70$, so $70 \div 10 = 7$).</p>
-                        <p class="text-gray-300">**Algorithms (B2.4, B2.5):** Use standard methods (borrowing and carrying) to add and subtract 3-digit numbers (up to 1,000).</p>
-                    `},
-                    { id: 'B2_1', title: 'B2.1: Properties and Relationships', content: `
-                        <p class="text-gray-300">**Goal:** Use the rules of math to solve problems (e.g., the Commutative Property).</p>
-                        <p class="text-gray-300">**Commutative Property (Addition):** Changing the order of the numbers does not change the sum. Example: $10 + 5 = 5 + 10$.</p>
-                        <p class="text-gray-300">**Inverse Relationship (Mult./Div.):** They undo each other. Example: If $4 \times 5 = 20$, then $20 \div 4 = 5$.</p>
-                    `}
-                ]
-            },
-            "C1": {
-                title: "🔠 C1: Patterns and Relationships",
-                sections: [
-                    { id: 'C1_1', title: 'C1.1: Extending and Describing Patterns', content: `
-                        <p class="text-gray-300">**Goal:** Find the rule of a pattern and use it to predict the next terms.</p>
-                        <p class="text-gray-300">**Repeating Pattern:** Repeats the same core sequence. Example: $3, 6, 3, 6, 3, \ldots$ (Rule: $3, 6$).</p>
-                        <p class="text-gray-300">**Growing Pattern:** Increases by a consistent rule (e.g., always adding 5). Example: $10, 15, 20, 25, \ldots$</p>
-                        <p class="text-gray-300">**Shrinking Pattern:** Decreases by a consistent rule (e.g., always subtracting 100). Example: $800, 700, 600, 500, \ldots$</p>
-                    `}
-                ]
-            }
-        };
+    <h3 style="font-size: 1.4rem;">### 📏 Comparing Numbers (B1.2 & B1.3)</h3>
 
-        let placeValueChart;
+    <p>We use special signs to see which number is bigger, smaller, or the same:</p>
 
-        function renderKaTeX() {
-            const contentDisplay = document.getElementById('content-display');
-            renderMathInElement(contentDisplay, {
-                delimiters: [ {left: "$", right: "$", display: false} ],
-                throwOnError : false 
-            });
-        }
+    <ul>
+        <li><span class="math-symbol">&gt;</span> (<strong>Greater Than</strong>) &rightarrow; The big mouth eats the bigger number!</li>
+        <li><span class="math-symbol">&lt;</span> (<strong>Less Than</strong>) &rightarrow; The small point points to the smaller number.</li>
+        <li><span class="math-symbol">=</span> (<strong>Equal To</strong>) &rightarrow; They are exactly the same size.</li>
+    </ul>
 
-        function createAccordionHTML(strandId, strandTitle, sections) {
-            let html = `<h2 class="text-3xl font-extrabold text-white mb-6">${strandTitle}</h2>`;
-            sections.forEach((section, index) => {
-                const isOdd = index % 2 !== 0;
-                const bgColor = isOdd ? 'bg-card-bg' : 'bg-gray-700/50';
-                
-                html += `
-                    <div class="rounded-lg shadow-md ${bgColor} overflow-hidden mb-4">
-                        <button class="accordion-header w-full flex justify-between items-center p-5 text-lg font-semibold text-gray-100 focus:outline-none" 
-                                data-target="#content_${section.id}">
-                            <span>${section.title}</span>
-                            <span class="text-xl transform transition-transform duration-300">+</span>
-                        </button>
-                        <div id="content_${section.id}" class="accordion-content p-4 text-gray-300 border-t border-gray-600">
-                            ${section.content}
-                        </div>
-                    </div>
-                `;
-            });
-            return html;
-        }
+    <p><strong>How to Compare:</strong> Always start with the <strong>hundreds</strong> place first!</p>
 
-        function toggleAccordion(button) {
-            const targetId = button.getAttribute('data-target');
-            const targetContent = document.querySelector(targetId);
-            const spanIcon = button.querySelector('span:last-child');
-            const isOpen = targetContent.classList.contains('open');
+    <div class="pro-tip">
+        <p><strong>✅ Mission: Rounding</strong></p>
+        <p>Rounding means finding the closest <strong>10</strong> or <strong>100</strong> to make the number easier to work with.</p>
 
-            // Close all
-            document.querySelectorAll('.accordion-content.open').forEach(content => {
-                content.classList.remove('open');
-                content.previousElementSibling.querySelector('span:last-child').textContent = '+';
-            });
+        <ul class="example-list">
+            <li>If the digit next door is <strong>5 or more</strong> (5, 6, 7, 8, 9), you <strong>round up</strong>! (e.g., 57 &rightarrow; 60)</li>
+            <li>If the digit next door is <strong>4 or less</strong> (4, 3, 2, 1, 0), you <strong>round down</strong>! (e.g., 53 &rightarrow; 50)</li>
+        </ul>
+    </div>
 
-            // Toggle selected one
-            if (!isOpen) {
-                targetContent.classList.add('open');
-                spanIcon.textContent = '–';
-            }
-            renderKaTeX();
-        }
+    <h3 style="font-size: 1.4rem;">### 🏃 Skip Counting (B1.4)</h3>
 
-        function loadStrand(strandId) {
-            const strand = GUIDE_DATA[strandId];
-            const contentDisplay = document.getElementById('content-display');
-            
-            // Hide intro and show content
-            document.getElementById('intro').style.display = 'none';
-            document.getElementById('visualizer-section').style.display = (strandId === 'B1') ? 'block' : 'none';
+    <p>You can count faster by taking big jumps! Practice counting by: <strong>50s, 100s, and 200s</strong> up to 1000.</p>
 
-            // Generate and insert HTML
-            contentDisplay.innerHTML = createAccordionHTML(strandId, strand.title, strand.sections);
+    <h2 style="font-size: 1.8rem;">## ➕ B2: The Power of Operations</h2>
 
-            // Update button styles
-            document.querySelectorAll('.strand-btn').forEach(btn => {
-                if (btn.getAttribute('data-strand') === strandId) {
-                    btn.classList.add('bg-arcade-blue/30', 'text-white');
-                    btn.classList.remove('bg-card-bg/50', 'text-gray-300');
-                } else {
-                    btn.classList.remove('bg-arcade-blue/30', 'text-white');
-                    btn.classList.add('bg-card-bg/50', 'text-gray-300');
-                }
-            });
+    <p>These are your tools for solving problems: adding, taking away, multiplying, and sharing!</p>
 
-            // Re-attach event listeners for the new accordions
-            document.querySelectorAll('.accordion-header').forEach(header => {
-                header.addEventListener('click', () => toggleAccordion(header));
-            });
+    <h3 style="font-size: 1.4rem;">### 🧠 Mental Math Secrets (B2.3)</h3>
 
-            renderKaTeX();
-        }
+    <p>Before you use a pencil, try to <strong>estimate</strong>!</p>
 
-        function updatePlaceValueChart() {
-            const input = document.getElementById('numberInput');
-            let num = parseInt(input.value);
+    <ul>
+        <li><strong>Estimation:</strong> Round the big numbers first, then solve. This helps you check if your final answer is reasonable.</li>
+        <li>Example: To solve $512 + 389$, round it to $500 + 400 = 900$. Your real answer should be close to 900!</li>
+    </ul>
 
-            if (isNaN(num) || num < 100 || num > 999) {
-                num = 471; 
-                input.value = 471;
-            }
+    <h3 style="font-size: 1.4rem;">### ✖️ Multiplication & Division (B2.2 & B2.6)</h3>
 
-            const hundreds = Math.floor(num / 100) * 100;
-            const tens = Math.floor((num % 100) / 10) * 10;
-            const ones = num % 10;
-            
-            const data = [hundreds, tens, ones].map(v => v / num * 100);
+    <p>You need to know your <strong>Math Facts</strong> for the numbers <strong>2, 5, and 10</strong>!</p>
 
-            placeValueChart.data.datasets[0].data = data;
-            placeValueChart.data.labels = [
-                `Hundreds (${hundreds})`,
-                `Tens (${tens})`,
-                `Ones (${ones})`
-            ];
-            placeValueChart.options.plugins.title.text = `Decomposition of: ${num}`;
-            placeValueChart.update();
-        }
+    <ul>
+        <li><strong>Multiplication (&times;)</strong> is fast adding. ($5 \times 4 = 5 + 5 + 5 + 5$)</li>
+        <li><strong>Division (&divide;)</strong> is fair sharing.
+            <ul>
+                <li>Example: $30 \div 5 = 6$ (30 cookies shared among 5 friends means 6 cookies each).</li>
+            </ul>
+        </li>
+    </ul>
 
+    <div class="pro-tip" style="border-left: 5px solid #3182ce; background-color: #ebf8ff;">
+        <p><strong>✅ Inverse Secret (B2.1):</strong> Multiplication and division are opposites!</p>
+        <p>If $5 \times 6 = 30$, then $30 \div 5 = 6$.</p>
+    </div>
 
-        window.onload = function() {
-            // Initialize Chart.js
-            const ctx = document.getElementById('placeValueChart').getContext('2d');
-            placeValueChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        data: [],
-                        backgroundColor: [
-                            '#0074D9', // arcade-blue for Hundreds
-                            '#FFDC00', // arcade-yellow for Tens
-                            '#FF4136'  // arcade-red for Ones
-                        ],
-                        hoverOffset: 10,
-                        borderWidth: 2,
-                        borderColor: '#1A1A1A'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'right', labels: { color: 'white' } },
-                        title: { display: true, text: 'Decomposition of: 471', color: 'white', font: { size: 16 } },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    if (context.parsed !== null) {
-                                        label += Math.round(context.parsed) + '%';
-                                    }
-                                    return label;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
+    <h3 style="font-size: 1.4rem;">### 🍰 Fractions (B1.6 & B1.7)</h3>
 
-            // Initial chart data load
-            updatePlaceValueChart();
-            document.getElementById('numberInput').addEventListener('input', updatePlaceValueChart);
-            
-            // Load B1 content first
-            loadStrand('B1');
-            
-            // Attach strand button listeners
-            document.querySelectorAll('.strand-btn').forEach(btn => {
-                btn.addEventListener('click', () => loadStrand(btn.getAttribute('data-strand')));
-            });
+    <p>Fractions are about <strong>fair shares</strong>!</p>
 
-        };
-    </script>
+    <ul>
+        <li><strong>Unit Fractions:</strong> Fractions where the top number (numerator) is <strong>1</strong>. We use these to talk about equal pieces.
+            <ul>
+                <li>Example: $\frac{1}{4}$ means 1 piece out of 4 total pieces.</li>
+            </ul>
+        </li>
+        <li><strong>Equivalent Fractions:</strong> These are fractions that look different but have the same size!
+            <ul>
+                <li>Example: $\frac{1}{2}$ is the same as $\frac{2}{4}$ (they cover the same amount of pizza!).</li>
+            </ul>
+        </li>
+    </ul>
+
+    <h2 style="font-size: 1.8rem;">## 🎨 C1: Pattern Detectives</h2>
+
+    <p>Everything in math has a pattern! Your job is to spot the <strong>rule</strong> and keep the pattern going.</p>
+
+    <h3 style="font-size: 1.4rem;">### ➡️ Types of Patterns</h3>
+
+    <ol class="example-list">
+        <li><strong>Repeating:</strong> The same rule happens over and over.
+            <ul>
+                <li>Example: $2, 5, 2, 5, 2, \ldots$ (Rule: $+3, -3, +3, -3$)</li>
+            </ul>
+        </li>
+        <li><strong>Growing:</strong> The numbers get bigger by adding or multiplying the same amount each time.
+            <ul>
+                <li>Example: $10, 20, 30, 40, \ldots$ (Rule: Add 10 each time)</li>
+            </ul>
+        </li>
+        <li><strong>Shrinking:</strong> The numbers get smaller by subtracting the same amount each time.
+            <ul>
+                <li>Example: $500, 400, 300, \ldots$ (Rule: Subtract 100 each time)</li>
+            </ul>
+        </li>
+    </ol>
+
 </body>
 </html>
