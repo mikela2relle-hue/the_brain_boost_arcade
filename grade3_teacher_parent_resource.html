@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade 3 Curriculum Resource - Ontario Math</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Custom Tailwind Config for Brain Boost Arcade Theme
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'hub-bg': '#1A1A1A',        // Dark Gray Background
+                        'card-bg': '#2d2d2d',       // Slightly lighter card bg
+                        'card-bg-alt': '#374151',   // Alternate card bg for contrast
+                        'header-bg': '#2F3742',     // Header background
+                        'arcade-red': '#FF4136',    // Bright Red Accent (C)
+                        'arcade-blue': '#0074D9',   // Action Blue Accent (B1)
+                        'arcade-green': '#2ECC40',  // Bright Green Accent (B2)
+                        'arcade-yellow': '#FFDC00', // Lemon Yellow Accent
+                        'text-light': '#E5E7EB',    // Light Gray Text (Main)
+                        'text-medium': '#9CA3AF',   // Medium Gray Text (Subtle)
+                        'text-dark': '#374151',     // Dark text (unused in dark mode)
+                        'border-light': '#4B5563',  // Subtle border color
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Base styles - ENFORCE DARK MODE */
+        body {
+            background-color: #1A1A1A; /* Force dark background */
+            font-family: var(--tw-font-sans);
+            color: #E5E7EB; /* Main light text color */
+        }
+
+        /* Styling for the collapsible tree view */
+        .strand-header, .expectation-header {
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .strand-header:hover, .expectation-header:hover {
+            background-color: #374151; /* Slightly lighter on hover */
+        }
+        .strand-content, .expectation-content {
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+        .strand-content.expanded, .expectation-content.expanded {
+            max-height: 1000px; /* Adjust if content is very long */
+            padding-top: 0.75rem; /* Equivalent to py-3 */
+            padding-bottom: 0.75rem;
+        }
+        /* Color coding for strand borders */
+        .border-b1 { border-left-color: #0074D9; } /* Blue */
+        .border-b2 { border-left-color: #2ECC40; } /* Green */
+        .border-c1 { border-left-color: #FF4136; } /* Red */
+        .border-d { border-left-color: #FFDC00; } /* Yellow */
+        .border-e { border-left-color: #F012BE; } /* Magenta */
+        .border-f { border-left-color: #FF851B; } /* Orange */
+
+        /* Enhanced Table Readability for Details */
+        .detail-table th, .detail-table td {
+            padding: 0.75rem 1rem; /* py-3 px-4 */
+            vertical-align: top;
+            text-align: left;
+        }
+        .detail-table th {
+            font-weight: 600; /* font-semibold */
+            color: #9CA3AF; /* text-medium */
+            width: 25%; /* Fixed width for labels */
+        }
+         .detail-table td {
+            color: #E5E7EB; /* text-light */
+         }
+        .detail-table tr:nth-child(odd) {
+            background-color: #2d2d2d; /* card-bg */
+        }
+         .detail-table tr:nth-child(even) {
+            background-color: #374151; /* card-bg-alt */
+        }
+
+        /* Ensure KaTeX math renders visibly in dark mode */
+        .katex {
+            color: #E5E7EB !important; /* Force light color for math */
+        }
+    </style>
+    <!-- Load KaTeX for math rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+</head>
+<body class="bg-hub-bg text-text-light min-h-screen p-4 sm:p-8 font-sans">
+
+    <div class="max-w-6xl mx-auto bg-card-bg shadow-xl rounded-2xl p-6 sm:p-10">
+
+        <header class="mb-8 border-b-4 border-arcade-yellow pb-4">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-100 text-center mb-2">
+                Teacher & Parent Resource Center: Grade 3 Ontario Math
+            </h1>
+            <p class="text-center text-text-medium italic font-medium">
+                Detailed Curriculum Expectations and Design Philosophy.
+            </p>
+        </header>
+
+        <!-- NEW: Pedagogical Explanation Section -->
+        <section class="mb-10 p-6 bg-card-bg-alt rounded-lg border border-border-light">
+            <h2 class="text-2xl font-bold text-arcade-yellow mb-3 flex items-center">
+                <span class="text-3xl mr-2">🧠</span> Curriculum Structure & Design Philosophy
+            </h2>
+            <p class="text-text-light leading-relaxed">
+                Welcome to the detailed curriculum guide! This resource provides a comprehensive overview of the Ontario Grade 3 Mathematics curriculum, focusing on the strands covered by the Brain Boost Arcade activities (currently B1, B2, and C1).
+            </p>
+            <p class="text-text-light leading-relaxed mt-3">
+                **Why the Quiz Doesn't Follow Strict Order:** You might notice that the interactive quiz problems sometimes mix expectations (e.g., placing B2.3 Estimation early) or group related skills together (e.g., B1.2 Comparison and B1.3 Rounding). This is intentional! The quiz prioritizes a **logical learning flow** for a Grade 3 student over strict numerical sequence. Foundational skills are often grouped, and related concepts are presented together to reinforce understanding and simulate real classroom assessment practices. This tree view below, however, presents the curriculum in its official, structured order for your reference.
+            </p>
+        </section>
+
+        <!-- Curriculum Tree Structure -->
+        <div id="curriculum-tree" class="space-y-4">
+
+            <!-- B. Number -->
+            <div class="strand-container bg-card-bg-alt rounded-lg overflow-hidden border border-border-light">
+                <div class="strand-header p-4 flex justify-between items-center border-l-8 border-b1" onclick="toggleExpand(this)">
+                    <h2 class="text-2xl font-bold text-arcade-blue flex items-center">
+                        <span class="text-3xl mr-3">🔢</span> B. Number
+                    </h2>
+                    <span class="expand-icon text-xl text-text-medium transform transition-transform">▼</span>
+                </div>
+                <div class="strand-content px-4 pb-4">
+                    <!-- B1. Number Sense -->
+                    <div class="expectation-container mb-3 border border-border-light rounded bg-card-bg">
+                        <div class="expectation-header p-3 flex justify-between items-center" onclick="toggleExpand(this, true)">
+                            <h3 class="text-xl font-semibold text-gray-200">B1: Number Sense</h3>
+                             <span class="expand-icon text-lg text-text-medium transform transition-transform">▼</span>
+                        </div>
+                        <div class="expectation-content px-3 pb-3">
+                             <table class="w-full detail-table">
+                                <tr><th>B1.1</th><td>Read, represent, compose, and decompose whole numbers up to **1000** (e.g., standard, expanded form).</td><td>Place Value, Standard/Expanded Form, Base Ten</td></tr>
+                                <tr><th>B1.2</th><td>Compare and order whole numbers up to **1000** using place value and symbols ($<, >, =$ ).</td><td>Magnitude, Place Value Comparison, Ascending/Descending</td></tr>
+                                <tr><th>B1.3</th><td>Round whole numbers to the nearest **ten or hundred**.</td><td>Estimation, Rounding Rules, Midpoint</td></tr>
+                                <tr><th>B1.4</th><td>Count to 1000, including skip counting by **50s, 100s, and 200s**.</td><td>Skip Counting, Sequences, Patterns</td></tr>
+                                <tr><th>B1.5</th><td>Use place value when describing and representing multi-digit numbers.</td><td>Place, Value, Digit, Times Ten Relationship</td></tr>
+                                <tr><th>B1.6</th><td>Solve fair-share problems resulting in whole numbers, **mixed numbers, or fractions**.</td><td>Unit Fractions, Mixed Numbers, Equal Sharing</td></tr>
+                                <tr><th>B1.7</th><td>Solve fair-share problems focusing on **equivalent fractions** (halves/fourths/eighths; thirds/sixths; fifths/tenths).</td><td>Equivalent Fractions, Numerator, Denominator, Ratio</td></tr>
+                             </table>
+                        </div>
+                    </div>
+                     <!-- B2. Operations -->
+                    <div class="expectation-container border border-border-light rounded bg-card-bg">
+                        <div class="expectation-header p-3 flex justify-between items-center" onclick="toggleExpand(this, true)">
+                            <h3 class="text-xl font-semibold text-gray-200">B2: Operations</h3>
+                             <span class="expand-icon text-lg text-text-medium transform transition-transform">▼</span>
+                        </div>
+                        <div class="expectation-content px-3 pb-3">
+                             <table class="w-full detail-table">
+                                <tr><th>B2.1</th><td>Use properties of operations (commutative) and inverse relationships (mult/div).</td><td>Commutative Property, Inverse Relationship</td></tr>
+                                <tr><th>B2.2</th><td>Recall multiplication facts of **2, 5, and 10**, and related division facts.</td><td>Basic Facts, Multiplication, Division</td></tr>
+                                <tr><th>B2.3</th><td>Use mental math strategies, including **estimation**, for +/- up to **1000**.</td><td>Estimation, Mental Math, Benchmarks</td></tr>
+                                <tr><th>B2.4/B2.5</th><td>Demonstrate and apply algorithms for +/- whole numbers up to **1000**.</td><td>Algorithms, Base Ten, Number Line</td></tr>
+                                <tr><th>B2.6/B2.7</th><td>Represent and solve multiplication (up to $10 \times 10$) and division (up to $100 \div 10$).</td><td>Arrays, Repeated Addition/Subtraction, Grouping</td></tr>
+                                <tr><th>B2.8</th><td>Connect numerator to repeated addition of the unit fraction (e.g., $\frac{1}{4} + \frac{1}{4} = \frac{2}{4}$).</td><td>Unit Fraction, Repeated Addition, Fractional Notation</td></tr>
+                                <tr><th>B2.9</th><td>Use ratios of **1:2, 1:5, and 1:10** to scale up numbers.</td><td>Ratios, Scale, Proportional Reasoning</td></tr>
+                             </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- C. Algebra -->
+            <div class="strand-container bg-card-bg-alt rounded-lg overflow-hidden border border-border-light">
+                <div class="strand-header p-4 flex justify-between items-center border-l-8 border-c1" onclick="toggleExpand(this)">
+                    <h2 class="text-2xl font-bold text-arcade-red flex items-center">
+                        <span class="text-3xl mr-3">🧮</span> C. Algebra
+                    </h2>
+                     <span class="expand-icon text-xl text-text-medium transform transition-transform">▼</span>
+                </div>
+                 <div class="strand-content px-4 pb-4">
+                     <!-- C1. Patterns -->
+                    <div class="expectation-container mb-3 border border-border-light rounded bg-card-bg">
+                        <div class="expectation-header p-3 flex justify-between items-center" onclick="toggleExpand(this, true)">
+                            <h3 class="text-xl font-semibold text-gray-200">C1: Patterns and Relationships</h3>
+                             <span class="expand-icon text-lg text-text-medium transform transition-transform">▼</span>
+                        </div>
+                        <div class="expectation-content px-3 pb-3">
+                             <table class="w-full detail-table">
+                                <tr><th>C1.1</th><td>Identify, describe, extend, create, and predict patterns (repeating, growing, shrinking).</td><td>Pattern Rule, Repeating, Growing, Shrinking</td></tr>
+                                <!-- Add more C1 expectations if applicable -->
+                             </table>
+                        </div>
+                    </div>
+                     <!-- C2. Equations (Placeholder) -->
+                    <div class="expectation-container mb-3 border border-border-light rounded bg-card-bg opacity-50">
+                        <div class="expectation-header p-3 flex justify-between items-center cursor-not-allowed">
+                            <h3 class="text-xl font-semibold text-gray-400 italic">C2: Equations and Inequalities (Coming Soon)</h3>
+                             <span class="text-lg text-text-medium">🔒</span>
+                        </div>
+                    </div>
+                     <!-- C3. Coding (Placeholder) -->
+                    <div class="expectation-container mb-3 border border-border-light rounded bg-card-bg opacity-50">
+                        <div class="expectation-header p-3 flex justify-between items-center cursor-not-allowed">
+                            <h3 class="text-xl font-semibold text-gray-400 italic">C3: Coding (Coming Soon)</h3>
+                             <span class="text-lg text-text-medium">🔒</span>
+                        </div>
+                    </div>
+                     <!-- C4. Mathematical Modelling (Note) -->
+                    <div class="expectation-container border border-border-light rounded bg-card-bg">
+                        <div class="expectation-header p-3 flex justify-between items-center" onclick="toggleExpand(this, true)">
+                            <h3 class="text-xl font-semibold text-gray-200">C4: Mathematical Modelling</h3>
+                             <span class="expand-icon text-lg text-text-medium transform transition-transform">▼</span>
+                        </div>
+                        <div class="expectation-content px-3 pb-3">
+                           <p class="text-text-medium italic p-3 bg-card-bg-alt rounded">Note: C4 is an overarching process applied across strands, not a separate set of specific testable expectations in this format.</p>
+                        </div>
+                    </div>
+                 </div>
+            </div>
+
+            <!-- D. Data (Placeholder) -->
+            <div class="strand-container bg-card-bg-alt rounded-lg overflow-hidden border border-border-light opacity-50">
+                <div class="strand-header p-4 flex justify-between items-center border-l-8 border-d cursor-not-allowed">
+                    <h2 class="text-2xl font-bold text-gray-500 italic flex items-center">
+                         <span class="text-3xl mr-3">📊</span> D. Data (Coming Soon)
+                    </h2>
+                     <span class="text-xl text-text-medium">🔒</span>
+                </div>
+            </div>
+
+             <!-- E. Spatial Sense (Placeholder) -->
+            <div class="strand-container bg-card-bg-alt rounded-lg overflow-hidden border border-border-light opacity-50">
+                <div class="strand-header p-4 flex justify-between items-center border-l-8 border-e cursor-not-allowed">
+                    <h2 class="text-2xl font-bold text-gray-500 italic flex items-center">
+                         <span class="text-3xl mr-3">📐</span> E. Spatial Sense (Coming Soon)
+                    </h2>
+                     <span class="text-xl text-text-medium">🔒</span>
+                </div>
+            </div>
+
+             <!-- F. Financial Literacy (Placeholder) -->
+            <div class="strand-container bg-card-bg-alt rounded-lg overflow-hidden border border-border-light opacity-50">
+                <div class="strand-header p-4 flex justify-between items-center border-l-8 border-f cursor-not-allowed">
+                    <h2 class="text-2xl font-bold text-gray-500 italic flex items-center">
+                         <span class="text-3xl mr-3">💰</span> F. Financial Literacy (Coming Soon)
+                    </h2>
+                     <span class="text-xl text-text-medium">🔒</span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <footer class="text-center py-6 text-sm border-t border-border-light max-w-6xl mx-auto mt-12">
+            <p class="text-text-medium">
+                &copy; 2025 THE BRAIN BOOST ARCADE. <span class="text-arcade-yellow">SYSTEMS ONLINE.</span>
+            </p>
+             <div class="mt-2 space-x-4">
+                 <a href="#" class="text-text-medium hover:text-arcade-yellow transition-colors">Privacy Protocol</a>
+                 <a href="#" class="text-text-medium hover:text-arcade-yellow transition-colors">Contact Support</a>
+             </div>
+        </footer>
+
+    </div>
+
+    <script>
+        function toggleExpand(element, isExpectation = false) {
+            const content = element.nextElementSibling;
+            const icon = element.querySelector('.expand-icon');
+            const isExpanded = content.classList.contains('expanded');
+
+            if (isExpanded) {
+                content.classList.remove('expanded');
+                icon.style.transform = 'rotate(0deg)';
+            } else {
+                // Optional: Collapse others when one opens (uncomment if desired)
+                /*
+                const parentContainer = isExpectation ? element.closest('.strand-content') : document.getElementById('curriculum-tree');
+                const siblings = Array.from(parentContainer.children).filter(child => child !== element.parentElement);
+                siblings.forEach(sibling => {
+                    const siblingContent = sibling.querySelector('.strand-content, .expectation-content');
+                    const siblingIcon = sibling.querySelector('.expand-icon');
+                    if (siblingContent && siblingContent.classList.contains('expanded')) {
+                        siblingContent.classList.remove('expanded');
+                        if(siblingIcon) siblingIcon.style.transform = 'rotate(0deg)';
+                    }
+                });
+                */
+                content.classList.add('expanded');
+                icon.style.transform = 'rotate(180deg)';
+            }
+        }
+        
+         // Auto-render KaTeX math elements on load
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: "$", right: "$", display: false},
+                    {left: "\\[", right: "\\]", display: true}
+                ],
+                throwOnError : false
+            });
+        });
+    </script>
+
+</body>
+</html>
+
