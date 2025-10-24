@@ -58,8 +58,8 @@
             padding-bottom: 0;
         }
         .strand-content.expanded, .expectation-content.expanded {
-            /* Increased max-height for potentially longer content */
-            max-height: 2000px; 
+             /* Increased max-height - will be dynamically set by JS */
+             /* max-height: 2000px; */
             padding-top: 0.75rem; /* Equivalent to py-3 */
             padding-bottom: 0.75rem;
         }
@@ -124,7 +124,7 @@
                 Welcome to the detailed curriculum guide! This resource provides a comprehensive overview of the Ontario Grade 3 Mathematics curriculum, focusing on the strands covered by the Brain Boost Arcade activities (currently B1, B2, and C1).
             </p>
             <p class="text-text-light leading-relaxed mt-3">
-                {/* UPDATED WORDING */}
+                {/* REMOVED COMMENT */}
                 **Why the Interactive Learning Doesn't Follow Strict Order:** You might notice that the **interactive learning activities** sometimes mix expectations (e.g., placing B2.3 Estimation early) or group related skills together (e.g., B1.2 Comparison and B1.3 Rounding). This is intentional! The activities prioritize a **logical learning flow** for a Grade 3 student over strict numerical sequence. Foundational skills are often grouped, and related concepts are presented together to reinforce understanding and simulate real classroom assessment practices. This tree view below, however, presents the curriculum in its official, structured order for your reference.
             </p>
         </section>
@@ -358,23 +358,84 @@
     </div>
 
     <script>
+        function calculateTotalHeight(element) {
+            let totalHeight = 0;
+            // Include padding and border in the calculation
+            const style = window.getComputedStyle(element);
+            totalHeight += element.scrollHeight + parseInt(style.paddingTop) + parseInt(style.paddingBottom); 
+            return totalHeight;
+        }
+
         function toggleExpand(element, isExpectation = false) {
             const content = element.nextElementSibling;
             const icon = element.querySelector('.expand-icon');
             const isExpanded = content.classList.contains('expanded');
 
+            // --- Find the parent strand content if this is an expectation ---
+            let parentStrandContent = null;
+            if (isExpectation) {
+                parentStrandContent = element.closest('.strand-content');
+            }
+
             if (isExpanded) {
                 content.classList.remove('expanded');
                 icon.style.transform = 'rotate(0deg)';
-                // Remove max-height override
-                 content.style.maxHeight = null;
+                content.style.maxHeight = null; // Collapse fully
+
+                // --- If collapsing an expectation, recalculate parent height ---
+                if (parentStrandContent && parentStrandContent.classList.contains('expanded')) {
+                     // Need a slight delay to allow the child collapse animation to start
+                    setTimeout(() => {
+                        parentStrandContent.style.maxHeight = parentStrandContent.scrollHeight + "px";
+                    }, 50); // Small delay
+                }
+
             } else {
-                 // Calculate the content's scroll height to set max-height for smooth transition
-                 content.style.maxHeight = content.scrollHeight + "px";
+                // Expand the current content
+                content.style.maxHeight = content.scrollHeight + "px";
                 content.classList.add('expanded');
                 icon.style.transform = 'rotate(180deg)';
+
+                // --- If expanding an expectation, ensure parent expands to fit ---
+                 if (parentStrandContent && parentStrandContent.classList.contains('expanded')) {
+                     // Need a slight delay to allow the child expand animation to start before measuring
+                     setTimeout(() => {
+                         parentStrandContent.style.maxHeight = parentStrandContent.scrollHeight + "px";
+                     }, 310); // Should be slightly longer than the transition duration (0.3s)
+                 }
+
+                // --- Optional: Auto-collapse siblings ---
+                /*
+                const container = isExpectation ? element.closest('.strand-content') : document.getElementById('curriculum-tree');
+                const siblings = Array.from(container.children).filter(child =>
+                    child !== element.parentElement &&
+                    child.classList.contains(isExpectation ? 'expectation-container' : 'strand-container')
+                );
+
+                siblings.forEach(sibling => {
+                    const siblingContent = sibling.querySelector('.strand-content, .expectation-content');
+                    const siblingIcon = sibling.querySelector('.expand-icon');
+                    if (siblingContent && siblingContent.classList.contains('expanded')) {
+                        siblingContent.classList.remove('expanded');
+                        siblingContent.style.maxHeight = null; // Reset max-height
+                        if(siblingIcon) siblingIcon.style.transform = 'rotate(0deg)';
+
+                        // If collapsing a strand, also ensure its children expectations reset height
+                        if (!isExpectation) {
+                            const childExpectations = siblingContent.querySelectorAll('.expectation-content');
+                            childExpectations.forEach(expContent => {
+                                expContent.style.maxHeight = null;
+                                expContent.classList.remove('expanded');
+                                const expIcon = expContent.previousElementSibling.querySelector('.expand-icon');
+                                if (expIcon) expIcon.style.transform = 'rotate(0deg)';
+                            });
+                        }
+                    }
+                });
+                */
             }
         }
+
 
          // Auto-render KaTeX math elements on load
         document.addEventListener("DOMContentLoaded", function() {
@@ -401,4 +462,6 @@
 
 </body>
 </html>
+
+
 
