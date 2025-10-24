@@ -58,8 +58,6 @@
             padding-bottom: 0;
         }
         .strand-content.expanded, .expectation-content.expanded {
-             /* Increased max-height - will be dynamically set by JS */
-             /* max-height: 2000px; */
             padding-top: 0.75rem; /* Equivalent to py-3 */
             padding-bottom: 0.75rem;
         }
@@ -71,26 +69,42 @@
         .border-e { border-left-color: #F012BE; } /* Magenta */
         .border-f { border-left-color: #FF851B; } /* Orange */
 
-        /* Enhanced Table Readability for Details */
-        .detail-table th, .detail-table td {
-            padding: 0.75rem 1rem; /* py-3 px-4 */
-            vertical-align: top;
-            text-align: left;
+        /* Enhanced Readability for Detail Sections */
+        .detail-section h4 {
+             color: #9CA3AF; /* text-medium */
+             font-weight: 600; /* font-semibold */
+             margin-top: 1rem; /* mt-4 */
+             margin-bottom: 0.5rem; /* mb-2 */
+             padding-bottom: 0.25rem; /* pb-1 */
+             border-bottom: 1px solid #4B5563; /* border-border-light */
         }
-        .detail-table th {
-            font-weight: 600; /* font-semibold */
-            color: #9CA3AF; /* text-medium */
-            width: 25%; /* Fixed width for labels */
-        }
-         .detail-table td {
+         .detail-section ul {
+            list-style-type: disc;
+            margin-left: 1.5rem; /* ml-6 */
+            margin-bottom: 1rem; /* mb-4 */
             color: #E5E7EB; /* text-light */
          }
-        .detail-table tr:nth-child(odd) {
-            background-color: #2d2d2d; /* card-bg */
-        }
-         .detail-table tr:nth-child(even) {
+         .detail-section li {
+            margin-bottom: 0.5rem; /* mb-2 */
+            line-height: 1.6;
+         }
+         .detail-section p {
+            margin-bottom: 0.75rem; /* mb-3 */
+            line-height: 1.6;
+            color: #E5E7EB; /* text-light */
+         }
+         .detail-section strong {
+             color: #d1d5db; /* Lighter gray for emphasis */
+             font-weight: 600;
+         }
+         .detail-section code { /* Style for inline code/examples */
             background-color: #374151; /* card-bg-alt */
-        }
+            padding: 0.1rem 0.4rem;
+            border-radius: 0.25rem;
+            font-family: monospace;
+            font-size: 0.9em;
+            color: #f3f4f6; /* Lighter text for code */
+         }
 
         /* Ensure KaTeX math renders visibly in dark mode */
         .katex {
@@ -124,7 +138,6 @@
                 Welcome to the detailed curriculum guide! This resource provides a comprehensive overview of the Ontario Grade 3 Mathematics curriculum, focusing on the strands covered by the Brain Boost Arcade activities (currently B1, B2, and C1).
             </p>
             <p class="text-text-light leading-relaxed mt-3">
-                {/* REMOVED COMMENT */}
                 **Why the Interactive Learning Doesn't Follow Strict Order:** You might notice that the **interactive learning activities** sometimes mix expectations (e.g., placing B2.3 Estimation early) or group related skills together (e.g., B1.2 Comparison and B1.3 Rounding). This is intentional! The activities prioritize a **logical learning flow** for a Grade 3 student over strict numerical sequence. Foundational skills are often grouped, and related concepts are presented together to reinforce understanding and simulate real classroom assessment practices. This tree view below, however, presents the curriculum in its official, structured order for your reference.
             </p>
         </section>
@@ -147,16 +160,217 @@
                             <h3 class="text-xl font-semibold text-gray-200">B1: Number Sense</h3>
                              <span class="expand-icon text-lg text-text-medium transform transition-transform">▼</span>
                         </div>
-                        <div class="expectation-content px-3 pb-3">
-                             <table class="w-full detail-table">
-                                <tr><th>B1.1</th><td>Read, represent, compose, and decompose whole numbers up to **1000** (e.g., standard, expanded form).</td><td>Place Value, Standard/Expanded Form, Base Ten</td></tr>
-                                <tr><th>B1.2</th><td>Compare and order whole numbers up to **1000** using place value and symbols ($<, >, =$ ).</td><td>Magnitude, Place Value Comparison, Ascending/Descending</td></tr>
-                                <tr><th>B1.3</th><td>Round whole numbers to the nearest **ten or hundred**.</td><td>Estimation, Rounding Rules, Midpoint</td></tr>
-                                <tr><th>B1.4</th><td>Count to 1000, including skip counting by **50s, 100s, and 200s**.</td><td>Skip Counting, Sequences, Patterns</td></tr>
-                                <tr><th>B1.5</th><td>Use place value when describing and representing multi-digit numbers.</td><td>Place, Value, Digit, Times Ten Relationship</td></tr>
-                                <tr><th>B1.6</th><td>Solve fair-share problems resulting in whole numbers, **mixed numbers, or fractions**.</td><td>Unit Fractions, Mixed Numbers, Equal Sharing</td></tr>
-                                <tr><th>B1.7</th><td>Solve fair-share problems focusing on **equivalent fractions** (halves/fourths/eighths; thirds/sixths; fifths/tenths).</td><td>Equivalent Fractions, Numerator, Denominator, Ratio</td></tr>
-                             </table>
+                        <div class="expectation-content px-3 pb-3 space-y-4">
+                            <!-- B1.1 Details -->
+                            <div>
+                                <h4 class="text-lg font-semibold text-text-medium mb-2">B1.1 Read, represent, compose, and decompose whole numbers up to 1000...</h4>
+                                <div class="detail-section pl-4 border-l-2 border-border-light">
+                                    <p><strong>Focus:</strong> Understanding numbers to 1000 in different forms (words, numerals, expanded: $600 + 30 + 8$) and using tools like base ten blocks or number lines.</p>
+                                    <h4>Examples:</h4>
+                                    <ul>
+                                        <li>Words: "six hundred thirty-eight"</li>
+                                        <li>Standard: 638</li>
+                                        <li>Expanded: $600 + 30 + 8$</li>
+                                        <li>Base Ten: 3 flats, 2 rods, 7 units for 327</li>
+                                        <li>Number Line: Representing numbers as points or distances.</li>
+                                    </ul>
+                                    <h4>Key Concepts:</h4>
+                                    <ul>
+                                        <li>Place value determines a digit's value (e.g., the 4 in 4107 is 4 thousands).</li>
+                                        <li>Numbers can be broken down (decomposed) and built up (composed) in many ways (e.g., $512 = 250 + 250 + 10 + 2$).</li>
+                                        <li>Tools help visualize number representation.</li>
+                                        <li>Numbers describe quantities ("how much?").</li>
+                                    </ul>
+                                    <h4>Note:</h4>
+                                    <ul>
+                                        <li>Conservation principle: Quantity remains unchanged when decomposed/recomposed.</li>
+                                        <li>Flexibility in decomposing supports mental math (e.g., $587 = 58$ tens $+ 7$ ones).</li>
+                                        <li>Number lines (closed, open) are key tools.</li>
+                                        <li>Connect concrete models (base ten) with written forms.</li>
+                                    </ul>
+                                    <h4>Sample Tasks:</h4>
+                                    <ul>
+                                        <li>Show different ways to reach 638 on an open number line.</li>
+                                        <li>"Which Number Am I?" clues using place value or composition (e.g., "My number has 16 tens and 16 ones").</li>
+                                        <li>Represent 647 with base ten blocks, then regroup (e.g., 5 flats, 14 rods, 7 units).</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- B1.2 Details -->
+                             <div>
+                                <h4 class="text-lg font-semibold text-text-medium mb-2">B1.2 Compare and order whole numbers up to 1000...</h4>
+                                <div class="detail-section pl-4 border-l-2 border-border-light">
+                                     <p><strong>Focus:</strong> Using strategies like benchmark numbers (e.g., comparing to 500) and place value to compare ($<, >, =$) and order numbers.</p>
+                                     <h4>Examples:</h4>
+                                    <ul>
+                                        <li>Using Benchmarks: 512 is closer to 500 than 465.</li>
+                                        <li>Using Place Value: Compare 535 and 542 by looking at the tens place (3 vs 4).</li>
+                                        <li>Ordering: Ascending (65, 128, 456) or Descending (832, 456, 128).</li>
+                                    </ul>
+                                     <h4>Key Concepts:</h4>
+                                    <ul>
+                                        <li>Numbers are compared by magnitude ("how muchness").</li>
+                                        <li>Compare digits in the greatest place value where they differ.</li>
+                                        <li>Ascending = least to greatest; Descending = greatest to least.</li>
+                                    </ul>
+                                     <h4>Note:</h4>
+                                    <ul>
+                                        <li>Place value is key to comparing any numbers.</li>
+                                        <li>Metre stick (mm scale) can be a 0-1000 number line.</li>
+                                    </ul>
+                                     <h4>Sample Tasks:</h4>
+                                    <ul>
+                                        <li>Number line clothesline: Pin number cards in order using benchmarks.</li>
+                                        <li>"Close, Far, or In Between": Compare three numbers (e.g., 237, 384, 429).</li>
+                                        <li>Use a metre stick (mm) to locate and compare numbers.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- B1.3 Details -->
+                            <div>
+                                <h4 class="text-lg font-semibold text-text-medium mb-2">B1.3 Round whole numbers to the nearest ten or hundred...</h4>
+                                <div class="detail-section pl-4 border-l-2 border-border-light">
+                                    <p><strong>Focus:</strong> Understanding rounding for estimation, using the midpoint rule (5 or more rounds up).</p>
+                                    <h4>Examples:</h4>
+                                    <ul>
+                                        <li>Context: Estimating sums, measuring (56mm ≈ 60mm or 6cm), paying with cash.</li>
+                                    </ul>
+                                    <h4>Key Concepts:</h4>
+                                    <ul>
+                                        <li>Rounding makes numbers simpler for estimation.</li>
+                                        <li>Rounding to tens is more precise than rounding to hundreds.</li>
+                                        <li>Midpoint Rule: Look at the digit to the right of the place you're rounding to. 5 or more rounds up, less than 5 rounds down. (e.g., 237 rounds to 240 (nearest ten) or 200 (nearest hundred)).</li>
+                                    </ul>
+                                    <h4>Note:</h4>
+                                    <ul>
+                                        <li>Precision needed determines how much to round.</li>
+                                    </ul>
+                                    <h4>Sample Tasks:</h4>
+                                    <ul>
+                                        <li>Number line clothesline with benchmarks (multiples of 10 or 100) and halfway marks. Pin numbers to the nearest ten/hundred.</li>
+                                        <li>Real-life rounding scenarios (e.g., how many $10 bills for a $32 purchase?).</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- B1.4 Details -->
+                            <div>
+                                <h4 class="text-lg font-semibold text-text-medium mb-2">B1.4 Count to 1000, including by 50s, 100s, and 200s...</h4>
+                                <div class="detail-section pl-4 border-l-2 border-border-light">
+                                    <p><strong>Focus:</strong> Developing fluency in counting sequences, especially across hundreds, and skip counting by larger units.</p>
+                                     <h4>Examples:</h4>
+                                    <ul>
+                                         <li>Skip counting by 200s on a number line.</li>
+                                    </ul>
+                                     <h4>Key Concepts:</h4>
+                                    <ul>
+                                        <li>Counting has a purpose (how many, how long, compare).</li>
+                                        <li>Can start counting from any number.</li>
+                                        <li>Skip counting unit = number of objects in a group.</li>
+                                        <li>The 0-9 sequence repeats within decades and hundreds.</li>
+                                    </ul>
+                                     <h4>Note:</h4>
+                                    <ul>
+                                        <li>Skip counting builds foundation for multiplication/division.</li>
+                                        <li>Counting across hundreds reinforces place value patterns.</li>
+                                    </ul>
+                                     <h4>Sample Tasks:</h4>
+                                    <ul>
+                                        <li>Count by ones across hundreds (e.g., 196 to 230).</li>
+                                        <li>Financial scenario: How to make $680 with $20, $50, $100 bills?</li>
+                                        <li>Create a class 0-1000 chart; use it for skip counting; find hidden numbers.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- B1.5 Details -->
+                            <div>
+                                <h4 class="text-lg font-semibold text-text-medium mb-2">B1.5 Use place value when describing and representing multi-digit numbers...</h4>
+                                <div class="detail-section pl-4 border-l-2 border-border-light">
+                                    <p><strong>Focus:</strong> Deepening understanding of how a digit's position (place) determines its value, using tools like base ten blocks.</p>
+                                     <h4>Examples:</h4>
+                                    <ul>
+                                        <li>Using materials (blocks, bead strings) to show 1, 10, 100, 1000.</li>
+                                        <li>10x10 grid showing relationship between 1, 10, 100.</li>
+                                        <li>Base ten blocks showing the value of '5' in 500, 50, and 5.</li>
+                                    </ul>
+                                     <h4>Key Concepts:</h4>
+                                    <ul>
+                                        <li>Place determines value (5 in 511 means 500).</li>
+                                        <li>Order matters (385 vs 853).</li>
+                                        <li>Zero is a placeholder (57 vs 507).</li>
+                                        <li>Expanded notation shows place value ($987 = 900 + 80 + 7$).</li>
+                                    </ul>
+                                     <h4>Note:</h4>
+                                    <ul>
+                                        <li>"Times ten" pattern between places ($50 = 10 \times 5$, $500 = 10 \times 50$).</li>
+                                        <li>Base ten materials are crucial.</li>
+                                        <li>Place value is foundational for calculations.</li>
+                                        <li>Hundreds-Tens-Ones pattern repeats in larger periods (thousands, millions).</li>
+                                    </ul>
+                                     <h4>Sample Tasks:</h4>
+                                    <ul>
+                                        <li>Compare/contrast numbers like 905, 509, 950, 590 (digit vs value).</li>
+                                        <li>Calculator task: Change '6' in 467 to '0' by subtracting the correct value (60, not 6).</li>
+                                        <li>"Number Wipe Out" calculator game (guessing digits and their values).</li>
+                                        <li>Model 777 on grid paper; discuss "times ten" relationship between areas.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                             <!-- B1.6 Details -->
+                            <div>
+                                <h4 class="text-lg font-semibold text-text-medium mb-2">B1.6 Use drawings for fair-share problems (up to 20 items among 2, 3, 4, 5, 6, 8, 10 sharers)...</h4>
+                                <div class="detail-section pl-4 border-l-2 border-border-light">
+                                     <p><strong>Focus:</strong> Solving division problems where the result might be a whole number, fraction, or mixed number, using visual representations.</p>
+                                     <h4>Examples:</h4>
+                                    <ul>
+                                         <li>Drawings showing 16 ribbons shared among 2, 3, or 6 friends.</li>
+                                    </ul>
+                                     <h4>Key Concepts:</h4>
+                                    <ul>
+                                        <li>Fair share = equal share.</li>
+                                        <li>Results can be whole numbers (4 shared by 2 = 2 each), fractions (4 shared by 8 = 1/2 each), or mixed numbers (4 shared by 3 = 1 and 1/3 each).</li>
+                                        <li>Comparing shares: More sharers = smaller share (if total is same); More items = bigger share (if sharers are same).</li>
+                                    </ul>
+                                     <h4>Note:</h4>
+                                    <ul>
+                                        <li>Clarify "fair" means "equal" in math context.</li>
+                                        <li>Connects naturally to division and fractions.</li>
+                                        <li>Introduce fractional notation ($\frac{1}{3}$) alongside words ("one third").</li>
+                                    </ul>
+                                     <h4>Sample Tasks:</h4>
+                                    <ul>
+                                        <li>Solve word problems: 16 waffles shared by 5 friends? 15 samosas by 10 friends? 18 strings by 10 students? Model with drawings/strips.</li>
+                                        <li>Compare scenarios: 13 bars among 8 friends vs. 13 bars among 5 friends? Who gets more?</li>
+                                        <li>Equalizing shares: If 2 friends share 4 plums, how many plums do 6 friends need to share to get the same amount each? Model and discuss ratio relationship.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- B1.7 Details -->
+                            <div>
+                                <h4 class="text-lg font-semibold text-text-medium mb-2">B1.7 Represent and solve fair-share problems focusing on equivalent fractions...</h4>
+                                <div class="detail-section pl-4 border-l-2 border-border-light">
+                                    <p><strong>Focus:</strong> Using fair-share contexts to discover and represent equivalent fractions (halves/fourths/eighths; thirds/sixths; fifths/tenths).</p>
+                                     <h4>Examples:</h4>
+                                    <ul>
+                                         <li>Drawing: 5 friends share 1 flatbread (each gets $\frac{1}{5}$). If each friend splits their piece in 2, they now have $\frac{2}{10}$, showing $\frac{1}{5} = \frac{2}{10}$.</li>
+                                    </ul>
+                                     <h4>Key Concepts:</h4>
+                                    <ul>
+                                        <li>Equivalent fractions represent the same quantity ($\frac{1}{2} = \frac{2}{4} = \frac{4}{8}$).</li>
+                                        <li>Understanding unit fractions (fifths, tenths, etc.).</li>
+                                    </ul>
+                                     <h4>Note:</h4>
+                                    <ul>
+                                        <li>Fair share provides context for equivalence.</li>
+                                        <li>Patterns exist between equivalent fractions (e.g., numerator and denominator are both doubled).</li>
+                                        <li>Constant multiplicative relationship between equivalent ratios/fractions.</li>
+                                    </ul>
+                                     <h4>Sample Tasks:</h4>
+                                    <ul>
+                                        <li>Pose sharing problems leading to equivalent answers: ___ people share ___ items. Describe the share using two different fractions (e.g., 2 shared by 8 = $\frac{2}{8}$ or $\frac{1}{4}$). Discuss patterns.</li>
+                                        <li>Revisit B1.6, Task 3 (equalizing shares) and explicitly model the equivalent fractions involved.</li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                     </div>
                      <!-- B2. Operations -->
@@ -165,16 +379,216 @@
                             <h3 class="text-xl font-semibold text-gray-200">B2: Operations</h3>
                              <span class="expand-icon text-lg text-text-medium transform transition-transform">▼</span>
                         </div>
-                        <div class="expectation-content px-3 pb-3">
-                             <table class="w-full detail-table">
-                                <tr><th>B2.1</th><td>Use properties of operations (commutative) and inverse relationships (mult/div).</td><td>Commutative Property, Inverse Relationship</td></tr>
-                                <tr><th>B2.2</th><td>Recall multiplication facts of **2, 5, and 10**, and related division facts.</td><td>Basic Facts, Multiplication, Division</td></tr>
-                                <tr><th>B2.3</th><td>Use mental math strategies, including **estimation**, for +/- up to **1000**.</td><td>Estimation, Mental Math, Benchmarks</td></tr>
-                                <tr><th>B2.4/B2.5</th><td>Demonstrate and apply algorithms for +/- whole numbers up to **1000**.</td><td>Algorithms, Base Ten, Number Line</td></tr>
-                                <tr><th>B2.6/B2.7</th><td>Represent and solve multiplication (up to $10 \times 10$) and division (up to $100 \div 10$).</td><td>Arrays, Repeated Addition/Subtraction, Grouping</td></tr>
-                                <tr><th>B2.8</th><td>Connect numerator to repeated addition of the unit fraction (e.g., $\frac{1}{4} + \frac{1}{4} = \frac{2}{4}$).</td><td>Unit Fraction, Repeated Addition, Fractional Notation</td></tr>
-                                <tr><th>B2.9</th><td>Use ratios of **1:2, 1:5, and 1:10** to scale up numbers.</td><td>Ratios, Scale, Proportional Reasoning</td></tr>
-                             </table>
+                        <div class="expectation-content px-3 pb-3 space-y-4">
+                             <!-- B2.1 Details -->
+                             <div>
+                                <h4 class="text-lg font-semibold text-text-medium mb-2">B2.1 Use properties of operations and relationships (mult/div)...</h4>
+                                <div class="detail-section pl-4 border-l-2 border-border-light">
+                                     <p><strong>Focus:</strong> Applying properties like commutative ($a \times b = b \times a$) and distributive ($4 \times 6 = (4 \times 5) + (4 \times 1)$) and the inverse relationship between multiplication and division to solve problems and check answers.</p>
+                                     <h4>Examples:</h4>
+                                    <ul>
+                                         <li>Commutative (Mult): Show $4 \times 5 = 5 \times 4$ with arrays.</li>
+                                         <li>Distributive: Show $4 \times 6$ on ten frames as $(4 \times 5) + (4 \times 1)$.</li>
+                                         <li>Inverse: $10 \div 2 = ?$ can mean "how much in each group?" or "how many groups of 2?".</li>
+                                    </ul>
+                                     <h4>Key Concepts:</h4>
+                                    <ul>
+                                        <li>Multiplication/Division involve equal groups.</li>
+                                        <li>They are inverse operations ($16 \div 2 = ?$ is same as $? \times 2 = 16$).</li>
+                                    </ul>
+                                     <h4>Note:</h4>
+                                    <ul>
+                                        <li>Connect concrete models to properties (students don't need to name properties but should use them).</li>
+                                        <li>Supports many other Number expectations.</li>
+                                    </ul>
+                                     <h4>Sample Tasks:</h4>
+                                    <ul>
+                                        <li>Use tools to show $4 \times 8 = 8 \times 4$.</li>
+                                        <li>Model $6 \times 4$ on a rekenrek using $(5 \times 4) + (1 \times 4)$.</li>
+                                        <li>Connect multiplication/division representations ($3 \times 5 = 15$ and $15 \div 3 = 5$).</li>
+                                        <li>Memory game matching multiplication fact, division fact, and representation.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- B2.2 Details -->
+                            <div>
+                                <h4 class="text-lg font-semibold text-text-medium mb-2">B2.2 Recall and demonstrate multiplication facts of 2, 5, and 10, and related division facts.</h4>
+                                <div class="detail-section pl-4 border-l-2 border-border-light">
+                                     <p><strong>Focus:</strong> Building automaticity with key multiplication facts (2s, 5s, 10s) and understanding their connection to division through skip counting and visual models.</p>
+                                     <h4>Examples:</h4>
+                                    <ul>
+                                         <li>Connecting skip counting by 2s to $\times 2$ facts.</li>
+                                         <li>Using arrays or equal groups to show facts like $4 \times 10 = 40$.</li>
+                                         <li>Using multiplication to solve division: $35 \div 5 = ?$ think $5 \times ? = 35$.</li>
+                                         <li>Strategy: $4 \times 5$ is half of $4 \times 10$.</li>
+                                    </ul>
+                                     <h4>Key Concepts:</h4>
+                                    <ul>
+                                         <li>Multiplication/Division are inverse operations.</li>
+                                    </ul>
+                                     <h4>Note:</h4>
+                                    <ul>
+                                         <li>Concrete models build understanding.</li>
+                                         <li>Automatic recall frees up working memory for complex problems.</li>
+                                         <li>Doubling, halving, skip counting are foundational strategies.</li>
+                                         <li>Multiplication involves a "double count" (groups and total).</li>
+                                    </ul>
+                                     <h4>Sample Tasks:</h4>
+                                    <ul>
+                                         <li>Model $\times 10$ and $\times 5$ facts on rekenrek/ten frames, notice $\times 5$ is half of $\times 10$.</li>
+                                         <li>Find patterns for 2s, 5s, 10s facts on a multiplication grid. Connect $\times 4$ to "double double".</li>
+                                         <li>Memory game matching fact (e.g., $2 \times 3$), representation (array), and answer (6).</li>
+                                         <li>Number strings connecting related facts ($\times 2$, $\times 5$, $\times 10$).</li>
+                                    </ul>
+                                </div>
+                            </div>
+                             <!-- B2.3 Details -->
+                            <div>
+                                <h4 class="text-lg font-semibold text-text-medium mb-2">B2.3 Use mental math strategies, including estimation, to add and subtract up to 1000...</h4>
+                                <div class="detail-section pl-4 border-l-2 border-border-light">
+                                     <p><strong>Focus:</strong> Developing flexible strategies for calculating addition/subtraction in one's head, sometimes using jottings, and using estimation (rounding) to check reasonableness.</p>
+                                     <h4>Examples (Strategies):</h4>
+                                    <ul>
+                                         <li>Addition: Counting on ($3 + 789$), Making 10 ($684+7 \rightarrow 680+4+6+1$), Compensation ($869+15 \rightarrow 870+15-1$).</li>
+                                         <li>Subtraction: Counting on ($982-977$), Counting back ($692-687$), Subtracting in parts ($216-27 \rightarrow 216-20-7$), Back down through 10 ($93-5 \rightarrow 93-3-2$), Compensation ($978-480 \rightarrow 980-480-2$), Using Addition ($452-137 \rightarrow 137+?=452$).</li>
+                                    </ul>
+                                     <h4>Key Concepts:</h4>
+                                    <ul>
+                                         <li>Mental math = calculation in head (may use jottings).</li>
+                                         <li>Tools like number lines can show strategies.</li>
+                                         <li>Estimation (rounding) checks reasonableness.</li>
+                                    </ul>
+                                     <h4>Note:</h4>
+                                    <ul>
+                                         <li>Strategies vary based on numbers involved.</li>
+                                         <li>Goal is flexibility and understanding, not just speed.</li>
+                                         <li>Builds on basic facts and number relationships.</li>
+                                    </ul>
+                                     <h4>Sample Tasks:</h4>
+                                    <ul>
+                                         <li>Number Talks: Share strategies for problems like $398+123$. Visualize with number lines.</li>
+                                         <li>Mental subtraction task: Solve $452-137$ mentally, share strategies (using addition, breaking apart, compensation).</li>
+                                         <li>Apply strategies to real-world estimation (cost of purchase, making change).</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- B2.4/B2.5 Details -->
+                            <div>
+                                <h4 class="text-lg font-semibold text-text-medium mb-2">B2.4/B2.5 Demonstrate understanding of +/- algorithms & solve problems up to 1000...</h4>
+                                <div class="detail-section pl-4 border-l-2 border-border-light">
+                                     <p><strong>Focus:</strong> Connecting concrete tools (like base ten blocks) to the standard paper-and-pencil algorithms for addition and subtraction, understanding the "regrouping" or "trading" process based on place value, and solving various word problem types.</p>
+                                     <h4>Examples (Algorithms & Situations):</h4>
+                                    <ul>
+                                         <li>Connecting base ten blocks to standard addition algorithm (regrouping 11 tens as 1 hundred, 1 ten).</li>
+                                         <li>Connecting base ten blocks to standard subtraction algorithm (trading 1 rod for 10 ones, 1 flat for 10 rods - "borrowing").</li>
+                                         <li>Problem Types: Change (Join/Separate), Combine (Part/Part/Whole), Compare (Difference).</li>
+                                    </ul>
+                                     <h4>Key Concepts:</h4>
+                                    <ul>
+                                         <li>Standard algorithms use place value for compact calculation.</li>
+                                         <li>Addition/Subtraction situations involve changing, combining, or comparing quantities.</li>
+                                         <li>Models (drawings, part-whole diagrams) help visualize problems.</li>
+                                    </ul>
+                                     <h4>Note:</h4>
+                                    <ul>
+                                         <li>Algorithm = steps for a procedure. Standard algorithms vary culturally.</li>
+                                         <li>Emphasize place *value* (e.g., "20 + 80") not just face *value* ("2 + 8") when explaining algorithms.</li>
+                                         <li>Matching equations to problem structures reinforces meaning. Part-whole models show inverse relationship and build algebraic reasoning.</li>
+                                    </ul>
+                                     <h4>Sample Tasks:</h4>
+                                    <ul>
+                                         <li>Model computations (e.g., $479+269$, $452-269$) with base ten blocks and explicitly link each step (trading/regrouping) to the written algorithm.</li>
+                                         <li>Investigate alternative addition/subtraction algorithms.</li>
+                                         <li>Solve various word problems (Change, Combine, Compare) using models, drawings, and algorithms. Write matching number sentences.</li>
+                                         <li>Given a scenario (e.g., 387 items total, 136 are cans, how many boxes?), write multiple equivalent equations to represent it ($387 - ? = 136$, $136 + ? = 387$, $387 - 136 = ?$).</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- B2.6/B2.7 Details -->
+                             <div>
+                                <h4 class="text-lg font-semibold text-text-medium mb-2">B2.6/B2.7 Represent and solve multiplication (up to 10x10) and division (up to 100÷10)...</h4>
+                                <div class="detail-section pl-4 border-l-2 border-border-light">
+                                     <p><strong>Focus:</strong> Using tools (especially arrays and number lines) and drawings to model and solve multiplication and division problems, including those involving simple fractions (halves, thirds, fourths).</p>
+                                     <h4>Examples:</h4>
+                                    <ul>
+                                         <li>Arrays: Show $3 \times 4$ as 3 rows of 4. Show $36 \div 4 = ?$ by arranging 36 counters with 4 in each column.</li>
+                                         <li>Number Lines: Show $6 \times 5$ as 6 hops of 5. Show $35 \div 5$ as backward hops of 5 from 35.</li>
+                                         <li>Fractions: $12$ hops of $\frac{1}{3}$ equals 4. Subtracting $\frac{1}{4}$ seven times from $1 \frac{3}{4}$.</li>
+                                    </ul>
+                                     <h4>Key Concepts:</h4>
+                                    <ul>
+                                         <li>Multiplication finds total (known groups & size).</li>
+                                         <li>Division finds group size (sharing) or number of groups (grouping).</li>
+                                         <li>Array model shows rows/columns structure.</li>
+                                         <li>Division types: Equal Sharing (known total & #groups, find size); Equal Grouping (known total & size, find #groups).</li>
+                                         <li>Repeated addition/subtraction are common strategies.</li>
+                                    </ul>
+                                     <h4>Note:</h4>
+                                    <ul>
+                                         <li>Arrays visualize skip counting, distributive property, inverse relationship.</li>
+                                         <li>Rekenrek, ten frames, relational rods are also useful tools.</li>
+                                         <li>Representations help solve problems by counting; connect to equations.</li>
+                                    </ul>
+                                     <h4>Sample Tasks:</h4>
+                                    <ul>
+                                         <li>Create arrays for scenarios (e.g., 9 rows of 6 corn plants). Count creatively (skip counting, chunking using distributive property). See both $6 \times 9$ and $9 \times 6$.</li>
+                                         <li>Model division scenarios with counters (e.g., 48 band members in rows of 6. How many rows?). Use skip counting/known facts.</li>
+                                         <li>Solve equal-group word problems (product unknown, group size unknown, number of groups unknown). Model, use repeated +/-. Write mult/div sentences.</li>
+                                         <li>Solve fraction multiplication/division problems with drawings/number lines: $5$ weeks using $\frac{3}{4}$ can each week? How many plants needing $\frac{1}{3}$ can be watered with 5 cans? Connect counting unit fractions to repeated +/- and mult/div equations.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- B2.8 Details -->
+                             <div>
+                                <h4 class="text-lg font-semibold text-text-medium mb-2">B2.8 Represent connection between numerator and repeated addition of unit fraction...</h4>
+                                <div class="detail-section pl-4 border-l-2 border-border-light">
+                                     <p><strong>Focus:</strong> Understanding that the numerator counts the number of unit fractions being added together, using visual tools and standard notation.</p>
+                                     <h4>Examples:</h4>
+                                    <ul>
+                                         <li>Fraction strips showing $\frac{1}{5} + \frac{1}{5} + \frac{1}{5} + \frac{1}{5} = \frac{4}{5}$.</li>
+                                    </ul>
+                                     <h4>Key Concepts:</h4>
+                                    <ul>
+                                         <li>Denominator: Bottom number, size of each part (unit fraction). More parts = smaller unit fraction.</li>
+                                         <li>Numerator: Top number, counts the equal parts (unit fractions).</li>
+                                         <li>A fraction like $\frac{2}{5}$ represents $\frac{1}{5} + \frac{1}{5}$.</li>
+                                    </ul>
+                                     <h4>Sample Tasks:</h4>
+                                    <ul>
+                                         <li>Model $\frac{4}{5}$ with a paper strip. Explain what '4' and '5' mean. Relate model to $\frac{1}{5}+\frac{1}{5}+\frac{1}{5}+\frac{1}{5} = \frac{4}{5}$.</li>
+                                         <li>Compose fractions like four-fifths using unit fractions and represent with tools/notation.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- B2.9 Details -->
+                             <div>
+                                <h4 class="text-lg font-semibold text-text-medium mb-2">B2.9 Use ratios of 1:2, 1:5, and 1:10 to scale up numbers and solve problems.</h4>
+                                <div class="detail-section pl-4 border-l-2 border-border-light">
+                                     <p><strong>Focus:</strong> Understanding and applying simple multiplicative ratios (doubling, 5 times, 10 times) in contexts like scaling and comparisons.</p>
+                                     <h4>Examples:</h4>
+                                    <ul>
+                                         <li>Ratio 1 blue square to 2 green circles.</li>
+                                         <li>Pictograph key: 1 smiley = 5 students.</li>
+                                         <li>Double number line showing 1 matches 10.</li>
+                                    </ul>
+                                     <h4>Key Concepts:</h4>
+                                    <ul>
+                                         <li>Ratios describe multiplicative relationships (e.g., twice as many, 5 times as many).</li>
+                                    </ul>
+                                     <h4>Note:</h4>
+                                    <ul>
+                                         <li>Ratio notation $a:b$.</li>
+                                         <li>Scaling up = multiplying by a factor. Double number lines help visualize scaling.</li>
+                                    </ul>
+                                     <h4>Sample Tasks:</h4>
+                                    <ul>
+                                         <li>Solve ratio problems: Elise has 8 marbles. Esteban has 5 times as many. How many does Esteban have?</li>
+                                         <li>Draw a diagram showing 10 times as many milkweeds as coneflowers.</li>
+                                         <li>Redraw a pictograph with a 5:1 key using a 1:1 key.</li>
+                                         <li>Use double/triple number lines to show scaling relationships (e.g., cm to mm is 1:10). Compare 40 on scales of 1:10, 1:5, 1:2.</li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -195,12 +609,121 @@
                             <h3 class="text-xl font-semibold text-gray-200">C1: Patterns and Relationships</h3>
                              <span class="expand-icon text-lg text-text-medium transform transition-transform">▼</span>
                         </div>
-                        <div class="expectation-content px-3 pb-3">
-                             <table class="w-full detail-table">
-                                <tr><th>C1.1</th><td>Identify, describe, extend, create, and predict patterns (repeating, growing, shrinking).</td><td>Pattern Rule, Repeating, Growing, Shrinking</td></tr>
-                                <!-- Add more C1 expectations as needed -->
-                             </table>
-                        </div>
+                         <div class="expectation-content px-3 pb-3 space-y-4">
+                            <!-- C1.1 Details -->
+                            <div>
+                                <h4 class="text-lg font-semibold text-text-medium mb-2">C1.1 Identify and describe repeating elements and operations...</h4>
+                                <div class="detail-section pl-4 border-l-2 border-border-light">
+                                    <p><strong>Focus:</strong> Recognizing patterns in various contexts (nature, crafts, numbers) based on repeating elements (shapes, colors) or repeating operations (+, -, ×, ÷).</p>
+                                    <h4>Examples:</h4>
+                                    <ul>
+                                        <li>Crafts: Beadwork, knitting sequences.</li>
+                                        <li>Nature: Honeycombs, phases of the Moon.</li>
+                                        <li>Numeric: Adding 25 cents every sixth day.</li>
+                                    </ul>
+                                    <h4>Key Concepts:</h4>
+                                    <ul>
+                                        <li>Pattern Core: Shortest string of repeating elements.</li>
+                                        <li>Repeating Operation: The mathematical action repeated (+5, ×2, etc.).</li>
+                                    </ul>
+                                    <h4>Note:</h4>
+                                    <ul>
+                                        <li>Patterns connect to culture and history.</li>
+                                        <li>Focus on what stays the same and what changes.</li>
+                                        <li>Operations (+0, -0, ×1, ÷1) don't change elements.</li>
+                                    </ul>
+                                    <h4>Sample Tasks:</h4>
+                                    <ul>
+                                        <li>Collect pictures/diagrams of real-life patterns (beadwork, tiles) and describe the repeating core/operation.</li>
+                                        <li>Explore patterns in different number systems (e.g., Mayan numerals).</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- C1.2 Details -->
+                            <div>
+                                <h4 class="text-lg font-semibold text-text-medium mb-2">C1.2 Create and translate patterns... using various representations...</h4>
+                                <div class="detail-section pl-4 border-l-2 border-border-light">
+                                    <p><strong>Focus:</strong> Representing the same pattern structure in different ways (e.g., shapes, numbers, tables of values).</p>
+                                     <h4>Examples:</h4>
+                                    <ul>
+                                        <li>Translate numeric pattern (1, 2, 1, 2...) into shapes (circle, square, circle, square...).</li>
+                                        <li>Translate growing shape pattern into a table of values (Term # vs. # of Tiles).</li>
+                                    </ul>
+                                    <h4>Key Concepts:</h4>
+                                    <ul>
+                                        <li>Same underlying structure can have different looks.</li>
+                                        <li>Table of Values: Term Number (position) vs. Term Value (quantity).</li>
+                                    </ul>
+                                    <h4>Note:</h4>
+                                    <ul>
+                                        <li>Comparing translations highlights the underlying math structure.</li>
+                                    </ul>
+                                    <h4>Sample Tasks:</h4>
+                                    <ul>
+                                        <li>Describe real-life patterns verbally ("I get older each year").</li>
+                                        <li>Translate a numeric pattern to shapes.</li>
+                                        <li>Create a growing tile pattern, translate to table of values. Answer prediction questions (How many tiles in Term 6? Which term has 16 tiles?).</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- C1.3 Details -->
+                            <div>
+                                <h4 class="text-lg font-semibold text-text-medium mb-2">C1.3 Determine pattern rules and use them to extend, predict, identify missing elements...</h4>
+                                <div class="detail-section pl-4 border-l-2 border-border-light">
+                                     <p><strong>Focus:</strong> Generalizing patterns by finding the rule (in words) and using it to continue the pattern, find future terms, or fill in gaps.</p>
+                                     <h4>Examples:</h4>
+                                    <ul>
+                                        <li>Extending: What came before? What comes next?</li>
+                                        <li>Predicting: What shape/number is in the 10th position? 100th?</li>
+                                        <li>Missing Elements: Fill in blanks in sequences or tables.</li>
+                                    </ul>
+                                    <h4>Key Concepts:</h4>
+                                    <ul>
+                                        <li>Patterns are repetitive.</li>
+                                        <li>Pattern Rule: A general description of how the pattern works.</li>
+                                        <li>Near Prediction: Finding the next few terms.</li>
+                                        <li>Far Prediction: Finding a term much later in the sequence (often needs calculation).</li>
+                                    </ul>
+                                    <h4>Note:</h4>
+                                    <ul>
+                                        <li>Generalizing (finding the rule) is key.</li>
+                                        <li>Use rules to verify predictions.</li>
+                                    </ul>
+                                     <h4>Sample Tasks:</h4>
+                                    <ul>
+                                        <li>Extend patterns that don't start at Term 1, forwards and backwards.</li>
+                                        <li>Analyze patterns growing in multiple directions (e.g., number pyramids).</li>
+                                        <li>Make near/far predictions for various patterns (shapes, numbers). Justify with the rule. (e.g., Circle pattern: 100th position? Can Term X have 50 sections?).</li>
+                                        <li>Fill in missing elements in sequences or tables.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- C1.4 Details -->
+                             <div>
+                                <h4 class="text-lg font-semibold text-text-medium mb-2">C1.4 Create and describe patterns to illustrate relationships among whole numbers up to 1000.</h4>
+                                <div class="detail-section pl-4 border-l-2 border-border-light">
+                                     <p><strong>Focus:</strong> Using patterns to show connections between operations or within the number system.</p>
+                                     <h4>Examples:</h4>
+                                    <ul>
+                                        <li>Pattern showing addition/subtraction facts for 7 extended to larger numbers (e.g., $500+7=507$, $507-7=500$; $501+6=507$, $507-6=501$...).</li>
+                                        <li>Pattern showing relationship between $\times 5$ and $\div 5$ facts (e.g., $5 \times 3 = 15$, $15 \div 3 = 5$; $5 \times 4 = 20$, $20 \div 4 = 5$...).</li>
+                                    </ul>
+                                    <h4>Key Concepts:</h4>
+                                    <ul>
+                                        <li>Patterns reveal number relationships.</li>
+                                        <li>Many patterns exist within the number system.</li>
+                                    </ul>
+                                    <h4>Note:</h4>
+                                    <ul>
+                                        <li>Connects to "Number Strings" teaching strategy.</li>
+                                    </ul>
+                                     <h4>Sample Tasks:</h4>
+                                    <ul>
+                                         <li>Create number string patterns to show how basic facts apply to larger numbers or the inverse relationship between operations. Justify the pattern.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                         </div>
                     </div>
                      <!-- C2. Equations -->
                     <div class="expectation-container mb-3 border border-border-light rounded bg-card-bg">
@@ -208,11 +731,93 @@
                             <h3 class="text-xl font-semibold text-gray-200">C2: Equations and Inequalities</h3>
                              <span class="expand-icon text-lg text-text-medium transform transition-transform">▼</span>
                         </div>
-                        <div class="expectation-content px-3 pb-3">
-                             <table class="w-full detail-table">
-                                <tr><th>C2.x</th><td>(Placeholder: Add Specific Expectation)</td><td>(Placeholder: Add Key Terms)</td></tr>
-                                <!-- Add more C2 expectations as rows -->
-                             </table>
+                        <div class="expectation-content px-3 pb-3 space-y-4">
+                            <!-- C2.1 Details -->
+                             <div>
+                                <h4 class="text-lg font-semibold text-text-medium mb-2">C2.1 Describe how variables are used, and use them...</h4>
+                                <div class="detail-section pl-4 border-l-2 border-border-light">
+                                     <p><strong>Focus:</strong> Understanding that variables (letters or symbols) can represent unknown quantities or quantities that change in different contexts like formulas, properties, or equations.</p>
+                                     <h4>Examples:</h4>
+                                    <ul>
+                                         <li>Properties: $a+b = b+a$.</li>
+                                         <li>Formulas: Perimeter of square = $s+s+s+s$ or $4s$.</li>
+                                         <li>Tables of Values: Wheels = $2 \times b$ (bicycles).</li>
+                                         <li>Unknown Quantity: $8 + \square = 16$; $n+6 = 20-5$.</li>
+                                    </ul>
+                                    <h4>Key Concepts:</h4>
+                                    <ul>
+                                         <li>Variables stand for numbers that can change or are unknown.</li>
+                                    </ul>
+                                    <h4>Note:</h4>
+                                    <ul>
+                                         <li>Identify constants vs. variables in real life.</li>
+                                         <li>Connects to Mathematical Modelling.</li>
+                                         <li>Implicitly used when finding missing addends/factors.</li>
+                                         <li>Can be letters, symbols, or words (in coding).</li>
+                                    </ul>
+                                     <h4>Sample Tasks:</h4>
+                                    <ul>
+                                         <li>Discuss variable use as it arises (e.g., labeling square sides 's' for perimeter).</li>
+                                         <li>Use variables for unknowns in simple equations ($n+2=7$).</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- C2.2 Details -->
+                            <div>
+                                <h4 class="text-lg font-semibold text-text-medium mb-2">C2.2 Determine whether given sets of expressions are equivalent or not.</h4>
+                                <div class="detail-section pl-4 border-l-2 border-border-light">
+                                     <p><strong>Focus:</strong> Understanding the meaning of the equal sign (=) as "is the same as" and determining if two different calculations result in the same value.</p>
+                                     <h4>Examples:</h4>
+                                    <ul>
+                                         <li>Are $3 \times 4$ and $2 \times 6$ equivalent? (Yes, both = 12).</li>
+                                         <li>Are $16 + 32$ and $50 - 2$ equivalent? (Yes, both = 48). Use models or code to verify.</li>
+                                    </ul>
+                                     <h4>Key Concepts:</h4>
+                                    <ul>
+                                         <li>Equivalent expressions have the same value.</li>
+                                         <li>Equal sign (=) means balance/equivalence. Not equal sign ($\neq$).</li>
+                                         <li>Use strategies/models to check equivalence.</li>
+                                    </ul>
+                                     <h4>Note:</h4>
+                                    <ul>
+                                         <li>Correct understanding of '=' is crucial for algebra.</li>
+                                    </ul>
+                                     <h4>Sample Tasks:</h4>
+                                    <ul>
+                                         <li>Compare pairs of expressions using relational rods ($3 \times 4$ vs $2 \times 6$; $4 \times 2$ vs $3 \times 3$). Create equivalent expressions if they aren't equal.</li>
+                                         <li>Compare expressions with different operations using models or simple code (like the turtle example).</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- C2.3 Details -->
+                             <div>
+                                <h4 class="text-lg font-semibold text-text-medium mb-2">C2.3 Identify and use equivalent relationships for whole numbers up to 1000...</h4>
+                                <div class="detail-section pl-4 border-l-2 border-border-light">
+                                     <p><strong>Focus:</strong> Recognizing that a number can be represented in many equivalent ways (different expressions, decompositions) and using properties like commutative and associative to create equivalent expressions.</p>
+                                     <h4>Examples:</h4>
+                                    <ul>
+                                         <li>$2 \times 6 = 6 + 6 = 2+2+2+2+2+2$.</li>
+                                         <li>Different ways to make 12 (using addition, subtraction, multiplication).</li>
+                                         <li>Commutative Property: $8 + 352 = 352 + 8$; $5 \times 2 = 2 \times 5$.</li>
+                                         <li>Associative/Commutative for Addition: $263 + 364 + 7 = 263 + 7 + 364$ (makes adding easier).</li>
+                                    </ul>
+                                     <h4>Key Concepts:</h4>
+                                    <ul>
+                                         <li>Equivalence: Different forms representing the same value.</li>
+                                         <li>Properties (commutative, associative) create equivalent expressions.</li>
+                                    </ul>
+                                    <h4>Note:</h4>
+                                    <ul>
+                                         <li>Equivalency is a fundamental math principle.</li>
+                                    </ul>
+                                     <h4>Sample Tasks:</h4>
+                                    <ul>
+                                         <li>Keep an "Equivalence" section in a math journal. Record examples found throughout the year.</li>
+                                         <li>Represent 12 in multiple ways using relational rods and symbolic expressions (addition, multiplication).</li>
+                                         <li>Demonstrate how commutative/associative properties make calculations easier.</li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                     </div>
                      <!-- C3. Coding -->
@@ -223,8 +828,8 @@
                         </div>
                         <div class="expectation-content px-3 pb-3">
                              <table class="w-full detail-table">
-                                <tr><th>C3.x</th><td>(Placeholder: Add Specific Expectation)</td><td>(Placeholder: Add Key Terms)</td></tr>
-                                <!-- Add more C3 expectations as rows -->
+                                <tr><th>C3.x</th><td>(Placeholder: Add Specific Expectation - Solve problems using coding concepts)</td><td>(Placeholder: Add Key Terms - Sequence, Loops, Conditionals)</td></tr>
+                                <!-- Add C3 details here -->
                              </table>
                         </div>
                     </div>
@@ -235,7 +840,7 @@
                              <span class="expand-icon text-lg text-text-medium transform transition-transform">▼</span>
                         </div>
                         <div class="expectation-content px-3 pb-3">
-                           <p class="text-text-medium italic p-3 bg-card-bg-alt rounded">Note: C4 is an overarching process applied across strands, not a separate set of specific testable expectations in this format.</p>
+                           <p class="text-text-medium italic p-3 bg-card-bg-alt rounded">Note: C4 involves applying the mathematical modelling process (understand problem -> analyze -> create model -> analyze model -> communicate) using concepts from other strands. It doesn't have standalone specific content expectations.</p>
                         </div>
                     </div>
                  </div>
@@ -258,8 +863,8 @@
                         </div>
                         <div class="expectation-content px-3 pb-3">
                              <table class="w-full detail-table">
-                                <tr><th>D1.x</th><td>(Placeholder: Add Specific Expectation)</td><td>(Placeholder: Add Key Terms)</td></tr>
-                                <!-- Add more D1 expectations as rows -->
+                                <tr><th>D1.x</th><td>(Placeholder: Manage, analyze, and use data to make arguments/decisions)</td><td>(Placeholder: Surveys, Tally Charts, Bar Graphs, Pictographs, Mode)</td></tr>
+                                <!-- Add D1 details here -->
                              </table>
                         </div>
                     </div>
@@ -271,8 +876,8 @@
                         </div>
                         <div class="expectation-content px-3 pb-3">
                              <table class="w-full detail-table">
-                                <tr><th>D2.x</th><td>(Placeholder: Add Specific Expectation)</td><td>(Placeholder: Add Key Terms)</td></tr>
-                                <!-- Add more D2 expectations as rows -->
+                                <tr><th>D2.x</th><td>(Placeholder: Describe likelihood of events and make predictions)</td><td>(Placeholder: Certain, Likely, Unlikely, Impossible, Experiments)</td></tr>
+                                <!-- Add D2 details here -->
                              </table>
                         </div>
                     </div>
@@ -296,8 +901,8 @@
                         </div>
                         <div class="expectation-content px-3 pb-3">
                              <table class="w-full detail-table">
-                                <tr><th>E1.x</th><td>(Placeholder: Add Specific Expectation)</td><td>(Placeholder: Add Key Terms)</td></tr>
-                                <!-- Add more E1 expectations as rows -->
+                                <tr><th>E1.x</th><td>(Placeholder: Describe/represent shape, location, movement using properties)</td><td>(Placeholder: 2D Shapes, 3D Figures, Attributes, Symmetry, Flips/Slides/Turns, Grids)</td></tr>
+                                <!-- Add E1 details here -->
                              </table>
                         </div>
                     </div>
@@ -309,8 +914,8 @@
                         </div>
                         <div class="expectation-content px-3 pb-3">
                              <table class="w-full detail-table">
-                                <tr><th>E2.x</th><td>(Placeholder: Add Specific Expectation)</td><td>(Placeholder: Add Key Terms)</td></tr>
-                                <!-- Add more E2 expectations as rows -->
+                                <tr><th>E2.x</th><td>(Placeholder: Compare, estimate, determine measurements)</td><td>(Placeholder: Length (cm, m), Mass (g, kg), Capacity (mL, L), Area, Perimeter, Time (minutes, hours, days, weeks, months, years), Temperature (°C))</td></tr>
+                                <!-- Add E2 details here -->
                              </table>
                         </div>
                     </div>
@@ -334,8 +939,8 @@
                         </div>
                         <div class="expectation-content px-3 pb-3">
                              <table class="w-full detail-table">
-                                <tr><th>F1.x</th><td>(Placeholder: Add Specific Expectation)</td><td>(Placeholder: Add Key Terms)</td></tr>
-                                <!-- Add more F1 expectations as rows -->
+                                <tr><th>F1.x</th><td>(Placeholder: Understand value and use of Canadian currency)</td><td>(Placeholder: Coins, Bills, Making Change, Financial Decisions)</td></tr>
+                                <!-- Add F1 details here -->
                              </table>
                         </div>
                     </div>
@@ -358,12 +963,12 @@
     </div>
 
     <script>
-        function calculateTotalHeight(element) {
-            let totalHeight = 0;
-            // Include padding and border in the calculation
-            const style = window.getComputedStyle(element);
-            totalHeight += element.scrollHeight + parseInt(style.paddingTop) + parseInt(style.paddingBottom); 
-            return totalHeight;
+        // Function to recalculate parent height after child animation
+        function updateParentHeight(parentContent) {
+            if (parentContent && parentContent.classList.contains('expanded')) {
+                 // Use scrollHeight to get the full height of the content within the parent
+                parentContent.style.maxHeight = parentContent.scrollHeight + "px";
+            }
         }
 
         function toggleExpand(element, isExpectation = false) {
@@ -371,68 +976,34 @@
             const icon = element.querySelector('.expand-icon');
             const isExpanded = content.classList.contains('expanded');
 
-            // --- Find the parent strand content if this is an expectation ---
             let parentStrandContent = null;
             if (isExpectation) {
                 parentStrandContent = element.closest('.strand-content');
             }
 
             if (isExpanded) {
+                // Collapse the current section
                 content.classList.remove('expanded');
                 icon.style.transform = 'rotate(0deg)';
-                content.style.maxHeight = null; // Collapse fully
+                content.style.maxHeight = null; // Use null to trigger transition back to 0
 
-                // --- If collapsing an expectation, recalculate parent height ---
-                if (parentStrandContent && parentStrandContent.classList.contains('expanded')) {
-                     // Need a slight delay to allow the child collapse animation to start
-                    setTimeout(() => {
-                        parentStrandContent.style.maxHeight = parentStrandContent.scrollHeight + "px";
-                    }, 50); // Small delay
+                // If collapsing an expectation, update the parent strand's height
+                if (parentStrandContent) {
+                    // Delay update slightly to let child collapse start
+                    setTimeout(() => updateParentHeight(parentStrandContent), 50);
                 }
-
             } else {
-                // Expand the current content
+                // Expand the current section
+                // Set max-height based on its own scrollHeight first
                 content.style.maxHeight = content.scrollHeight + "px";
                 content.classList.add('expanded');
                 icon.style.transform = 'rotate(180deg)';
 
-                // --- If expanding an expectation, ensure parent expands to fit ---
-                 if (parentStrandContent && parentStrandContent.classList.contains('expanded')) {
-                     // Need a slight delay to allow the child expand animation to start before measuring
-                     setTimeout(() => {
-                         parentStrandContent.style.maxHeight = parentStrandContent.scrollHeight + "px";
-                     }, 310); // Should be slightly longer than the transition duration (0.3s)
+                // If expanding an expectation, update the parent strand's height AFTER child is expanded
+                 if (parentStrandContent) {
+                     // Delay update slightly longer than transition to measure accurately
+                     setTimeout(() => updateParentHeight(parentStrandContent), 310); // Match or exceed transition duration
                  }
-
-                // --- Optional: Auto-collapse siblings ---
-                /*
-                const container = isExpectation ? element.closest('.strand-content') : document.getElementById('curriculum-tree');
-                const siblings = Array.from(container.children).filter(child =>
-                    child !== element.parentElement &&
-                    child.classList.contains(isExpectation ? 'expectation-container' : 'strand-container')
-                );
-
-                siblings.forEach(sibling => {
-                    const siblingContent = sibling.querySelector('.strand-content, .expectation-content');
-                    const siblingIcon = sibling.querySelector('.expand-icon');
-                    if (siblingContent && siblingContent.classList.contains('expanded')) {
-                        siblingContent.classList.remove('expanded');
-                        siblingContent.style.maxHeight = null; // Reset max-height
-                        if(siblingIcon) siblingIcon.style.transform = 'rotate(0deg)';
-
-                        // If collapsing a strand, also ensure its children expectations reset height
-                        if (!isExpectation) {
-                            const childExpectations = siblingContent.querySelectorAll('.expectation-content');
-                            childExpectations.forEach(expContent => {
-                                expContent.style.maxHeight = null;
-                                expContent.classList.remove('expanded');
-                                const expIcon = expContent.previousElementSibling.querySelector('.expand-icon');
-                                if (expIcon) expIcon.style.transform = 'rotate(0deg)';
-                            });
-                        }
-                    }
-                });
-                */
             }
         }
 
@@ -450,7 +1021,7 @@
              // Initialize all content areas as collapsed
             const allContent = document.querySelectorAll('.strand-content, .expectation-content');
             allContent.forEach(content => {
-                content.style.maxHeight = '0'; // Ensure initially collapsed via JS too
+                content.style.maxHeight = '0'; // Ensure initially collapsed via JS
                 content.classList.remove('expanded');
             });
             const allIcons = document.querySelectorAll('.expand-icon');
@@ -462,6 +1033,4 @@
 
 </body>
 </html>
-
-
 
