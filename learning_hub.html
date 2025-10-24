@@ -1,10 +1,17 @@
+<!-- Chosen Palette: Dark Arcade Theme (hub-bg: #1A1A1A, card-bg: #374151, accent: arcade-blue) -->
+<!-- Application Structure Plan: Dashboard structure with left-side navigation (main strands B1, B2, C1) and a primary content panel. Content within the panel uses an expandable accordion/card system (one card per specific expectation, e.g., B1.1). This structure prioritizes explorability and focus for the child user, allowing them to delve into one concept at a time without overwhelming scrolling. -->
+<!-- Visualization & Content Choices: 1. Concept Navigation (B1, B2, C1) -> Goal: Organize -> Presentation: Tab/Button Menu -> Interaction: Click to load specific accordion content -> Justification: Breaks the large guide into manageable thematic units. 2. Specific Expectations (B1.1, B1.2, etc.) -> Goal: Inform/Organize -> Presentation: Accordion Cards -> Interaction: Click to expand/collapse details -> Justification: Hides complexity and maintains focus. 3. Place Value Composition (B1.5) -> Goal: Inform/Visualize Proportion -> Presentation: Doughnut Chart (Chart.js/Canvas) -> Interaction: Input field to change the number, updating the chart dynamically -> Justification: Visually reinforces the core idea of decomposition (B1.1/B1.5). 4. Textual Content -> Goal: Instruct -> Presentation: Formatted text -> Interaction: Displayed upon accordion expansion -> Justification: Provides clear, step-by-step instruction. -->
+<!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Learning Hub</title>
+    <title>Grade 3 Math Learning Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -12,148 +19,326 @@
                     colors: {
                         'hub-bg': '#1A1A1A',
                         'card-bg': '#374151',
-                        'arcade-red': '#FF4136',    
-                        'arcade-blue': '#0074D9',   /* Theme Color */
+                        'arcade-red': '#FF4136',
+                        'arcade-blue': '#0074D9',
                         'arcade-green': '#2ECC40',
                         'arcade-yellow': '#FFDC00',
-                        'play-red': '#FF4136', 
-                        'play-blue': '#0074D9', 
-                        'play-green': '#2ECC40',
+                        'text-dark': '#374151',
                     },
                     fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],  
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
                     }
                 }
             }
         }
     </script>
     <style>
-        /* --- BLUE THEME ANIMATION KEYFRAMES --- */
-        @keyframes neon-pulse-theme {
-            0%, 100% {
-                text-shadow: 0 0 20px rgba(0, 116, 217, 0.3), 0 0 35px rgba(0, 116, 217, 0.15); /* arcade-blue */
-            }
-            50% {
-                text-shadow: 0 0 25px rgba(0, 116, 217, 0.5), 0 0 40px rgba(0, 116, 217, 0.3);
-            }
-        }
-        
-        /* --- SHARED BACKGROUND STYLES (Ultra Subtle and Static) --- */
-        @keyframes star-drift-left { from { background-position: 0 0; } to { background-position: -8% -100%; } }
-        @keyframes star-drift-right { from { background-position: 0 0; } to { background-position: 8% -100%; } }
-        
-        body {
-            background-color: #1A1A1A; position: relative; overflow-x: hidden; min-height: 100vh; color: #ccc;
-        }
-        /* Only showing two layers for simplicity on sub-pages */
-        body::before, body::after { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 150%; z-index: -3; }
-
-        body::before { 
-            /* Static Opacity & Slower Drift */
-            opacity: 0.1; /* Static, dim background */
-            /* UPDATED: Smaller core (0.3px) and tighter glow (transparent 4px) */
-            background: radial-gradient(circle at 10% 80%, rgba(46, 255, 64, 0.3) 0.3px, transparent 4px), radial-gradient(circle at 70% 20%, rgba(180, 50, 255, 0.2) 0.3px, transparent 4px);
-            background-size: 150px 150px; z-index: -4;
-            animation: star-drift-left 90s linear infinite; /* Only continuous drift remains */
-        }
-
-        body::after { 
-            /* Static Opacity & Faster Drift */
-            opacity: 0.1; /* Static, dim background */
-            /* UPDATED: Smaller core (0.7px) and tighter glow (transparent 6px) */
-            background: radial-gradient(circle at 5% 50%, rgba(255, 50, 50, 0.6) 0.7px, transparent 6px), radial-gradient(circle at 60% 10%, rgba(255, 220, 0, 0.6) 0.7px, transparent 6px);
-            background-size: 260px 260px; z-index: -1;
-            animation: star-drift-right 25s linear infinite; /* Only continuous drift remains */
-        }
-        
-        /* --- LEARNING HUB SPECIFIC STYLES --- */
-        .header-title {
-            animation: neon-pulse-theme 2s ease-in-out infinite alternate; /* Applies Blue Pulse */
-        }
-        .arcade-button {
-            display: inline-block; font-size: 1rem; padding: 0.5rem 1rem; border-radius: 0.5rem;
-            color: white; font-weight: 900; text-transform: uppercase; border-bottom-width: 4px; 
-            transition: all 0.1s ease-in-out; transform: translateY(0);
-        }
-        .arcade-button:hover { transform: translateY(-1px); border-bottom-width: 5px; }
-        .arcade-button:active { transform: translateY(1px); border-bottom-width: 2px; }
-
-        .resource-card {
-            background-color: var(--tw-colors-card-bg);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            border-radius: 1rem;
-            overflow: hidden;
-            transition: all 0.3s;
-            position: relative;
-            border-left: 5px solid; /* Dynamic color border */
-            min-height: 180px;
-        }
-        .resource-card:hover {
-            transform: scale(1.02);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-        }
-        /* Theme accent for titles inside cards to match the blue theme */
-        .text-theme { color: var(--tw-colors-arcade-blue); }
-
+        .glow-blue { box-shadow: 0 0 17.5px rgba(0, 116, 217, 0.5); }
+        .glow-blue:hover { box-shadow: 0 0 25px rgba(0, 116, 217, 0.9); }
+        .accordion-content { overflow: hidden; max-height: 0; transition: max-height 0.3s ease-in-out; }
+        .accordion-content.open { max-height: 1000px; }
+        .chart-container { position: relative; width: 100%; max-width: 400px; margin-left: auto; margin-right: auto; height: 350px; }
     </style>
 </head>
-<body class="bg-hub-bg text-gray-300 p-4 sm:p-8 font-sans">
+<body class="bg-hub-bg text-gray-300 font-sans min-h-screen">
 
-    <header class="max-w-6xl mx-auto text-center pt-8 pb-10">
-        <!-- HOME BUTTON (Always visible for easy navigation) -->
-        <a href="index.html" class="absolute top-4 left-4 sm:top-8 sm:left-8 arcade-button bg-gray-500/50 border-gray-700 hover:bg-gray-500/70 text-gray-200">
-            <span class="text-xl">🏠</span> HOME
-        </a>
-        
-        <h1 class="header-title text-3xl sm:text-5xl font-extrabold uppercase tracking-wider text-gray-400">
-            THE LEARNING HUB
-        </h1>
-        <p class="text-lg sm:text-xl text-gray-400 mt-2">
-            Sharpen your mind with our brain-boosting resources.
-        </p>
-    </header>
-    
-    <main class="max-w-6xl mx-auto mt-10">
-        
-        <div id="resource-list-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Resource cards will be dynamically inserted here by the script -->
-        </div>
+    <div class="max-w-7xl mx-auto p-4 sm:p-8">
 
-    </main>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const container = document.getElementById('resource-list-container');
+        <header class="text-center pt-4 pb-8 border-b border-gray-700">
+            <h1 class="text-3xl sm:text-4xl font-extrabold uppercase tracking-wider text-arcade-yellow glow-blue">
+                Grade 3 Math Learning Hub
+            </h1>
+            <p class="text-lg sm:text-xl text-gray-400 mt-2">
+                Explore Core Concepts: Number Sense, Operations, and Patterns.
+            </p>
+        </header>
+
+        <main class="mt-8 grid grid-cols-1 lg:grid-cols-4 gap-8">
             
-            // Placeholder data for Learning Hub resources
-            const LEARNING_LIST = [
-                { name: "Math Flashcards", file: "#", color: "play-blue", description: "Quickly test your mental arithmetic and number fluency with timed challenges." },
-                { name: "History Quizzes", file: "#", color: "play-blue", description: "Challenge your knowledge on historical events and figures from around the world." },
-                { name: "Coding Tutorials", file: "#", color: "play-blue", description: "Interactive tutorials to introduce basic programming concepts and logic." },
-                { name: "Logic Puzzles", file: "#", color: "play-blue", description: "Improve critical thinking and problem-solving skills with unique logic challenges." }
-            ];
+            <!-- LEFT NAVIGATION (STRANDS) -->
+            <nav class="lg:col-span-1 bg-card-bg p-4 rounded-xl shadow-lg h-fit sticky top-4">
+                <h2 class="text-xl font-bold text-gray-100 mb-4 border-b border-gray-600 pb-2">
+                    Curriculum Strands
+                </h2>
+                <div class="space-y-3">
+                    <button data-strand="B1" class="strand-btn w-full text-left p-3 rounded-lg font-semibold bg-arcade-blue/30 text-white transition-colors hover:bg-arcade-blue/50">
+                        🔢 B1: Number Sense
+                    </button>
+                    <button data-strand="B2" class="strand-btn w-full text-left p-3 rounded-lg font-semibold bg-card-bg/50 text-gray-300 transition-colors hover:bg-arcade-blue/20">
+                        ✖️ B2: Operations
+                    </button>
+                    <button data-strand="C1" class="strand-btn w-full text-left p-3 rounded-lg font-semibold bg-card-bg/50 text-gray-300 transition-colors hover:bg-arcade-blue/20">
+                        🔠 C1: Patterns
+                    </button>
+                </div>
+            </nav>
 
-            if (LEARNING_LIST.length > 0) {
-                LEARNING_LIST.forEach(resource => {
-                    // Use the resource's color for the border (in this case, all are play-blue)
-                    const borderColor = `var(--tw-colors-${resource.color})`;
-                    
-                    const cardHtml = `
-                        <div class="resource-card p-6" style="border-left-color: ${borderColor};">
-                            <h2 class="text-2xl font-bold text-theme mb-3">${resource.name}</h2>
-                            <p class="text-sm text-gray-400 mb-6">${resource.description}</p>
-                            <a href="${resource.file}" class="arcade-button bg-arcade-blue/80 border-arcade-blue hover:bg-arcade-blue text-xs">
-                                Launch Resource <span class="text-lg ml-1">🚀</span>
-                            </a>
-                        </div>
-                    `;
-                    container.insertAdjacentHTML('beforeend', cardHtml);
-                });
-            } else {
-                container.innerHTML = '<p class="text-center text-gray-500 col-span-full">No learning resources are currently available.</p>';
+            <!-- MAIN CONTENT DISPLAY AREA -->
+            <div class="lg:col-span-3">
+
+                <!-- INTRO SECTION -->
+                <section id="intro" class="mb-8 p-6 bg-card-bg rounded-xl shadow-xl">
+                    <h2 class="text-2xl font-bold text-arcade-blue mb-3">Welcome, Future Math Master!</h2>
+                    <p class="text-gray-300">
+                        This hub helps you learn the biggest ideas in Grade 3 Math. Use the **Curriculum Strands** menu on the left to select a topic like Number Sense or Operations. Each topic will expand into cards with simple goals, strategies, and examples to make your brain stronger!
+                    </p>
+                </section>
+                
+                <!-- PLACE VALUE VISUALIZER (B1.5 - Interactive Chart) -->
+                <section id="visualizer-section" class="mb-8 p-6 bg-card-bg rounded-xl shadow-xl">
+                    <h2 class="text-2xl font-bold text-arcade-yellow mb-4 flex items-center">
+                        🧠 B1.5 Place Value Visualizer
+                    </h2>
+                    <p class="text-gray-400 mb-4">
+                        See how hundreds, tens, and ones make up any 3-digit number. Change the number below, and the chart instantly shows the proportion of each part!
+                    </p>
+                    <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-8 mb-6">
+                        <label for="numberInput" class="text-lg font-semibold text-gray-100">Enter a 3-Digit Number (100-999):</label>
+                        <input type="number" id="numberInput" min="100" max="999" value="471"
+                               class="bg-gray-700 text-arcade-yellow p-2 rounded-lg font-mono w-28 text-center focus:ring-2 focus:ring-arcade-blue border-none">
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="placeValueChart"></canvas>
+                    </div>
+                </section>
+
+                <!-- ACCORDION CONTENT (DYNAMICALLY POPULATED) -->
+                <section id="content-display" class="space-y-4">
+                    <!-- Accordions will be inserted here based on strand selection -->
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const GUIDE_DATA = {
+            "B1": {
+                title: "🔢 B1: Number Sense (Up to 1000)",
+                sections: [
+                    { id: 'B1_1', title: 'B1.1: Read, Represent, Compose, and Decompose', content: `
+                        <p class="text-gray-300">**Goal:** To show a number in different ways (words, numerals, parts).</p>
+                        <p class="text-gray-300">**Key Concept:** Any 3-digit number (e.g., 538) can be broken into hundreds, tens, and ones ($500 + 30 + 8$).</p>
+                        <p class="text-gray-300">**Example (471):** Words: Four hundred seventy-one. Expanded Form: $400 + 70 + 1$. Base Ten: 4 flats (hundreds), 7 rods (tens), 1 unit (one).</p>
+                    `},
+                    { id: 'B1_2', title: 'B1.2: Compare and Order Whole Numbers', content: `
+                        <p class="text-gray-300">**Goal:** To determine which number is greater, less than, or equal to another using the signs &lt;, &gt;, or =.</p>
+                        <p class="text-gray-300">**Strategy:** Start comparing the digits from the greatest place value (the hundreds place).</p>
+                        <p class="text-gray-300">**Example:** Compare 725 and 752. The hundreds are equal (7=7), but the tens are different (2 &lt; 5). Therefore, $725 < 752$.</p>
+                    `},
+                    { id: 'B1_3', title: 'B1.3: Rounding (Nearest 10 or 100)', content: `
+                        <p class="text-gray-300">**Goal:** To estimate a number to the nearest 10 or 100.</p>
+                        <p class="text-gray-300">**Rule for Nearest 10:** Look at the **ones digit**. If it's 5 or greater, round up. (e.g., 637 rounds up to 640).</p>
+                        <p class="text-gray-300">**Rule for Nearest 100:** Look at the **tens digit**. If it's 5 or greater (50-99), round up. (e.g., 485 rounds up to 500).</p>
+                    `},
+                    { id: 'B1_4', title: 'B1.4: Counting (Skip Counting)', content: `
+                        <p class="text-gray-300">**Goal:** To count forward or backward by specific units (50s, 100s, 200s).</p>
+                        <p class="text-gray-300">**Strategy:** Recognize the pattern in the place value that is changing.</p>
+                        <p class="text-gray-300">**Example (Counting by 200s):** The hundreds place changes by 2. Sequence: $100, 300, 500, 700, \ldots$</p>
+                    `},
+                    { id: 'B1_5', title: 'B1.5: Place Value', content: `
+                        <p class="text-gray-300">**Goal:** To identify the *value* of a specific digit based on its position.</p>
+                        <p class="text-gray-300">**Example:** In the number **893**: The value of 8 is **800** (8 hundreds). The value of 9 is **90** (9 tens). The value of 3 is **3** (3 ones).</p>
+                    `},
+                    { id: 'B1_6_7', title: 'B1.6 & B1.7: Fractions (Fair Share and Equivalent)', content: `
+                        <p class="text-gray-300">**Goal:** Use division to find parts of a whole (fair share) and find equal fractions.</p>
+                        <p class="text-gray-300">**Fair Share:** 15 cookies shared among 4 friends is $3 \frac{3}{4}$ each.</p>
+                        <p class="text-gray-300">**Equivalent Fractions:** Fractions that look different but have the same value.</p>
+                        <p class="text-gray-300">**Strategy:** Multiply the numerator and the denominator by the same number. Example: $\frac{1}{2}$ is the same as $\frac{4}{8}$ ($1 \times 4 = 4$ and $2 \times 4 = 8$).</p>
+                    `}
+                ]
+            },
+            "B2": {
+                title: "✖️ B2: Operations",
+                sections: [
+                    { id: 'B2_2_5', title: 'B2.2 - B2.5: Addition, Subtraction, and Math Facts', content: `
+                        <p class="text-gray-300">**Math Facts (B2.2):** Practice multiplication facts for 2, 5, and 10 and their related division facts. (e.g., $10 \times 7 = 70$, so $70 \div 10 = 7$).</p>
+                        <p class="text-gray-300">**Algorithms (B2.4, B2.5):** Use standard methods (borrowing and carrying) to add and subtract 3-digit numbers (up to 1,000).</p>
+                    `},
+                    { id: 'B2_1', title: 'B2.1: Properties and Relationships', content: `
+                        <p class="text-gray-300">**Goal:** Use the rules of math to solve problems (e.g., the Commutative Property).</p>
+                        <p class="text-gray-300">**Commutative Property (Addition):** Changing the order of the numbers does not change the sum. Example: $10 + 5 = 5 + 10$.</p>
+                        <p class="text-gray-300">**Inverse Relationship (Mult./Div.):** They undo each other. Example: If $4 \times 5 = 20$, then $20 \div 4 = 5$.</p>
+                    `}
+                ]
+            },
+            "C1": {
+                title: "🔠 C1: Patterns and Relationships",
+                sections: [
+                    { id: 'C1_1', title: 'C1.1: Extending and Describing Patterns', content: `
+                        <p class="text-gray-300">**Goal:** Find the rule of a pattern and use it to predict the next terms.</p>
+                        <p class="text-gray-300">**Repeating Pattern:** Repeats the same core sequence. Example: $3, 6, 3, 6, 3, \ldots$ (Rule: $3, 6$).</p>
+                        <p class="text-gray-300">**Growing Pattern:** Increases by a consistent rule (e.g., always adding 5). Example: $10, 15, 20, 25, \ldots$</p>
+                        <p class="text-gray-300">**Shrinking Pattern:** Decreases by a consistent rule (e.g., always subtracting 100). Example: $800, 700, 600, 500, \ldots$</p>
+                    `}
+                ]
             }
-        });
-    </script>
+        };
 
+        let placeValueChart;
+
+        function renderKaTeX() {
+            const contentDisplay = document.getElementById('content-display');
+            renderMathInElement(contentDisplay, {
+                delimiters: [ {left: "$", right: "$", display: false} ],
+                throwOnError : false 
+            });
+        }
+
+        function createAccordionHTML(strandId, strandTitle, sections) {
+            let html = `<h2 class="text-3xl font-extrabold text-white mb-6">${strandTitle}</h2>`;
+            sections.forEach((section, index) => {
+                const isOdd = index % 2 !== 0;
+                const bgColor = isOdd ? 'bg-card-bg' : 'bg-gray-700/50';
+                
+                html += `
+                    <div class="rounded-lg shadow-md ${bgColor} overflow-hidden mb-4">
+                        <button class="accordion-header w-full flex justify-between items-center p-5 text-lg font-semibold text-gray-100 focus:outline-none" 
+                                data-target="#content_${section.id}">
+                            <span>${section.title}</span>
+                            <span class="text-xl transform transition-transform duration-300">+</span>
+                        </button>
+                        <div id="content_${section.id}" class="accordion-content p-4 text-gray-300 border-t border-gray-600">
+                            ${section.content}
+                        </div>
+                    </div>
+                `;
+            });
+            return html;
+        }
+
+        function toggleAccordion(button) {
+            const targetId = button.getAttribute('data-target');
+            const targetContent = document.querySelector(targetId);
+            const spanIcon = button.querySelector('span:last-child');
+            const isOpen = targetContent.classList.contains('open');
+
+            // Close all
+            document.querySelectorAll('.accordion-content.open').forEach(content => {
+                content.classList.remove('open');
+                content.previousElementSibling.querySelector('span:last-child').textContent = '+';
+            });
+
+            // Toggle selected one
+            if (!isOpen) {
+                targetContent.classList.add('open');
+                spanIcon.textContent = '–';
+            }
+            renderKaTeX();
+        }
+
+        function loadStrand(strandId) {
+            const strand = GUIDE_DATA[strandId];
+            const contentDisplay = document.getElementById('content-display');
+            
+            // Hide intro and show content
+            document.getElementById('intro').style.display = 'none';
+            document.getElementById('visualizer-section').style.display = (strandId === 'B1') ? 'block' : 'none';
+
+            // Generate and insert HTML
+            contentDisplay.innerHTML = createAccordionHTML(strandId, strand.title, strand.sections);
+
+            // Update button styles
+            document.querySelectorAll('.strand-btn').forEach(btn => {
+                if (btn.getAttribute('data-strand') === strandId) {
+                    btn.classList.add('bg-arcade-blue/30', 'text-white');
+                    btn.classList.remove('bg-card-bg/50', 'text-gray-300');
+                } else {
+                    btn.classList.remove('bg-arcade-blue/30', 'text-white');
+                    btn.classList.add('bg-card-bg/50', 'text-gray-300');
+                }
+            });
+
+            // Re-attach event listeners for the new accordions
+            document.querySelectorAll('.accordion-header').forEach(header => {
+                header.addEventListener('click', () => toggleAccordion(header));
+            });
+
+            renderKaTeX();
+        }
+
+        function updatePlaceValueChart() {
+            const input = document.getElementById('numberInput');
+            let num = parseInt(input.value);
+
+            if (isNaN(num) || num < 100 || num > 999) {
+                num = 471; 
+                input.value = 471;
+            }
+
+            const hundreds = Math.floor(num / 100) * 100;
+            const tens = Math.floor((num % 100) / 10) * 10;
+            const ones = num % 10;
+            
+            const data = [hundreds, tens, ones].map(v => v / num * 100);
+
+            placeValueChart.data.datasets[0].data = data;
+            placeValueChart.data.labels = [
+                `Hundreds (${hundreds})`,
+                `Tens (${tens})`,
+                `Ones (${ones})`
+            ];
+            placeValueChart.options.plugins.title.text = `Decomposition of: ${num}`;
+            placeValueChart.update();
+        }
+
+
+        window.onload = function() {
+            // Initialize Chart.js
+            const ctx = document.getElementById('placeValueChart').getContext('2d');
+            placeValueChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        data: [],
+                        backgroundColor: [
+                            '#0074D9', // arcade-blue for Hundreds
+                            '#FFDC00', // arcade-yellow for Tens
+                            '#FF4136'  // arcade-red for Ones
+                        ],
+                        hoverOffset: 10,
+                        borderWidth: 2,
+                        borderColor: '#1A1A1A'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right', labels: { color: 'white' } },
+                        title: { display: true, text: 'Decomposition of: 471', color: 'white', font: { size: 16 } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed !== null) {
+                                        label += Math.round(context.parsed) + '%';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Initial chart data load
+            updatePlaceValueChart();
+            document.getElementById('numberInput').addEventListener('input', updatePlaceValueChart);
+            
+            // Load B1 content first
+            loadStrand('B1');
+            
+            // Attach strand button listeners
+            document.querySelectorAll('.strand-btn').forEach(btn => {
+                btn.addEventListener('click', () => loadStrand(btn.getAttribute('data-strand')));
+            });
+
+        };
+    </script>
 </body>
 </html>

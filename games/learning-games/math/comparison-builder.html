@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elementary Comparison Builder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        /* Using a common monospace font for mathematical clarity */
+        @import url('https://fonts.googleapis.com/css2?family=Consolas:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0F172A; /* Slate 900 */
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        #game-container {
+            width: 100%;
+            max-width: 700px;
+            background-color: #1E293B; /* Slate 800 */
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 3px solid #64748B; /* Slate 500 */
+            overflow: hidden; /* Ensure animated elements stay within bounds */
+            position: relative; /* Needed for absolute positioning children */
+        }
+
+        /* Styling for the main math challenge display */
+        #challenge-display {
+            background-color: #334155; /* Slate 700 */
+            color: #E0F2F1;
+            font-size: 3rem; 
+            font-weight: 700;
+            padding: 1rem 0;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            /* Use Monospace/Consolas for sharp expression display */
+            font-family: 'Consolas', monospace; 
+            
+            /* Flex Layout for Center Alignment */
+            display: flex;
+            align-items: center; 
+            justify-content: center;
+        }
+        
+        /* Styles for the expressions on the left and right (Movable parts) */
+        .expression {
+            padding: 0 2rem;
+            line-height: 1;
+            transition: transform 0.1s ease-out; 
+            word-break: break-all; 
+            max-width: 40%; 
+            /* Default alignment for numerical/expression tiers */
+            text-align: right; 
+        }
+        
+        /* Style for quantity comparison */
+        .expression.quantity {
+            font-size: 2.25rem; 
+            line-height: 1; /* TIGHTER Vertical spacing for uniform rows */
+            padding: 0 2rem;
+            white-space: pre-wrap; 
+            text-align: center;
+            /* Tighter horizontal spacing */
+            letter-spacing: 0.2em; 
+        }
+        
+        /* Specific CSS for the Pizza/Circular layout for visual grouping */
+        .expression.quantity.pizza {
+            line-height: 1.1; /* Tighter vertical spacing */
+            padding: 0 1rem;
+            font-size: 2.25rem; /* Same size as quantity */
+        }
+        
+        /* Specific CSS for the Bar/Array layout for visual grouping */
+        .expression.quantity.bar {
+            line-height: 1;
+        }
+         /* Specific CSS for simple row layout (JK/K) */
+        .expression.quantity.row {
+            line-height: 1;
+        }
+
+        /* Container for the vertical symbol buttons (FIXED part) */
+        #symbol-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 10px; 
+            margin: 0 2rem; 
+        }
+
+        .tile {
+            width: 80px; 
+            height: 80px; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 900;
+            font-size: 3rem; 
+            cursor: pointer;
+            transition: all 0.15s ease-in-out;
+            border-radius: 0.5rem;
+            border: 3px solid transparent;
+            user-select: none;
+            text-align: center;
+            line-height: 1;
+        }
+
+        /* Symbol Tile Styles (RAISED/OBVIOUS) */
+        .tile-symbol {
+            background-color: #10B981; 
+            color: #FFF;
+            /* Add pronounced 3D/raised look */
+            box-shadow: 0 8px 0 -2px #06724A, /* Darker base shadow */
+                          0 0 10px rgba(16, 185, 129, 0.5); /* Subtle glow */
+            transform: translateY(-4px); /* Visually raise the button slightly */
+            border: 3px solid #64ffda; /* Add neon cyan border */
+        }
+
+        /* Adjust hover to simulate pressing down */
+        .tile-symbol:hover {
+            transform: translateY(0); /* Move down 4px */
+            box-shadow: 0 4px 0 -2px #06724A, 
+                        0 0 5px rgba(16, 185, 129, 0.3); 
+        }
+
+        .tile.correct {
+            border-color: #FFF; /* Make green border bright white/cyan */
+            box-shadow: 0 0 20px #10B981;
+            transform: none; /* Reset vertical offset for feedback */
+        }
+        
+        .tile.incorrect {
+            border-color: #FFF; /* Make red border bright white/cyan */
+            box-shadow: 0 0 20px #EF4444;
+            transform: none;
+        }
+
+        #timer-display {
+            width: 100%;
+            height: 10px;
+            background-color: #475569;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        #timer-bar {
+            height: 100%;
+            background-color: #10B981; /* Emerald 500 */
+            transition: width 0.1s linear;
+        }
+        
+        /* Custom Styles for new difficulty selector buttons */
+        .grade-option {
+            background-color: #334155; /* Slate 700 */
+            color: #E0F2F1;
+            text-align: center;
+            /* Enhanced Aesthetics */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06); 
+            border: 2px solid transparent;
+            padding: 0.75rem; 
+        }
+        /* Style for the grade text within the menu */
+        .grade-option .grade-text { /* Renamed from age-text */
+            font-size: 1.5rem; 
+            font-weight: 900;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+        /* Style for the description text */
+        .grade-option .desc-text {
+            font-size: 0.875rem; /* Reduced size (text-sm equivalent) */
+            opacity: 0.8;
+        }
+
+        .grade-option.focused {
+            background-color: #06B6D4; /* Cyan 600 - Richer background */
+            border-color: #38BDF8; /* Sky 400 */
+            transform: scale(1.02);
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.9), 0 5px 10px rgba(0, 0, 0, 0.5); 
+        }
+
+        /* Strike Icon Styling */
+        .strike-icon {
+            font-size: 1.5rem; /* Large enough to be seen */
+            line-height: 1;
+        }
+        
+        /* Pause Overlay */
+        #pause-overlay {
+            background-color: rgba(0, 0, 0, 0.85);
+            color: #FFF;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 40;
+            border-radius: 1rem;
+        }
+        
+        /* Animated Star */
+        #animated-star {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            font-size: 8rem; /* Large initial size */
+            z-index: 60;
+            pointer-events: none;
+            display: none;
+            color: #FACC15;
+            transition: none; /* Managed by JS for complex animation */
+        }
+        
+        /* Flying Points Animation */
+        @keyframes flyToScore {
+            85% {
+                transform: translate(var(--targetX), var(--targetY)) scale(0.25);
+                opacity: 1; /* Still fully visible upon arrival */
+            }
+            to {
+                transform: translate(var(--targetX), var(--targetY)) scale(0.1);
+                opacity: 0; /* Fade out only at the very end */
+            }
+        }
+        .flying-points {
+            position: absolute;
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #64ffda; /* Neon Cyan */
+            text-shadow: 0 0 5px #64ffda;
+            z-index: 70;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: none; /* Initially reset */
+            animation: flyToScore 1.2s ease-in-out forwards; /* Increased duration for travel */
+        }
+        
+        #star-display {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start; 
+            color: #FFF; 
+            font-size: 1rem; 
+            pointer-events: none;
+        }
+
+        /* CSS RULE for individual star "slots" */
+        .star-slot {
+            display: inline-block;
+            text-align: center;
+            flex-shrink: 0; 
+        }
+
+        /* Score Box Styling */
+        #score-box {
+            display: inline-block; /* Fit content width */
+            background-color: #334155; /* Slate 700 */
+            padding: 0.25rem 0.75rem; /* text-sm, py-1 px-3 equivalent */
+            border-radius: 0.5rem; /* rounded-lg */
+            border: 2px solid #475569; /* Slate 600 */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        #score-box .text-sm {
+            padding-right: 0.5rem; /* Add spacing between label and number */
+        }
+
+        /* Styles for positioning Header Elements */
+        #header-container {
+            position: relative; /* Needed for absolute positioning */
+            padding: 1rem; /* p-4 */
+            /* Ensure it doesn't collapse if children are absolute */
+            min-height: 60px; /* Adjust as needed based on content height */ 
+        }
+        #strikes-container {
+            position: absolute;
+            top: 1rem;  /* Match header padding */
+            right: 1rem; /* Match header padding */
+            text-align: right; /* Align text within the container to the right */
+        }
+         #challenge-container {
+            position: absolute;
+            top: 1rem; /* Match header padding */
+            left: 50%; /* Start at the center */
+            transform: translateX(-50%); /* Shift left by half its own width */
+            text-align: center; /* Center text inside */
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container" class="flex flex-col relative">
+        <h1 class="text-3xl font-black text-white text-center p-4 border-b border-slate-600">Comparison Builder</h1>
+        
+        <!-- Animated Star (Invisible by default) -->
+        <div id="animated-star">🌟</div>
+        
+        <!-- PAUSE OVERLAY -->
+        <div id="pause-overlay">
+            <h2 class="text-5xl font-bold text-cyan-400 mb-4">PAUSED</h2>
+            <p class="text-xl mb-8">Press **P** or **Spacebar** to Resume</p>
+            <div id="pause-buttons" class="flex flex-col items-center">
+                <!-- Buttons added by JS -->
+            </div>
+        </div>
+        <!-- END PAUSE OVERLAY -->
+
+        <!-- UI Header -->
+        <div id="header-container" class="text-white">
+            <!-- SCORE -->
+            <div id="score-box">
+                <span class="text-sm text-slate-400">SCORE</span>
+                <span id="score-display" class="text-2xl font-bold text-yellow-400">0</span>
+            </div>
+            
+             <!-- CHALLENGE COUNT -->
+             <div id="challenge-container" class="flex flex-col items-center">
+                 <span class="text-sm text-slate-400">CHALLENGE</span>
+                 <span id="challenge-count" class="text-2xl font-bold text-yellow-400">0</span>
+             </div>
+
+            <!-- STRIKES VISUAL DISPLAY -->
+            <div id="strikes-container" class="flex flex-col items-end">
+                <span class="text-sm text-slate-400">STRIKES</span>
+                <div id="strike-icons" class="flex gap-1">
+                    <!-- Icons populated by JS -->
+                </div>
+            </div>
+            <!-- END STRIKES VISUAL DISPLAY -->
+        </div>
+        
+        <!-- STAR PROGRESS BAR CONTAINER -->
+        <div id="star-progress-container" class="px-4 pb-2">
+            <div class="text-xs text-slate-300 mb-1 flex justify-between">
+                <span>STAR CHALLENGE PROGRESS</span>
+                <span id="star-count-text">0 / 20 STARS</span>
+            </div>
+            <div id="star-bar-inner-container" class="h-6 w-full bg-slate-700 rounded-full overflow-hidden relative border border-slate-600">
+                <div id="star-display"></div> 
+            </div>
+        </div>
+        <!-- END STAR PROGRESS BAR CONTAINER -->
+
+        <!-- Timer Bar -->
+        <div class="px-4 pb-2">
+            <div id="timer-display">
+                <div id="timer-bar"></div>
+            </div>
+        </div>
+
+        <!-- Main Challenge Display (LHS - Buttons - RHS) -->
+        <div id="challenge-display" class="mx-4">
+            <span id="lhs-expression" class="expression"></span>
+            
+            <div id="symbol-stack">
+                <!-- Symbols will be inserted here by JavaScript -->
+            </div>
+            
+            <span id="rhs-expression" class="expression"></span>
+        </div>
+
+        <!-- Game Over / Start Screen Modal -->
+        <div id="modal" class="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center p-4 z-50 transition-opacity duration-300">
+            <div class="bg-slate-700 p-8 rounded-lg text-white text-center max-w-sm w-full shadow-2xl border-4 border-slate-500">
+                <h2 id="modal-title" class="text-4xl font-bold text-cyan-400 mb-4 uppercase arcade-font"></h2>
+                <p id="modal-message" class="text-lg mb-6"></p>
+                
+                <div id="grade-selection-container" class="mb-6 text-center">
+                    <label class="text-slate-300 block mb-3 text-sm">Select Grade Level (Use Arrows/Enter):</label>
+                    <div id="grade-options" class="flex flex-col gap-2">
+                        <!-- MODIFIED OPTIONS FOR GRADES -->
+                        <div class="grade-option p-3 rounded-lg cursor-pointer transition-all border-2 border-transparent"
+                             data-value="0" data-index="0">🍎 <span class="grade-text">JK</span> <span class="desc-text">(Compare Dots 1-5)</span></div>
+                        <div class="grade-option p-3 rounded-lg cursor-pointer transition-all border-2 border-transparent"
+                             data-value="1" data-index="1">✏️ <span class="grade-text">K</span> <span class="desc-text">(Dots vs Num 1-10)</span></div>
+                        <div class="grade-option p-3 rounded-lg cursor-pointer transition-all border-2 border-transparent"
+                             data-value="2" data-index="2">📖 <span class="grade-text">Gr 1</span> <span class="desc-text">(Subitize & Compare 5-20)</span></div>
+                        <div class="grade-option p-3 rounded-lg cursor-pointer transition-all border-2 border-transparent"
+                             data-value="3" data-index="3">➕ <span class="grade-text">Gr 2</span> <span class="desc-text">(Simple Add/Sub to 40)</span></div>
+                        <div class="grade-option p-3 rounded-lg cursor-pointer transition-all border-2 border-transparent"
+                             data-value="4" data-index="4">➗ <span class="grade-text">Gr 3+</span> <span class="desc-text">(Mixed Ops to 60)</span></div>
+                    </div>
+                </div>
+                
+                <p id="modal-score" class="text-xl font-mono mb-6 text-yellow-400"></p>
+                <button id="start-button" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-6 rounded-lg transition transform hover:scale-105 shadow-lg">START GAME</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Game Constants ---
+        const MAX_TIME_PER_CHALLENGE = 15; 
+        const INCORRECT_CHOICE_PENALTY = 150; 
+        const MAX_INCORRECT_ATTEMPTS = 5; 
+        const MAX_STARS = 20; 
+        const CHALLENGES_PER_STAR = 10; 
+        const TIME_BONUS_MULTIPLIER = 50; 
+        const SCORE_ANIMATION_DURATION = 500; 
+        const FLYING_POINTS_DURATION = 1200; 
+        const STAR_PAUSE_DURATION = 2000; 
+        const STAR_ANIMATION_TIME = 1000; 
+        const STAR_FADE_OUT_DURATION = 500; 
+
+        // --- DOM Elements ---
+        const symbolStack = document.getElementById('symbol-stack');
+        const scoreDisplay = document.getElementById('score-display');
+        const strikeIconsContainer = document.getElementById('strike-icons'); 
+        const starCountText = document.getElementById('star-count-text'); 
+        const starDisplay = document.getElementById('star-display'); 
+        const challengeCountDisplay = document.getElementById('challenge-count');
+        const timerBar = document.getElementById('timer-bar');
+        const modal = document.getElementById('modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalMessage = document.getElementById('modal-message');
+        const modalScore = document.getElementById('modal-score');
+        const startButton = document.getElementById('start-button');
+        const pauseOverlay = document.getElementById('pause-overlay'); 
+        const pauseButtonsContainer = document.getElementById('pause-buttons'); 
+        const animatedStar = document.getElementById('animated-star'); 
+        const gameContainer = document.getElementById('game-container'); 
+        const gradeOptionsContainer = document.getElementById('grade-selection-container');
+        let gradeOptions; 
+        const lhsExpressionElement = document.getElementById('lhs-expression');
+        const rhsExpressionElement = document.getElementById('rhs-expression');
+        const starBarInnerContainer = document.getElementById('star-bar-inner-container'); 
+        
+        // --- Game State ---
+        let gameActive = false;
+        let isPaused = false; 
+        let score = 0;
+        let timer = MAX_TIME_PER_CHALLENGE;
+        let challengesCompleted = 0;
+        let incorrectAttempts = 0; 
+        let starCount = 0; 
+        let currentProblem = null;
+        let timerInterval;
+        let yOffset = 0; 
+        const MAX_Y_OFFSET = 90; 
+        const MOVE_INCREMENT = 90; 
+        let selectedGrade = 2; // Default to Grade 1
+        let focusedGradeIndex = 2; // Default focus to Grade 1
+        
+        // --- Tone.js Sound Setup ---
+        let correctSynth, incorrectSynth, clickSynth, gameOverSynth, fanfareSynth, starPingSynth; // Added starPingSynth
+        let isAudioInitialized = false;
+
+        const initializeAudio = async () => {
+            if (isAudioInitialized) return;
+            try {
+                await Tone.start();
+                correctSynth = new Tone.PolySynth(Tone.Synth, { oscillator: { type: "sine" }, envelope: { attack: 0.01, decay: 0.2, sustain: 0.05, release: 0.5 }, volume: -10 }).toDestination();
+                incorrectSynth = new Tone.Synth({ oscillator: { type: "square" }, envelope: { attack: 0.01, decay: 0.1, sustain: 0, release: 0.1 }, volume: -10 }).toDestination();
+                clickSynth = new Tone.MembraneSynth({ envelope: { attack: 0.001, decay: 0.1, sustain: 0.01, release: 0.1 }, volume: -20 }).toDestination();
+                gameOverSynth = new Tone.Synth({ oscillator: { type: "sawtooth" }, envelope: { attack: 0.05, decay: 0.3, sustain: 0.1, release: 0.5 }, volume: -10 }).toDestination();
+                fanfareSynth = new Tone.PolySynth(Tone.Synth, { oscillator: { type: "triangle" }, envelope: { attack: 0.01, decay: 0.2, sustain: 0.1, release: 0.3 }, volume: -10 }).toDestination();
+                // NEW: Star Ping Synth
+                starPingSynth = new Tone.Synth({
+                    oscillator: { type: "sine" },
+                    envelope: { attack: 0.005, decay: 0.1, sustain: 0.01, release: 0.2 },
+                    volume: -8 // Slightly louder ping
+                }).connect(new Tone.FeedbackDelay("16n", 0.5)).toDestination(); // Add a subtle delay/reverb
+
+                isAudioInitialized = true;
+            } catch (error) { console.error("Audio initialization failed:", error); }
+        };
+        
+        const playCorrectSound = () => { if (isAudioInitialized && correctSynth) { correctSynth.triggerAttackRelease(["C5", "E5", "G5"], "8n"); } };
+        const playIncorrectSound = () => { if (isAudioInitialized && incorrectSynth) { incorrectSynth.triggerAttackRelease("C2", "8n"); } };
+        const playClickSound = (note = "C4") => { if (!isAudioInitialized) initializeAudio(); if (isAudioInitialized && clickSynth) { clickSynth.triggerAttackRelease(note, "16n"); } };
+        const playGameOverSound = () => { if (!isAudioInitialized || !gameOverSynth) return; const seq = ["G3", "E3", "C3", "A2"]; let del = 0; seq.forEach((n) => { setTimeout(() => { gameOverSynth.triggerAttackRelease(n, "4n"); }, del); del += 300; }); };
+        const playStartFanfare = () => { if (!isAudioInitialized || !fanfareSynth) return; const now = Tone.now(); fanfareSynth.triggerAttackRelease("C4", "8n", now); fanfareSynth.triggerAttackRelease("E4", "8n", now + 0.1); fanfareSynth.triggerAttackRelease("G4", "8n", now + 0.2); fanfareSynth.triggerAttackRelease("C5", "8n", now + 0.3); };
+        const playWinFanfare = () => { if (!isAudioInitialized || !fanfareSynth) return; const now = Tone.now(); fanfareSynth.volume.value = -8; fanfareSynth.triggerAttackRelease("C5", "16n", now); fanfareSynth.triggerAttackRelease("E5", "16n", now + 0.1); fanfareSynth.triggerAttackRelease("G5", "16n", now + 0.2); fanfareSynth.triggerAttackRelease("C6", "8n", now + 0.3); fanfareSynth.triggerAttackRelease("G5", "16n", now + 0.4); fanfareSynth.triggerAttackRelease("C6", "8n", now + 0.5); setTimeout(() => { if (fanfareSynth) fanfareSynth.volume.value = -10; }, 1000); };
+        // NEW: Play Star Ping Sound
+        const playStarPingSound = () => { if (isAudioInitialized && starPingSynth) { starPingSynth.triggerAttackRelease("C6", "16n"); } };
+
+
+        // --- Utility Functions ---
+        function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+        
+        // Simplified dot string for JK/K
+        function createSimpleDotString(count) {
+             return '●'.repeat(count);
+        }
+
+        // Existing patterned string for Grade 1+ subitizing
+        function createPatternedQuantityString(count, style = 'domino') {
+            const dot = '●'; const nl = '\n'; 
+            if (count < 1 || count > 15) return dot.repeat(count); // Keep range for subitizing
+            const patterns = { 1: dot, 2: dot.repeat(2), 3: dot.repeat(1)+nl+dot.repeat(2), 4: dot.repeat(2)+nl+dot.repeat(2), 5: dot.repeat(2)+nl+dot.repeat(3), 6: dot.repeat(3)+nl+dot.repeat(3), 7: dot.repeat(3)+nl+dot.repeat(4), 8: dot.repeat(4)+nl+dot.repeat(4), 9: dot.repeat(3)+nl+dot.repeat(3)+nl+dot.repeat(3), 10: dot.repeat(5)+nl+dot.repeat(5), 11: dot.repeat(5)+nl+dot.repeat(5)+nl+dot.repeat(1), 12: dot.repeat(4)+nl+dot.repeat(4)+nl+dot.repeat(4), 13: dot.repeat(5)+nl+dot.repeat(5)+nl+dot.repeat(3), 14: dot.repeat(5)+nl+dot.repeat(5)+nl+dot.repeat(4), 15: dot.repeat(5)+nl+dot.repeat(5)+nl+dot.repeat(5) };
+            const createDomino = (c) => patterns[c] || dot.repeat(c);
+            const createBar = (c) => { let r=2; if(c<=4)r=1; else if(c>10)r=3; const pR=Math.ceil(c/r); let o=''; let rem=c; for(let i=0;i<r;i++){ const ct=Math.min(pR,rem); if(ct>0){ o+=dot.repeat(ct); rem-=ct; if(i<r-1)o+=nl; } } return o; };
+            const createPizza = (c) => { if(c===1)return dot; if(c===2)return dot.repeat(2); if(c===3)return dot+nl+dot.repeat(2); if(c===4)return dot+' '+dot+nl+dot+' '+dot; if(c===5)return dot.repeat(3)+nl+dot.repeat(2); if(c===6)return dot.repeat(3)+nl+dot.repeat(3); if(c===7)return dot+nl+dot.repeat(3)+nl+dot.repeat(3); if(c===8)return dot.repeat(4)+nl+dot.repeat(4); if(c===9)return dot.repeat(3)+nl+dot.repeat(3)+nl+dot.repeat(3); if(c===10)return dot.repeat(5)+nl+dot.repeat(5); return createDomino(c); };
+            if (style === 'bar') return createBar(count); if (style === 'pizza') return createPizza(count); return createDomino(count);
+        }
+        
+        function evaluateExpression(expression) {
+            try { if (expression.includes('●')) return (expression.match(/●/g) || []).length; if (!isNaN(expression) && expression.trim() !== '') return parseInt(expression); const cE=expression.replace(/\s+/g, ''); if (cE.includes('+')) { const p=cE.split('+'); return parseInt(p[0])+parseInt(p[1]); } if (cE.includes('-')) { const p=cE.split('-'); return parseInt(p[0])-parseInt(p[1]); } return parseInt(cE); } catch (e) { console.error("Eval err:", e); return 0; }
+        }
+
+        function createAdditionExpression(minR, maxR) { let res=randInt(minR,maxR); let A=randInt(Math.max(1, Math.floor(minR/2)), res - 1); let B=res-A; return `${A} + ${B}`; }
+        function createSubtractionExpression(minR, maxR) { let res=randInt(minR, maxR); let B = randInt(1, 20); let A = res + B; return `${A} - ${B}`; } // Keep subtraction simple for Gr 2/3
+        
+        function createMixedExpression(minR, maxR) { 
+            const op = randInt(0, 1) === 0 ? '+' : '-'; 
+            let res = randInt(minR, maxR); 
+            if (op === '+') { 
+                 let A = randInt(Math.max(1, Math.floor(minR/2)), res - 1); 
+                 let B = res - A; 
+                 return `${A} + ${B}`; 
+             } else { // Subtraction
+                 let B = randInt(1, Math.min(30, maxR - minR)); // Limit subtrahend size
+                 let A = res + B;
+                 // Ensure A doesn't get excessively large compared to B for this level
+                 if (A > maxR + 15) { // If A is much larger, regenerate as addition
+                     A = randInt(Math.max(1, Math.floor(minR/2)), res - 1); 
+                     B = res - A; 
+                     return `${A} + ${B}`; 
+                 }
+                 return `${A} - ${B}`; 
+             }
+         }
+
+        // MODIFIED: generateNewProblem based on selectedGrade (0-4)
+        function generateNewProblem() {
+            let lhsExp, rhsExp, lhsValue, rhsValue, correctSymbol;
+            let styleA = null, styleB = null; // For CSS styling of quantities
+
+            // JK (Grade 0): Compare simple dots 1-5
+            if (selectedGrade === 0) {
+                lhsValue = randInt(1, 5);
+                rhsValue = randInt(1, 5);
+                if (randInt(0, 3) === 0) rhsValue = lhsValue; // Add equals case sometimes
+                else { while (rhsValue === lhsValue) rhsValue = randInt(1, 5); }
+                lhsExp = createSimpleDotString(lhsValue);
+                rhsExp = createSimpleDotString(rhsValue);
+                styleA = 'row'; styleB = 'row';
+            }
+            // K (Grade 1): Compare dots 1-10 vs Numeral 1-10
+            else if (selectedGrade === 1) {
+                lhsValue = randInt(1, 10);
+                rhsValue = randInt(1, 10);
+                 if (randInt(0, 3) === 0) rhsValue = lhsValue; 
+                 else { while (rhsValue === lhsValue) rhsValue = randInt(1, 10); }
+                // Randomly decide which side gets dots
+                if (randInt(0, 1) === 0) {
+                    lhsExp = createSimpleDotString(lhsValue);
+                    rhsExp = rhsValue.toString();
+                    styleA = 'row';
+                } else {
+                    lhsExp = lhsValue.toString();
+                    rhsExp = createSimpleDotString(rhsValue);
+                    styleB = 'row';
+                }
+            }
+            // Grade 1 (Grade 2): Subitizing (5-15) vs Numeral (5-20) OR Numeral vs Numeral (5-20)
+            else if (selectedGrade === 2) {
+                const type = randInt(0, 2); // 0: Subitize vs Num, 1: Num vs Subitize, 2: Num vs Num
+                if (type === 0 || type === 1) { // Subitizing involved
+                    lhsValue = randInt(5, 15); // Subitize range
+                    rhsValue = randInt(5, 20); // Comparison range
+                    if (randInt(0, 4) === 0) rhsValue = lhsValue;
+                    else { while(rhsValue === lhsValue) rhsValue = randInt(5, 20); }
+
+                    const patterns = ['domino', 'bar', 'pizza'];
+                    const pattern = patterns[randInt(0, patterns.length - 1)];
+
+                    if (type === 0) { // Subitize LHS
+                        lhsExp = createPatternedQuantityString(lhsValue, pattern);
+                        rhsExp = rhsValue.toString();
+                        styleA = pattern;
+                    } else { // Subitize RHS
+                        lhsExp = lhsValue.toString();
+                        rhsExp = createPatternedQuantityString(rhsValue, pattern); // Use rhsValue for RHS pattern
+                        // Adjust lhsValue if subitizing RHS to keep it in range
+                        if (rhsValue > 15) { 
+                             lhsValue = randInt(5, 20);
+                             lhsExp = lhsValue.toString();
+                        } else {
+                            lhsExp = lhsValue.toString(); // Keep original if RHS value is valid for pattern
+                        }
+                        styleB = pattern;
+                         // Recalculate values just in case
+                         lhsValue = evaluateExpression(lhsExp);
+                         rhsValue = evaluateExpression(rhsExp);
+                    }
+                } else { // Numeral vs Numeral
+                    lhsValue = randInt(5, 20);
+                    rhsValue = randInt(5, 20);
+                    if (randInt(0, 4) === 0) rhsValue = lhsValue;
+                     else { while (rhsValue === lhsValue) rhsValue = randInt(5, 20); }
+                    lhsExp = lhsValue.toString();
+                    rhsExp = rhsValue.toString();
+                }
+            }
+            // Grade 2 (Grade 3): Simple Add/Sub (result 10-40) vs Numeral (10-40)
+             else if (selectedGrade === 3) {
+                const operationType = randInt(0, 1); // 0 for addition, 1 for subtraction
+                 if (operationType === 0) {
+                     lhsExp = createAdditionExpression(10, 40);
+                 } else {
+                     lhsExp = createSubtractionExpression(10, 40);
+                 }
+                 lhsValue = evaluateExpression(lhsExp);
+                 rhsValue = randInt(10, 40);
+                 rhsExp = rhsValue.toString();
+ 
+                 // Randomly swap sides
+                 if (randInt(0, 1) === 0) {
+                     [lhsExp, rhsExp] = [rhsExp, lhsExp];
+                     [lhsValue, rhsValue] = [rhsValue, lhsValue];
+                 }
+             }
+            // Grade 3+ (Grade 4): Mixed Arithmetic (result 15-60) vs Numeral/Expression (15-60)
+            else { // selectedGrade === 4
+                 lhsExp = createMixedExpression(15, 60);
+                 lhsValue = evaluateExpression(lhsExp);
+ 
+                 // RHS can be a number or another expression
+                 if (randInt(0, 1) === 0) {
+                     rhsValue = randInt(15, 60);
+                     rhsExp = rhsValue.toString();
+                 } else {
+                     rhsExp = createMixedExpression(15, 60);
+                     rhsValue = evaluateExpression(rhsExp);
+                 }
+             }
+
+            // Determine correct symbol
+            if (lhsValue > rhsValue) { correctSymbol = '>'; } 
+            else if (lhsValue < rhsValue) { correctSymbol = '<'; } 
+            else { correctSymbol = '='; }
+            
+            return { lhsExp, rhsExp, lhsValue, rhsValue, correctSymbol, styleA, styleB };
+        }
+
+        // --- Game Logic ---
+        function startNextProblem() { gameActive=true; loadNewProblem(); startTimer(); animatedStar.style.display='none'; }
+        
+        function animateScore(start, end) { const dur=SCORE_ANIMATION_DURATION; let startT; const step=(t)=>{if(!startT)startT=t; const prog=t-startT; const pct=Math.min(prog/dur,1); const curS=Math.floor(start+(end-start)*pct); scoreDisplay.textContent=curS; if(pct<1){window.requestAnimationFrame(step);}else{score=end; scoreDisplay.textContent=end;}}; window.requestAnimationFrame(step); }
+        
+        function animateBonusPoints(points, challengesJustCompleted) {
+            const flyingDiv = document.createElement('div'); flyingDiv.textContent=`+${points}`; flyingDiv.classList.add('flying-points');
+            const scoreBeforeUpdate = score - points;
+            scoreDisplay.textContent = score; const scoreRect = scoreDisplay.getBoundingClientRect(); scoreDisplay.textContent = scoreBeforeUpdate; 
+            const gameRect = gameContainer.getBoundingClientRect();
+            const destinationX = scoreRect.left + scoreRect.width / 2; const destinationY = scoreRect.top + scoreRect.height / 2;
+            const centerX = gameRect.left + gameRect.width / 2; const centerY = gameRect.top + gameRect.height / 2;
+            const targetX = (destinationX - centerX) - 40; const targetY = (destinationY - centerY) - 40; 
+            flyingDiv.style.setProperty('--targetX',`${targetX}px`); flyingDiv.style.setProperty('--targetY',`${targetY}px`);
+            gameContainer.appendChild(flyingDiv);
+            animateScore(scoreBeforeUpdate, score); 
+            setTimeout(() => { flyingDiv.remove(); }, FLYING_POINTS_DURATION + 50);
+            playClickSound('E5');
+            const starWillBeEarned = challengesJustCompleted > 0 && challengesJustCompleted % CHALLENGES_PER_STAR === 0;
+            let nextActionDelay = FLYING_POINTS_DURATION + 100; 
+            if (starWillBeEarned) { starCount = Math.floor(challengesJustCompleted / CHALLENGES_PER_STAR); nextActionDelay += STAR_PAUSE_DURATION; setTimeout(() => { animateStarBonus(starCount); }, FLYING_POINTS_DURATION); if (starCount >= MAX_STARS) { setTimeout(() => endGame(true, false), nextActionDelay); return; } }
+            setTimeout(() => { startNextProblem(); }, nextActionDelay);
+        }
+
+        function animateStarBonus(starIndex) {
+            const starBarRect = starBarInnerContainer.getBoundingClientRect(); const gameContainerRect = gameContainer.getBoundingClientRect();
+            const starBarWidth = starBarRect.width; const starSlotWidth = starBarWidth / MAX_STARS; 
+            const targetXInBar = (starIndex - 0.5) * starSlotWidth;
+            const targetX = starBarRect.left + targetXInBar - gameContainerRect.left;
+            const targetY = (starBarRect.top + starBarRect.bottom) / 2 - gameContainerRect.top;
+            const centerX = gameContainerRect.width / 2; const centerY = gameContainerRect.height / 2;
+            animatedStar.style.display='block'; animatedStar.style.transition='none'; animatedStar.style.transform=`translate(-50%, -50%) scale(5)`; animatedStar.style.opacity='1';
+            void animatedStar.offsetWidth; 
+            animatedStar.style.transition=`transform ${STAR_ANIMATION_TIME/1000}s ease-in-out, opacity ${STAR_FADE_OUT_DURATION/1000}s ease-out ${STAR_ANIMATION_TIME/1000}s`;
+            const finalOffsetX = targetX - centerX; const finalOffsetY = targetY - centerY;
+            animatedStar.style.transform=`translate(calc(${finalOffsetX}px - 50%), calc(${finalOffsetY}px - 50%)) scale(0.5)`; animatedStar.style.opacity='0';
+            // MODIFIED: Timeout reduced by 500ms (STAR_FADE_OUT_DURATION)
+            setTimeout(() => { 
+                animatedStar.style.display='none'; 
+                updateScoreboard(); 
+                playStarPingSound(); // Play ping sound when star lands
+            }, STAR_ANIMATION_TIME + STAR_FADE_OUT_DURATION - 500); 
+        }
+
+        function updateGradeFocus(playFocusSound = true) {
+            gradeOptions.forEach((opt,idx)=>{opt.classList.remove('focused');}); if(gradeOptions[focusedGradeIndex]){gradeOptions[focusedGradeIndex].classList.add('focused'); selectedGrade=parseInt(gradeOptions[focusedGradeIndex].getAttribute('data-value')); if(playFocusSound){playClickSound('D4');}}
+        }
+        
+        function initButtons() {
+            symbolStack.innerHTML=''; const symbols=['<','=','>']; symbols.forEach(sym=>{const tileD=document.createElement('div');tileD.className='tile tile-symbol';tileD.textContent=sym;tileD.setAttribute('data-symbol',sym);tileD.addEventListener('click',handleSymbolClick);symbolStack.appendChild(tileD);});
+            gradeOptions=Array.from(document.querySelectorAll('.grade-option')); gradeOptions.forEach(opt=>{opt.addEventListener('click',()=>{focusedGradeIndex=parseInt(opt.getAttribute('data-index')); updateGradeFocus(false);});}); updateGradeFocus(false);
+            pauseButtonsContainer.innerHTML=''; const resumeBtn=document.createElement('button');resumeBtn.id='resume-button';resumeBtn.className='bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-6 rounded-lg transition transform hover:scale-105 shadow-lg mb-4';resumeBtn.textContent='RESUME (Space/P)';resumeBtn.addEventListener('click',togglePause); const menuBtn=document.createElement('button');menuBtn.id='menu-button';menuBtn.className='bg-red-600 hover:bg-red-500 text-white font-bold py-3 px-6 rounded-lg transition transform hover:scale-105 shadow-lg';menuBtn.textContent='GO TO MAIN MENU';menuBtn.addEventListener('click',goToMainMenu); pauseButtonsContainer.appendChild(resumeBtn); pauseButtonsContainer.appendChild(menuBtn);
+        }
+        
+        // MODIFIED: loadNewProblem applies quantity styles based on grade level logic
+        function loadNewProblem() {
+            currentProblem=generateNewProblem(); 
+            lhsExpressionElement.textContent=currentProblem.lhsExp; 
+            rhsExpressionElement.textContent=currentProblem.rhsExp;
+            
+            // Reset styles first
+            lhsExpressionElement.classList.remove('quantity','row','pizza','bar','domino'); 
+            rhsExpressionElement.classList.remove('quantity','row','pizza','bar','domino');
+            lhsExpressionElement.style.textAlign = 'right'; // Default
+            rhsExpressionElement.style.textAlign = 'left'; // Default
+
+            // Apply specific styles if quantities are used
+            if (currentProblem.styleA) {
+                lhsExpressionElement.classList.add('quantity', currentProblem.styleA);
+                 lhsExpressionElement.style.textAlign = 'center'; // Center quantities
+            }
+             if (currentProblem.styleB) {
+                rhsExpressionElement.classList.add('quantity', currentProblem.styleB);
+                 rhsExpressionElement.style.textAlign = 'center'; // Center quantities
+            }
+
+            symbolStack.querySelectorAll('.tile').forEach(btn=>{btn.classList.remove('correct','incorrect');}); 
+            yOffset=0; 
+            timer=MAX_TIME_PER_CHALLENGE; 
+            updateScoreboard();
+        }
+
+        function updateScoreboard() {
+            scoreDisplay.textContent=score; challengeCountDisplay.textContent=challengesCompleted; 
+            const fLI='🟢'; const eLI='⚪'; let iconsH=''; const remL=MAX_INCORRECT_ATTEMPTS-incorrectAttempts; for(let i=0;i<MAX_INCORRECT_ATTEMPTS;i++){if(i<remL){iconsH+=`<span class="strike-icon text-emerald-400">${fLI}</span>`;}else{iconsH+=`<span class="strike-icon text-gray-400">${eLI}</span>`;}} strikeIconsContainer.innerHTML=iconsH;
+            starCountText.textContent=`${starCount} / ${MAX_STARS} STARS`;
+            if(animatedStar.style.display!=='block'){ const sBW=starBarInnerContainer.getBoundingClientRect().width; const sSW=sBW/MAX_STARS; let starsH=''; for(let i=0;i<starCount;i++){starsH+=`<span class="star-slot" style="width: ${sSW}px">🌟</span>`;} starDisplay.innerHTML=starsH; }
+            if(lhsExpressionElement){lhsExpressionElement.style.transform=`translateY(${yOffset}px)`;} if(rhsExpressionElement){rhsExpressionElement.style.transform=`translateY(${yOffset}px)`;}
+        }
+
+        function updateTimerBar() { const tR=timer/MAX_TIME_PER_CHALLENGE; timerBar.style.width=`${tR*100}%`; if(tR>0.5){timerBar.style.backgroundColor='#10B981';}else if(tR>0.2){timerBar.style.backgroundColor='#F59E0B';}else{timerBar.style.backgroundColor='#EF4444';} }
+
+        function handleSymbolClick(event) {
+            if (!gameActive || isPaused || !currentProblem) return;
+            const selectedSymbol = event.currentTarget.getAttribute('data-symbol'); const tile = event.currentTarget; gameActive = false; clearInterval(timerInterval);
+            const isCorrect = selectedSymbol === currentProblem.correctSymbol; symbolStack.querySelectorAll('.tile').forEach(b => b.classList.remove('correct','incorrect'));
+            if(isCorrect){ const basePts=100; const timeRem=timer; const bonusPts=Math.floor(timeRem*TIME_BONUS_MULTIPLIER); const totalPtsGained=basePts+bonusPts; const scoreBeforeUpdate=score; score+=totalPtsGained; challengesCompleted++; animateBonusPoints(totalPtsGained,challengesCompleted); tile.classList.add('correct'); playCorrectSound(); }
+            else{ score=Math.max(0,score-INCORRECT_CHOICE_PENALTY); incorrectAttempts++; tile.classList.add('incorrect'); playIncorrectSound(); updateScoreboard(); if(incorrectAttempts>=MAX_INCORRECT_ATTEMPTS){endGame(false,true); return;} const correctTile=symbolStack.querySelector(`[data-symbol="${currentProblem.correctSymbol}"]`); if(correctTile){correctTile.classList.add('correct');} setTimeout(()=>{startNextProblem();},1000); }
+        }
+
+        function togglePause() { if(!gameActive)return; isPaused=!isPaused; if(isPaused){clearInterval(timerInterval);pauseOverlay.style.display='flex';}else{pauseOverlay.style.display='none';startTimer();} }
+        
+        function goToMainMenu() { gameActive=false; isPaused=false; clearInterval(timerInterval); pauseOverlay.style.display='none'; modalTitle.textContent="COMPARISON BUILDER"; modalMessage.textContent=`Use the UP/DOWN ARROWS to select the symbol. Press SPACEBAR or click the correct symbol to submit.`; modalScore.textContent=`Current Score: ${score} | Stars Earned: ${starCount}`; startButton.textContent="START GAME (Space/Enter)"; modal.style.opacity='1'; modal.style.pointerEvents='auto'; updateGradeFocus(false); }
+
+        function startTimer() { clearInterval(timerInterval); timer=MAX_TIME_PER_CHALLENGE; updateTimerBar(); timerInterval=setInterval(()=>{ if(!gameActive||isPaused){clearInterval(timerInterval);return;} timer-=0.1; if(timer<=0){ timer=0; gameActive=false; clearInterval(timerInterval); incorrectAttempts++; playIncorrectSound(); updateScoreboard(); if(incorrectAttempts>=MAX_INCORRECT_ATTEMPTS){endGame(false,true);return;} setTimeout(()=>{startNextProblem();},1000); } updateTimerBar(); }, 100); }
+        
+        document.addEventListener('keydown', (e) => {
+            if(e.key==='p'||e.key==='P'){togglePause();e.preventDefault();return;} if(e.key===' '&&isPaused&&gameActive){togglePause();e.preventDefault();return;}
+            if(!gameActive&&modal.style.opacity==='1'){ const nO=gradeOptions.length; if(e.key==='ArrowUp'){focusedGradeIndex=(focusedGradeIndex-1+nO)%nO;updateGradeFocus();e.preventDefault();}else if(e.key==='ArrowDown'){focusedGradeIndex=(focusedGradeIndex+1)%nO;updateGradeFocus();e.preventDefault();} if(e.key===' '||e.key==='Enter'){startGame();e.preventDefault();} return; }
+            if(isPaused)return; if(e.key==='ArrowUp'&&!e.repeat){yOffset=Math.max(-MAX_Y_OFFSET,yOffset-MOVE_INCREMENT);updateScoreboard();playClickSound('F4');}else if(e.key==='ArrowDown'&&!e.repeat){yOffset=Math.min(MAX_Y_OFFSET,yOffset+MOVE_INCREMENT);updateScoreboard();playClickSound('C4');}else if(e.key===' '&&!e.repeat){ let subIdx; if(yOffset===-MAX_Y_OFFSET){subIdx=0;}else if(yOffset===0){subIdx=1;}else if(yOffset===MAX_Y_OFFSET){subIdx=2;}else{subIdx=1;} const btns=symbolStack.querySelectorAll('.tile'); if(btns[subIdx]){btns[subIdx].click();} e.preventDefault(); }
+            const btnIdx=e.key==='1'?0:e.key==='2'?1:e.key==='3'?2:-1; if(btnIdx!==-1){const btns=symbolStack.querySelectorAll('.tile');if(btns[btnIdx]){btns[btnIdx].click();}}
+        });
+        
+        function startGame() {
+            initializeAudio(); playStartFanfare();
+            modal.style.opacity='0'; modal.style.pointerEvents='none'; score=0; challengesCompleted=0; incorrectAttempts=0; starCount=0; isPaused=false; gameActive=true; yOffset=0; initButtons(); loadNewProblem(); startTimer(); updateScoreboard();
+        }
+
+        function endGame(win, isStrikeout) {
+            gameActive=false; clearInterval(timerInterval);
+            if(!win){playGameOverSound();}else{playWinFanfare();modalTitle.textContent="CHALLENGE COMPLETE!";modalMessage.textContent=`Congratulations! You earned all ${MAX_STARS} stars and solved ${challengesCompleted} problems in the ${gradeOptions[focusedGradeIndex].querySelector('.grade-text').textContent} level.`;} // Use querySelector for grade text
+            if(isStrikeout&&!win){modalTitle.textContent="STRIKE OUT!";modalMessage.textContent=`You ran out of lives! You earned ${starCount} stars and solved ${challengesCompleted} problems.`;}else if(timer<=0&&!win){modalTitle.textContent="TIME'S UP!";modalMessage.textContent=`You ran out of time! You earned ${starCount} stars and solved ${challengesCompleted} problems.`;}else if(!win){modalTitle.textContent="GAME OVER";modalMessage.textContent="Game ended prematurely.";}
+            modalScore.textContent=`FINAL SCORE: ${score}`; startButton.textContent="TRY AGAIN (Space/Enter)"; modal.style.opacity='1'; modal.style.pointerEvents='auto'; updateGradeFocus(false); 
+        }
+        
+        function init() {
+            startButton.addEventListener('click',startGame); modalTitle.textContent="COMPARISON BUILDER"; modalMessage.textContent=`Use the UP/DOWN ARROWS to select the symbol. Press SPACEBAR or click the correct symbol to submit.`; modalScore.textContent=""; startButton.textContent="START GAME (Space/Enter)"; initButtons(); loadNewProblem(); gameActive=false; modal.style.opacity='1'; modal.style.pointerEvents='auto';
+            // Set default focus on init
+             updateGradeFocus(false);
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
+
+

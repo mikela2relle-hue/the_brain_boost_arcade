@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Comets - Typing Arcade</title>
+    
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Load Tone.js for audio -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
+    
+    <style>
+        /* Use a fun, kid-friendly font. 'Inter' is the fallback from Tailwind. */
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow: hidden; /* Prevent scrolling */
+        }
+
+        /* Custom game-specific styles */
+        .word-comet {
+            position: absolute;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 9999px; /* Pill shape */
+            font-weight: bold;
+            font-size: 1.25rem;
+            /* Use a more playful font for the comets themselves */
+            font-family: 'Comic Sans MS', 'Inter', sans-serif;
+            text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.4);
+            transition: top 0.1s linear; /* Smooth movement */
+            white-space: nowrap; /* Prevent word wrapping */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2), inset 0 2px 2px rgba(255, 255, 255, 0.3);
+        }
+
+        /* The "planet" at the bottom */
+        #planet {
+            position: absolute;
+            bottom: -80px; /* Sits mostly off-screen, but its curve is visible */
+            left: 0;
+            right: 0;
+            height: 150px;
+            background: linear-gradient(to top, #2ecc71, #27ae60); /* Green planet */
+            /* This creates the curved planet shape */
+            border-top-left-radius: 100% 80px;
+            border-top-right-radius: 100% 80px;
+            box-shadow: 0 -10px 40px rgba(46, 204, 113, 0.6);
+            z-index: 10;
+        }
+
+        /* Twinkling star animation */
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 5s infinite;
+            z-index: -1;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.5; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* Make the input field big and arcade-like */
+        #typing-input {
+            width: 80%;
+            max-width: 500px;
+            text-align: center;
+            font-size: 1.5rem;
+            padding: 12px 20px;
+            border-radius: 9999px;
+            border: 4px solid #4F46E5; /* Indigo border */
+            background: rgba(255, 255, 255, 0.9);
+            color: #1F2937;
+            outline: none;
+            box-shadow: 0 5px 20px rgba(79, 70, 229, 0.5);
+            transition: all 0.2s;
+        }
+        #typing-input:focus {
+            box-shadow: 0 10px 30px rgba(79, 70, 229, 0.7);
+            transform: scale(1.02);
+            border-color: #6366F1;
+        }
+        
+        /* Bubbly button style */
+        .btn-bubble {
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 5px 0 0; /* 3D effect */
+        }
+        .btn-bubble:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 0 0;
+        }
+        .btn-bubble:active {
+            transform: translateY(2px);
+            box-shadow: 0 3px 0 0;
+        }
+        
+        /* Colors for difficulty buttons */
+        .btn-green { background-color: #10B981; border-color: #059669; box-shadow: 0 5px 0 0 #047857; }
+        .btn-green:hover { background-color: #34D399; }
+        .btn-blue { background-color: #3B82F6; border-color: #2563EB; box-shadow: 0 5px 0 0 #1D4ED8; }
+        .btn-blue:hover { background-color: #60A5FA; }
+        .btn-yellow { background-color: #F59E0B; border-color: #D97706; box-shadow: 0 5px 0 0 #B45309; }
+        .btn-yellow:hover { background-color: #FBBF24; }
+        .btn-red { background-color: #EF4444; border-color: #DC2626; box-shadow: 0 5px 0 0 #B91C1C; }
+        .btn-red:hover { background-color: #F87171; }
+        
+        .difficulty-btn.selected {
+            transform: translateY(2px);
+            box-shadow: 0 3px 0 0;
+            filter: brightness(0.9);
+        }
+
+    </style>
+</head>
+<body class="bg-gradient-to-b from-indigo-900 to-gray-900 text-white min-h-screen flex flex-col items-center justify-center p-4">
+
+    <!-- Main Game Wrapper -->
+    <div id="game-wrapper" class="relative w-full max-w-3xl h-[75vh] md:h-[600px] bg-black bg-opacity-30 rounded-2xl shadow-2xl overflow-hidden border-4 border-indigo-400">
+        
+        <!-- Game Area where comets fall -->
+        <div id="game-area" class="absolute inset-0 z-0">
+            <!-- Stars will be dynamically added here -->
+        </div>
+
+        <!-- Planet at the bottom -->
+        <div id="planet"></div>
+
+        <!-- Heads-Up Display (Score, Lives) -->
+        <div id="hud" class="absolute top-0 left-0 right-0 p-4 flex justify-between items-center z-20 bg-black/20">
+            <div class="text-lg md:text-2xl font-bold text-yellow-300">
+                Score: <span id="score-display">0</span>
+            </div>
+            <div id="lives-display" class="text-2xl md:text-3xl">
+                <!-- Heart emojis for lives -->
+                ❤️ ❤️ ❤️ ❤️ ❤️
+            </div>
+        </div>
+
+        <!-- Start Game Modal -->
+        <div id="start-modal" class="absolute inset-0 bg-gray-900 bg-opacity-95 z-30 flex flex-col items-center justify-center text-center p-6 transition-opacity duration-300">
+            <h1 class="text-5xl md:text-7xl font-bold text-yellow-300" style="text-shadow: 0 0 15px #FBBF24;">Word Comets</h1>
+            <p class="text-lg md:text-xl text-indigo-200 mt-4 mb-8">Type the words on the comets before they hit your planet!</p>
+            
+            <h2 class="text-2xl font-bold mb-4 text-white">Choose Your Level:</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <button data-level="jk" class="difficulty-btn btn-bubble btn-green text-white font-bold py-3 px-5 rounded-lg text-lg">JK (Letters)</button>
+                <button data-level="k-1" class="difficulty-btn btn-bubble btn-blue text-white font-bold py-3 px-5 rounded-lg text-lg selected">K-1 (Sight Words)</button>
+                <button data-level="2-3" class="difficulty-btn btn-bubble btn-yellow text-white font-bold py-3 px-5 rounded-lg text-lg">2-3 (Medium)</button>
+                <button data-level="4-5" class="difficulty-btn btn-bubble btn-red text-white font-bold py-3 px-5 rounded-lg text-lg">4-5 (Harder)</button>
+            </div>
+            
+            <button id="start-button" class="btn-bubble bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 text-white font-bold py-4 px-10 rounded-full text-2xl shadow-lg" style="box-shadow: 0 5px 0 0 #15803D;">
+                Start Game!
+            </button>
+        </div>
+
+        <!-- Game Over Modal -->
+        <div id="game-over-modal" class="absolute inset-0 bg-gray-900 bg-opacity-95 z-30 flex flex-col items-center justify-center text-center p-6 transition-opacity duration-300 opacity-0 pointer-events-none">
+            <h1 class="text-6xl font-bold text-red-500" style="text-shadow: 0 0 15px #EF4444;">Game Over!</h1>
+            <p class="text-3xl text-white mt-6 mb-4">Final Score: <span id="final-score" class="font-bold text-yellow-300">0</span></p>
+            <p id="level-recap" class="text-xl text-indigo-200 mb-8"></p>
+            
+            <button id="play-again-button" class="btn-bubble bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 text-white font-bold py-4 px-10 rounded-full text-2xl shadow-lg" style="box-shadow: 0 5px 0 0 #15803D;">
+                Play Again
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Typing Input Area -->
+    <div class="mt-6 w-full flex justify-center">
+        <input type="text" id="typing-input" placeholder="Start typing here..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" disabled>
+    </div>
+
+    <script>
+        // --- DOM Elements ---
+        const gameWrapper = document.getElementById('game-wrapper');
+        const gameArea = document.getElementById('game-area');
+        const planet = document.getElementById('planet');
+        const scoreDisplay = document.getElementById('score-display');
+        const livesDisplay = document.getElementById('lives-display');
+        const typingInput = document.getElementById('typing-input');
+        
+        const startModal = document.getElementById('start-modal');
+        const gameOverModal = document.getElementById('game-over-modal');
+        const startButton = document.getElementById('start-button');
+        const playAgainButton = document.getElementById('play-again-button');
+        const finalScore = document.getElementById('final-score');
+        const levelRecap = document.getElementById('level-recap');
+        const difficultyButtons = document.querySelectorAll('.difficulty-btn');
+
+        // --- Game State ---
+        let score = 0;
+        let lives = 5;
+        let gameInterval;
+        let spawnInterval;
+        let wordsOnScreen = []; // Stores { id, text, element, y }
+        let wordCounter = 0; // To give each word a unique ID
+        let isPlaying = false;
+        let selectedDifficulty = 'k-1'; // Default
+        
+        // --- Game Config ---
+        const initialGameSpeed = 1;
+        const initialSpawnRate = 3000; // ms
+        let currentGameSpeed = initialGameSpeed;
+        let currentSpawnRate = initialSpawnRate;
+        
+        const wordLists = {
+            'jk': ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'],
+            'k-1': ['the', 'at', 'is', 'it', 'on', 'cat', 'dog', 'run', 'see', 'up', 'my', 'am', 'go', 'in', 'no', 'to', 'we', 'and', 'big', 'can'],
+            '2-3': ['play', 'jump', 'fast', 'blue', 'apple', 'friend', 'water', 'look', 'stop', 'help', 'good', 'down', 'here', 'like', 'make', 'find', 'away', 'come'],
+            '4-5': ['hello', 'world', 'typing', 'computer', 'school', 'amazing', 'because', 'again', 'little', 'three', 'where', 'yellow', 'purple', 'orange', 'family']
+        };
+        
+        const cometColors = [
+            'bg-gradient-to-r from-red-500 to-pink-500',
+            'bg-gradient-to-r from-blue-500 to-cyan-400',
+            'bg-gradient-to-r from-yellow-400 to-orange-500',
+            'bg-gradient-to-r from-green-400 to-teal-500',
+            'bg-gradient-to-r from-purple-500 to-indigo-500',
+        ];
+
+        // --- Audio Synths (Tone.js) ---
+        let hitSynth, missSynth, gameOverSynth;
+
+        function initAudio() {
+            if (typeof Tone === 'undefined') {
+                console.log("Tone.js not loaded. Audio will be disabled.");
+                return;
+            }
+            
+            // Synth for hitting a word
+            hitSynth = new Tone.MembraneSynth({
+                pitchDecay: 0.01,
+                octaves: 6,
+                oscillator: { type: "fmsine" },
+                envelope: { attack: 0.001, decay: 0.2, sustain: 0.01, release: 0.1 }
+            }).toDestination();
+
+            // Synth for missing a word
+            missSynth = new Tone.Synth({
+                oscillator: { type: "square" },
+                envelope: { attack: 0.01, decay: 0.2, sustain: 0, release: 0.1 }
+            }).toDestination();
+            
+            // Synth for game over
+            gameOverSynth = new Tone.PolySynth(Tone.Synth).toDestination();
+            gameOverSynth.volume.value = -10;
+
+            console.log("Audio initialized");
+        }
+        
+        function playSound(type) {
+            if (!hitSynth) return; // Audio not initialized
+
+            if (type === 'hit') {
+                hitSynth.triggerAttackRelease("C3", "8n", Tone.now());
+            } else if (type === 'miss') {
+                missSynth.triggerAttackRelease("C2", "8n", Tone.now());
+            } else if (type === 'gameOver') {
+                const now = Tone.now();
+                gameOverSynth.triggerAttackRelease(["C3", "G2", "E2"], "4n", now);
+                gameOverSynth.triggerAttackRelease("C2", "8n", now + 0.4);
+            }
+        }
+
+        // --- Game Logic ---
+        
+        function createStars() {
+            for (let i = 0; i < 50; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.animationDelay = `${Math.random() * 5}s`;
+                gameArea.appendChild(star);
+            }
+        }
+
+        function startGame() {
+            // Initialize audio on first user gesture
+            if (Tone.context.state !== 'running') {
+                Tone.start().then(initAudio);
+            }
+
+            // Reset game state
+            score = 0;
+            lives = 5;
+            currentGameSpeed = initialGameSpeed;
+            currentSpawnRate = initialSpawnRate;
+            isPlaying = true;
+            wordsOnScreen = [];
+            wordCounter = 0;
+
+            // Clear any existing game elements
+            gameArea.innerHTML = '';
+            createStars(); // Add new stars
+
+            // Update UI
+            updateHUD();
+            startModal.classList.add('opacity-0', 'pointer-events-none');
+            gameOverModal.classList.add('opacity-0', 'pointer-events-none');
+            typingInput.disabled = false;
+            typingInput.value = '';
+            typingInput.focus();
+
+            // Start game loops
+            gameInterval = setInterval(gameLoop, 1000 / 60); // 60 FPS
+            spawnInterval = setTimeout(spawnWord, currentSpawnRate); // Start spawner
+        }
+
+        function gameOver() {
+            isPlaying = false;
+            clearInterval(gameInterval);
+            clearTimeout(spawnInterval); // Stop new words
+            
+            playSound('gameOver');
+
+            finalScore.textContent = score;
+            const levelText = difficultyButtons[
+                Array.from(difficultyButtons).findIndex(btn => btn.dataset.level === selectedDifficulty)
+            ].textContent;
+            levelRecap.textContent = `You played on ${levelText} level.`;
+
+            gameOverModal.classList.remove('opacity-0', 'pointer-events-none');
+            typingInput.disabled = true;
+        }
+
+        function gameLoop() {
+            if (!isPlaying) return;
+
+            // Get collision boundary
+            const planetTop = gameArea.clientHeight - (planet.clientHeight / 2);
+
+            // Move words down
+            // Iterate backwards so we can safely remove items
+            for (let i = wordsOnScreen.length - 1; i >= 0; i--) {
+                const word = wordsOnScreen[i];
+                word.y += currentGameSpeed;
+                word.element.style.top = `${word.y}px`;
+
+                // Check for collision with planet
+                if (word.y + word.element.clientHeight > planetTop) {
+                    handleMiss(word);
+                }
+            }
+        }
+
+        function spawnWord() {
+            if (!isPlaying) return;
+
+            const wordList = wordLists[selectedDifficulty];
+            const text = wordList[Math.floor(Math.random() * wordList.length)];
+            
+            const element = document.createElement('div');
+            element.id = `word-${wordCounter}`;
+            element.textContent = text;
+            
+            // Apply random color and comet class
+            const colorClass = cometColors[Math.floor(Math.random() * cometColors.length)];
+            element.className = `word-comet ${colorClass}`;
+            
+            gameArea.appendChild(element);
+
+            // Calculate starting position
+            // Ensure it doesn't spawn off-screen horizontally
+            const maxWidth = gameArea.clientWidth - element.clientWidth - 10; // 10 for padding
+            const x = Math.max(5, Math.random() * maxWidth);
+            element.style.left = `${x}px`;
+            element.style.top = `-30px`; // Start off-screen
+
+            wordsOnScreen.push({
+                id: `word-${wordCounter}`,
+                text: text,
+                element: element,
+                y: -30
+            });
+
+            wordCounter++;
+            
+            // Set next spawn
+            spawnInterval = setTimeout(spawnWord, currentSpawnRate);
+        }
+        
+        function handleHit(word) {
+            playSound('hit');
+            
+            // Remove from screen
+            word.element.remove();
+            
+            // Remove from array
+            wordsOnScreen = wordsOnScreen.filter(w => w.id !== word.id);
+            
+            // Update score
+            score += word.text.length * 10;
+            updateHUD();
+            
+            // Increase difficulty
+            currentGameSpeed += 0.03;
+            currentSpawnRate = Math.max(500, currentSpawnRate - 25); // Cap at 500ms
+        }
+        
+        function handleMiss(word) {
+            playSound('miss');
+            
+            // Add explosion/fade effect
+            word.element.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+            setTimeout(() => word.element.remove(), 300);
+
+            // Remove from array
+            wordsOnScreen = wordsOnScreen.filter(w => w.id !== word.id);
+            
+            // Update lives
+            lives--;
+            updateHUD();
+            
+            if (lives <= 0) {
+                gameOver();
+            }
+        }
+
+        function updateHUD() {
+            scoreDisplay.textContent = score;
+            
+            let hearts = '';
+            for (let i = 0; i < lives; i++) hearts += '❤️ ';
+            for (let i = 0; i < (5 - lives); i++) hearts += '🖤 ';
+            livesDisplay.innerHTML = hearts;
+        }
+
+        function onInput() {
+            if (!isPlaying) return;
+            
+            const typedValue = typingInput.value.trim().toLowerCase();
+            
+            if (typedValue === '') return;
+            
+            // Find if the typed word matches any on screen
+            // Prioritize the one lowest on the screen
+            let match = null;
+            let lowestY = -1;
+            
+            for (const word of wordsOnScreen) {
+                if (word.text === typedValue) {
+                    if (word.y > lowestY) {
+                        lowestY = word.y;
+                        match = word;
+                    }
+                }
+            }
+
+            if (match) {
+                handleHit(match);
+                typingInput.value = ''; // Clear input
+            }
+        }
+
+        // --- Event Listeners ---
+        
+        startButton.addEventListener('click', startGame);
+        playAgainButton.addEventListener('click', () => {
+            // Show start modal to allow changing difficulty
+            gameOverModal.classList.add('opacity-0', 'pointer-events-none');
+            startModal.classList.remove('opacity-0', 'pointer-events-none');
+        });
+        
+        typingInput.addEventListener('input', onInput);
+        
+        difficultyButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove 'selected' from all
+                difficultyButtons.forEach(btn => btn.classList.remove('selected'));
+                // Add 'selected' to clicked
+                button.classList.add('selected');
+                selectedDifficulty = button.dataset.level;
+            });
+        });
+
+        // --- Initial Setup ---
+        createStars(); // Create initial stars for the menu
+        
+    </script>
+</body>
+</html>

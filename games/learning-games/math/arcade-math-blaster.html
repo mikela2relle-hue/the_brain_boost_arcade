@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arcade Math Blaster - Space Command</title>
+    <!-- Load Tailwind CSS --><script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Tone.js for sound effects --><script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
+    <style>
+        /* Custom CSS for Retro Space Command Theme */
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap'); /* Sci-fi font */
+        @import url('https://fonts.googleapis.com/css2?family=Consolas:wght@900&display=swap'); /* Monospace for problems, ensuring high weight */
+
+        body {
+            font-family: 'Orbitron', sans-serif; /* Use Orbitron for UI */
+            background-color: #020617; /* Deep Space Blue */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #E0F2FE; /* Light Sky Blue text */
+        }
+
+        #game-container {
+            width: 100%;
+            max-width: 900px;
+            background-color: #1E293B; /* Dark Slate */
+            box-shadow: 0 0 25px rgba(56, 189, 248, 0.6); /* Sky Blue glow */
+            border: 4px solid #38BDF8; /* Sky Blue border */
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative; /* Needed for absolute positioning children */
+        }
+
+        #gameCanvas {
+            background-color: #0C1322; /* Darker Space */
+            touch-action: none; /* Disable default touch actions like panning */
+            cursor: default; /* Use default cursor, interaction handled by listeners */
+        }
+
+        /* UI Font Styling */
+        .ui-font {
+            font-family: 'Orbitron', sans-serif;
+            color: #7DD3FC; /* Lighter Sky Blue */
+            text-shadow: 0 0 4px #38BDF8, 0 0 8px #0EA5E9;
+        }
+
+        /* Header Styling */
+        #header-container {
+            position: relative;
+            padding: 1rem;
+            background-color: #334155; /* Medium Slate */
+            border-bottom: 2px solid #38BDF8;
+            min-height: 65px; /* Ensure space for absolutely positioned elements */
+        }
+
+        /* Score Box Styling */
+        #score-box {
+            display: inline-block;
+            background-color: #1E293B; /* Dark Slate */
+            padding: 0.3rem 0.8rem;
+            border-radius: 6px;
+            border: 2px solid #38BDF8;
+            box-shadow: inset 0 0 5px rgba(56, 189, 248, 0.5);
+        }
+        #score-box .label { /* Class for labels */
+            font-size: 0.75rem; /* text-xs */
+            color: #A3A3A3; /* Neutral gray */
+            padding-right: 0.5rem;
+            display: inline-block; /* Keep on same line */
+        }
+        #score-box .value { /* Class for values */
+            font-size: 1.5rem; /* text-2xl */
+            font-weight: 700;
+            color: #FACC15; /* Amber for score */
+            display: inline-block;
+        }
+
+
+        .health-bar-container {
+            background-color: #475569; /* Darker Slate */
+            border: 2px solid #7DD3FC;
+            border-radius: 9999px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+        }
+        .health-bar {
+            transition: width 0.3s ease-out, background-color 0.3s ease-out;
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+        }
+
+        /* Target Display HUD Styling */
+        #target-display-container {
+            background-color: #334155; /* Medium Slate */
+            border-top: 2px solid #38BDF8;
+        }
+        #target-display {
+            background-color: #0C1322; /* Matches canvas */
+            border: 3px solid #F87171; /* Red border for target */
+            font-family: Consolas, 'Courier New', Monospace, sans-serif;
+            color: #FECACA; /* Light Red Text */
+            font-size: 32px; /* Slightly smaller for expressions */
+            font-weight: 700; /* Use 700 instead of 900 */
+            text-shadow: 0 0 10px #F87171, 0 0 15px #EF4444; /* Red Glow */
+            height: 70px;
+            width: 220px; /* Wider for expressions */
+            border-radius: 4px;
+            padding: 0 10px; /* Add padding for text */
+        }
+        #target-label { /* Style the "TARGET" label */
+            font-size: 0.7rem;
+            color: #F87171; /* Red to match border */
+            margin-bottom: 2px;
+        }
+
+        /* Positioning Header Elements */
+        #health-container {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            text-align: right;
+        }
+        #level-container {
+            position: absolute;
+            top: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+        }
+        #level-container .label { font-size: 0.75rem; color: #A3A3A3; }
+        #level-container .value { font-size: 1.5rem; font-weight: 700; color: #7DD3FC; }
+
+
+        /* Game Over / Start Screen / Pause Screen Styles */
+        .overlay-text {
+            font-family: 'Orbitron', sans-serif;
+            text-shadow: 0 0 8px #FFF, 0 0 15px #FFF;
+        }
+        .grade-option-canvas { /* Style for grade options drawn on canvas */
+            padding: 8px 12px;
+            margin: 4px 0;
+            border: 2px solid transparent; /* Default no border */
+            border-radius: 5px;
+            cursor: pointer; /* Indicate clickable */
+        }
+        .grade-option-canvas.focused {
+            background-color: rgba(56, 189, 248, 0.3); /* Semi-transparent blue */
+            border-color: #7DD3FC; /* Light sky blue border */
+        }
+
+    </style>
+</head>
+<body class="p-4">
+
+    <div id="game-container" class="flex flex-col h-[90vh] max-h-[800px] shadow-2xl">
+        
+        <!-- UI Header -->
+        <div id="header-container">
+            <!-- SCORE -->
+            <div id="score-box">
+                <span class="label ui-font">SCORE</span>
+                <span id="score-display" class="value ui-font">0</span>
+            </div>
+            
+            <!-- LEVEL DISPLAY (Centered) -->
+            <div id="level-container" class="flex flex-col items-center">
+                <span class="label ui-font">LEVEL</span>
+                <span id="level-display" class="value ui-font">1</span>
+            </div>
+
+            <!-- HEALTH BAR (Top Right) -->
+            <div id="health-container">
+                <div class="label ui-font text-xs mb-1">SHIELDS</div>
+                <div class="health-bar-container w-32 md:w-48 h-4">
+                    <!-- REMOVED bg-sky-400 CLASS to ensure JS controls color 100% of the time -->
+                    <!-- MODIFIED: Added default background-color to prevent "fade-in" on load -->
+                    <div id="health-bar" class="health-bar h-full rounded-full" style="width: 100%; background-color: #34D399;"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Game Canvas -->
+        <canvas id="gameCanvas" class="flex-grow w-full"></canvas>
+        
+        <!-- Bottom Panel for Target Display -->
+        <div id="target-display-container" class="flex justify-center items-center px-4 py-2">
+            <div class="flex flex-col items-center">
+                <div id="target-label" class="ui-font">TARGET</div> <!-- Changed label -->
+                <div id="target-display" class="flex justify-center items-center">0</div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // --- Arcade Math Blaster - v1.1 ---
+        // --- Game Setup ---
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const scoreDisplay = document.getElementById('score-display');
+        const healthBar = document.getElementById('health-bar');
+        const targetDisplay = document.getElementById('target-display'); 
+        const targetLabel = document.getElementById('target-label'); 
+        const levelDisplay = document.getElementById('level-display'); 
+        
+        let game;
+        let isGameRunning = false;
+        let isAudioInitialized = false; 
+
+        // --- Tone.js Sound Setup ---
+        let laserSynth, correctHitSynth, shieldHitSynth, warningSynth, powerUpSynth, powerDownSynth, playerHitSynth, menuNavigateSynth, menuSelectSynth; 
+
+        const initializeAudio = async () => { 
+            if (isAudioInitialized || !Tone.context) return;
+            try {
+                await Tone.start();
+                laserSynth = new Tone.Synth({ oscillator: { type: "sawtooth" }, envelope: { attack: 0.001, decay: 0.05, sustain: 0, release: 0.1 }, volume: -18 }).toDestination();
+                correctHitSynth = new Tone.PolySynth(Tone.Synth, { oscillator: { type: "sine" }, envelope: { attack: 0.005, decay: 0.1, sustain: 0.05, release: 0.2 }, volume: -10 }).toDestination();
+                shieldHitSynth = new Tone.MetalSynth({ frequency: 80, envelope: { attack: 0.001, decay: 0.1, release: 0.1 }, harmonicity: 3.1, modulationIndex: 16, resonance: 1500, octaves: 0.5, volume: -12 }).toDestination();
+                warningSynth = new Tone.Synth({ oscillator: { type: "square" }, envelope: { attack: 0.01, decay: 0.2, sustain: 0.1, release: 0.2 }, volume: -8 }).toDestination();
+                powerUpSynth = new Tone.PolySynth(Tone.Synth, { oscillator: { type: "triangle" }, envelope: { attack: 0.01, decay: 0.1, sustain: 0.05, release: 0.2 }, volume: -10 }).toDestination();
+                powerDownSynth = new Tone.NoiseSynth({ noise: { type: "brown" }, envelope: { attack: 0.01, decay: 0.5, sustain: 0, release: 0.2 }, volume: -5 }).connect(new Tone.PitchShift({ pitch: -24 })).toDestination();
+                playerHitSynth = new Tone.MetalSynth({ frequency: 60, envelope: { attack: 0.002, decay: 0.2, release: 0.1 }, harmonicity: 2.5, modulationIndex: 10, resonance: 1000, octaves: 0.8, volume: -9 }).toDestination();
+                menuNavigateSynth = new Tone.MembraneSynth({ pitchDecay: 0.01, octaves: 2, envelope: { attack: 0.001, decay: 0.1, sustain: 0 }, volume: -20 }).toDestination();
+                menuSelectSynth = new Tone.Synth({ oscillator: { type: "triangle" }, envelope: { attack: 0.005, decay: 0.1, sustain: 0, release: 0.1 }, volume: -15 }).toDestination();
+                isAudioInitialized = true; 
+            } catch (error) { console.error("Audio initialization failed:", error); }
+        };
+
+        // --- Sound Playback Functions ---
+        const playLaserSound = () => { if (isAudioInitialized && laserSynth) laserSynth.triggerAttackRelease("C5", "16n"); };
+        const playCorrectHitSound = () => { if (isAudioInitialized && correctHitSynth) { const now = Tone.now(); correctHitSynth.triggerAttackRelease("C4", "16n", now); correctHitSynth.triggerAttackRelease("E4", "16n", now + 0.05); correctHitSynth.triggerAttackRelease("G4", "8n", now + 0.1); } };
+        const playShieldHitSound = () => { if (isAudioInitialized && shieldHitSynth) shieldHitSynth.triggerAttackRelease("8n"); };
+        const playWarningSound = () => { if (isAudioInitialized && warningSynth) warningSynth.triggerAttackRelease("A2", "8n"); };
+        const playPowerUpSound = () => { if (!isAudioInitialized || !powerUpSynth) return; const now = Tone.now(); powerUpSynth.triggerAttackRelease("C3", "16n", now); powerUpSynth.triggerAttackRelease("G3", "16n", now + 0.05); powerUpSynth.triggerAttackRelease("C4", "8n", now + 0.1); };
+        const playPowerDownSound = () => { if (isAudioInitialized && powerDownSynth) powerDownSynth.triggerAttackRelease("1n"); }; 
+        const playPlayerHitSound = () => { if (isAudioInitialized && playerHitSynth) playerHitSynth.triggerAttackRelease("4n"); };
+        const playMenuNavigateSound = () => { if (isAudioInitialized && menuNavigateSynth) menuNavigateSynth.triggerAttackRelease("C3", "16n"); };
+        const playMenuSelectSound = () => { if (isAudioInitialized && menuSelectSynth) menuSelectSynth.triggerAttackRelease("C5", "16n"); };
+
+
+        // --- Utility Functions ---
+        const randInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+        
+        // MODIFIED: generateMathProblem based on grade level
+        const generateMathProblem = (targetAnswer, grade) => { 
+            const operators = []; if (grade >= 0) operators.push('+'); if (grade >= 1) operators.push('-'); if (grade >= 3) operators.push('*'); if (grade >= 4) operators.push('/'); if (operators.length === 0) operators.push('+'); 
+            const op = operators[randInt(0, operators.length - 1)]; let a, b; 
+            if (targetAnswer <= 0 && (op === '+' || op === '*')) targetAnswer = randInt(1, 10); if (targetAnswer <= 0 && op === '-') targetAnswer = randInt(1, 5); if (targetAnswer === 0 && op === '/') targetAnswer = randInt(1, 5); 
+            switch (op) { case '+': a = randInt(1, Math.max(1, targetAnswer - 1)); b = targetAnswer - a; if (grade === 0 && (a > 9 || b > 9)) { a = randInt(1, Math.min(9, Math.max(1, targetAnswer - 1))); b = targetAnswer - a; if (b < 0) { b = randInt(1, Math.min(9, targetAnswer)); a = targetAnswer - b; } } return { expression: `${a} + ${b}`, answer: targetAnswer }; case '-': const maxSubtrahend = (grade <= 2) ? 15 : 30; b = randInt(1, Math.min(targetAnswer + 5, maxSubtrahend)); a = targetAnswer + b; return { expression: `${a} - ${b}`, answer: targetAnswer }; case '*': let factor = 0; const maxFactor = (grade === 3) ? 5 : 10; for (let i = 2; i <= maxFactor; i++) { if (targetAnswer > 1 && targetAnswer % i === 0 && targetAnswer / i <= maxFactor) { factor = i; break; } } if (factor) { a = factor; b = targetAnswer / factor; if (randInt(0,1) === 0) [a, b] = [b, a]; return { expression: `${a} × ${b}`, answer: targetAnswer }; } a = randInt(1, Math.max(1, targetAnswer - 1)); b = targetAnswer - a; return { expression: `${a} + ${b}`, answer: targetAnswer }; case '/': const maxDivisor = (grade === 4) ? 9 : 5; b = randInt(2, maxDivisor); a = targetAnswer * b; if (a > 100 && grade < 4) { a = randInt(1, Math.max(1, targetAnswer - 1)); b = targetAnswer - a; return { expression: `${a} + ${b}`, answer: targetAnswer }; } return { expression: `${a} ÷ ${b}`, answer: targetAnswer }; }
+        };
+
+        // --- Game Classes ---
+
+        class Player { 
+            constructor(x, y, width, height) { this.x = x; this.y = y; this.width = width; this.height = height; this.speed = 7; this.dx = 0; }
+            update(canvasWidth) { this.x += this.dx; if (this.x < 0) this.x = 0; if (this.x + this.width > canvasWidth) this.x = canvasWidth - this.width; }
+            draw(ctx) { ctx.fillStyle = '#38BDF8'; ctx.shadowColor = '#0EA5E9'; ctx.shadowBlur = 10; ctx.beginPath(); ctx.moveTo(this.x + this.width / 2, this.y); ctx.lineTo(this.x + this.width, this.y + this.height * 0.8); ctx.lineTo(this.x + this.width * 0.8, this.y + this.height); ctx.lineTo(this.x + this.width * 0.2, this.y + this.height); ctx.lineTo(this.x, this.y + this.height * 0.8); ctx.closePath(); ctx.fill(); ctx.fillStyle = '#020617'; ctx.beginPath(); ctx.arc(this.x + this.width / 2, this.y + this.height * 0.4, this.width * 0.15, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = '#7DD3FC'; ctx.lineWidth = 1; ctx.stroke(); ctx.shadowBlur = 0; }
+            getHitbox() { return { left: this.x, right: this.x + this.width, top: this.y, bottom: this.y + this.height }; }
+        }
+        
+        class Projectile { 
+            constructor(x, y) { this.x = x; this.y = y; this.width = 4; this.height = 12; this.speed = 10; this.color = '#F87171'; this.isHoming = false; this.homingTarget = null; this.homingSpeed = 6; this.turnSpeed = 0.05; this.currentAngle = -Math.PI / 2; } 
+            update() { if (this.isHoming && this.homingTarget) { const targetX = this.homingTarget.x + this.homingTarget.width / 2; const targetY = this.homingTarget.y + this.homingTarget.height / 2; const dx = targetX - this.x; const dy = targetY - this.y; const targetAngle = Math.atan2(dy, dx); let angleDiff = targetAngle - this.currentAngle; while (angleDiff > Math.PI) angleDiff -= Math.PI * 2; while (angleDiff < -Math.PI) angleDiff += Math.PI * 2; if (Math.abs(angleDiff) < this.turnSpeed) { this.currentAngle = targetAngle; } else { this.currentAngle += Math.sign(angleDiff) * this.turnSpeed; } this.x += Math.cos(this.currentAngle) * this.homingSpeed; this.y += Math.sin(this.currentAngle) * this.homingSpeed; } else { this.y -= this.speed; } }
+            draw(ctx) { ctx.save(); ctx.translate(this.x, this.y); const angleToDraw = this.isHoming ? this.currentAngle + Math.PI / 2 : 0; ctx.rotate(angleToDraw); ctx.fillStyle = this.isHoming ? '#FFA500' : this.color; ctx.shadowColor = this.isHoming ? '#FFA500' : this.color; ctx.shadowBlur = 8; ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height); ctx.restore(); ctx.shadowBlur = 0; }
+            startHoming(target) { this.isHoming = true; this.homingTarget = target; this.currentAngle = Math.PI / 2 + (Math.random() - 0.5) * 0.2; this.y += 5; }
+            getHitbox() { if (this.isHoming) { const angleRad = this.currentAngle; const cosA = Math.abs(Math.cos(angleRad)); const sinA = Math.abs(Math.sin(angleRad)); const effectiveWidth = this.width * cosA + this.height * sinA; const effectiveHeight = this.width * sinA + this.height * cosA; return { left: this.x - effectiveWidth / 2, right: this.x + effectiveWidth / 2, top: this.y - effectiveHeight / 2, bottom: this.y + effectiveHeight / 2 }; } else { return { left: this.x - this.width / 2, right: this.x + this.width / 2, top: this.y, bottom: this.y + this.height }; } }
+        }
+
+        class Problem { 
+            constructor(expression, answer, x, y, size, speed) {
+                this.expression = expression; this.answer = answer; this.x = x; this.y = y; this.size = size; this.speed = speed; this.isCorrectTarget = false;
+                this.initialX = x; this.oscillationTimer = Math.random() * Math.PI * 2; this.oscillationMagnitude = randInt(5, 12); this.oscillationFrequency = 0.015;
+                this.isFlyingOff = false; this.flyOffSpeed = 12;   
+            }
+            update() { 
+                if (this.isFlyingOff) { this.y -= this.flyOffSpeed; } 
+                else { this.y += this.speed; this.oscillationTimer += this.oscillationFrequency; this.x = this.initialX + Math.sin(this.oscillationTimer) * this.oscillationMagnitude; }
+            }
+            
+            // UPDATED: Added a minimum width check
+            getDimensions(ctx) { 
+                const problemFontSize = 32; ctx.font = `900 ${problemFontSize}px Consolas, 'Courier New', Monospace`; 
+                const metrics = ctx.measureText(this.expression); 
+                
+                // Calculated width based on text + padding
+                let calculatedWidth = metrics.width + 15; 
+                
+                // Minimum width for the saucer body (e.g., 100 pixels)
+                const MIN_SAUCER_WIDTH = 100;
+
+                const width = Math.max(calculatedWidth, MIN_SAUCER_WIDTH); 
+                const height = this.size; 
+                return { width, height, halfWidth: width / 2, halfHeight: height / 2 };
+            }
+            
+            // The drawing logic remains the same, but it now uses the minimum enforced width from getDimensions
+            draw(ctx) {
+                const { width, height } = this.getDimensions(ctx);
+                const drawX = this.x; 
+                const drawY = this.y; 
+                const saucerWidth = width * 1.3; // Wider saucer factor is applied to the minimum width
+                const saucerVRadius = height * 0.9; 
+                const domeRadius = saucerWidth * 0.28;
+
+                ctx.save();
+                ctx.translate(drawX, drawY);
+
+                // --- 1. Saucer Body (Bottom Plate) ---
+                const bodyColor = '#B0BEC5'; // Silvery grey for all bodies
+                const borderColor = '#78909C'; // Uniform dark grey border
+
+                ctx.fillStyle = bodyColor;
+                ctx.strokeStyle = borderColor;
+                ctx.lineWidth = 2;
+                
+                // REMOVED GLOW EFFECT
+                ctx.shadowColor = 'transparent'; 
+                ctx.shadowBlur = 0;
+                
+                // Draw the main ellipse (body)
+                ctx.beginPath();
+                ctx.ellipse(0, 0, saucerWidth / 2, saucerVRadius / 2, 0, 0, Math.PI * 2); 
+                ctx.fill();
+                ctx.stroke();
+                
+                ctx.shadowBlur = 0;
+
+                // --- 2. Cockpit Dome ---
+                const domeColor = '#7DD3FC'; // Blue dome
+                const domeVRadius = domeRadius * 0.7;
+
+                ctx.fillStyle = domeColor;
+                ctx.strokeStyle = '#E0F2FE';
+                ctx.lineWidth = 1;
+
+                ctx.beginPath();
+                // Positioned slightly above the center line
+                ctx.ellipse(0, -saucerVRadius * 0.2, domeRadius, domeVRadius, 0, Math.PI, Math.PI * 2); 
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+
+                // --- 3. Lights/Ring Detail (Uniform red) ---
+                const lightCount = 6;
+                const lightRingRadius = saucerWidth * 0.4;
+                const lightSize = 3;
+                const lightColor = '#F87171'; 
+                
+                for (let i = 0; i < lightCount; i++) {
+                    const angle = (i / lightCount) * Math.PI * 2;
+                    // Calculate light position on the ellipse perimeter
+                    const lx = Math.cos(angle) * lightRingRadius;
+                    const ly = Math.sin(angle) * (saucerVRadius / 2 * 0.9); // 90% radius vertically
+                    
+                    ctx.fillStyle = lightColor;
+                    ctx.shadowColor = lightColor;
+                    ctx.shadowBlur = 5;
+                    ctx.beginPath();
+                    ctx.arc(lx, ly, lightSize, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                
+                ctx.shadowBlur = 0; // Reset shadow
+
+
+                // --- 4. Draw Math Expression Text (Guaranteed to be clear) ---
+                ctx.fillStyle = '#1E293B'; // Dark Slate text for high contrast
+                ctx.font = `900 ${32}px Consolas, 'Courier New', Monospace`; 
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText(this.expression, 0, 0); // Draw at translated origin (center of the saucer body)
+
+                ctx.restore(); 
+            }
+            
+            startFlyOff() { this.isFlyingOff = true; this.speed = 0; this.oscillationMagnitude = 0; }
+        }
+
+        class Particle { 
+            constructor(x, y, color) { this.x = x; this.y = y; this.size = Math.random() * 4 + 1; this.speedX = Math.random() * 6 - 3; this.speedY = Math.random() * 6 - 3; this.color = color; this.life = 60 + Math.random() * 40; this.gravity = 0.08; this.alpha = 1; this.fade = 0.015 + Math.random() * 0.01; }
+            update() { this.x += this.speedX; this.y += this.speedY; this.speedY += this.gravity; this.life -= 1; this.alpha -= this.fade; this.size *= 0.97; }
+            draw(ctx) { ctx.fillStyle = this.color; ctx.globalAlpha = Math.max(0, this.alpha); ctx.beginPath(); ctx.arc(this.x, this.y, Math.max(0, this.size), 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1.0; }
+        }
+
+        class Star { 
+            constructor(width, height) { this.x = Math.random() * width; this.y = Math.random() * height; this.size = Math.random() * 1.5 + 0.5; this.speed = Math.random() * 0.5 + 0.1; this.opacity = Math.random() * 0.5 + 0.3; this.width = width; this.height = height; }
+            update() { this.y += this.speed; if (this.y > this.height) { this.y = 0; this.x = Math.random() * this.width; } }
+            draw(ctx) { ctx.fillStyle = `rgba(224, 242, 254, ${this.opacity})`; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); }
+        }
+
+
+        class Game {
+            constructor(canvas) {
+                this.canvas = canvas; this.width = canvas.width; this.height = canvas.height; this.player = null; this.projectiles = []; this.problems = []; this.stars = []; 
+                this.particles = []; 
+                this.score = 0; this.health = 100; this.maxHealth = 100; 
+                this.gameState = 'start'; 
+                this.problemSpawnTimer = 0; this.level = 1; this.baseSpawnInterval = 180; 
+                this.minSpawnInterval = 45; this.problemsPerWave = 2; this.keys = {}; this.lastShootTime = 0; this.shootCooldown = 200; 
+                
+                this.problemMode = 'answerInBox'; 
+                this.targetAnswer = 0;     
+                this.targetProblem = null;  
+                this.correctAnswersInMode = 0; 
+                
+                this.grades = [
+                    { value: 0, text: "K", desc: "Addition 1-10" },
+                    { value: 1, text: "Gr 1", desc: "Add/Sub 5-20" },
+                    { value: 2, text: "Gr 2", desc: "Add/Sub 10-40" },
+                    { value: 3, text: "Gr 3", desc: "Add/Sub/Mult 15-50" },
+                    { value: 4, text: "Gr 4+", desc: "All Ops 20-75" }
+                ];
+                this.selectedGradeIndex = 1; 
+                this.focusedGradeIndex = 1; 
+                
+                this.createStars(); 
+            }
+
+            createStars() { 
+                this.stars = [];
+                for (let i = 0; i < 100; i++) { this.stars.push(new Star(this.width, this.height)); }
+            }
+            
+            setup() { 
+                const playerWidth = Math.min(this.width / 10, 60); const playerHeight = playerWidth * 0.8; const playerX = (this.width - playerWidth) / 2; const playerY = this.height - playerHeight - 15;
+                this.player = new Player(playerX, playerY, playerWidth, playerHeight);
+                this.problems = []; this.projectiles = []; this.particles = []; this.score = 0; this.health = 100; 
+                this.gameState = 'playing'; 
+                this.problemSpawnTimer = 0; this.level = 1; 
+                this.problemsPerWave = 2; 
+                this.problemMode = 'answerInBox'; 
+                this.correctAnswersInMode = 0; 
+                this.setNewTarget(); 
+                this.createStars(); 
+                this.updateUI();
+            }
+
+            setNewTarget() { 
+                const grade = this.grades[this.selectedGradeIndex].value;
+                if (this.problemMode === 'answerInBox') {
+                    this.targetProblem = null; 
+                    this.targetAnswer = this.getAnswerRangeForGrade(grade).min + randInt(0, this.getAnswerRangeForGrade(grade).max - this.getAnswerRangeForGrade(grade).min); 
+                    targetLabel.textContent = "TARGET ANSWER"; 
+                } else { 
+                    this.targetAnswer = 0; 
+                    const targetNum = this.getAnswerRangeForGrade(grade).min + randInt(0, this.getAnswerRangeForGrade(grade).max - this.getAnswerRangeForGrade(grade).min);
+                    this.targetProblem = generateMathProblem(targetNum, grade); 
+                    targetLabel.textContent = "TARGET PROBLEM"; 
+                }
+                this.updateUI(); 
+            } 
+            
+            spawnProblem() { 
+                const baseProblemHeight = 40; const problemHeight = baseProblemHeight; 
+                const numProblems = this.problemsPerWave; 
+                const problemY = -problemHeight; 
+                let baseSpeed = 0.5 + (this.level * 0.05); // Slower base speed
+                const problemSpeed = baseSpeed * randInt(9, 11) / 10; 
+                const correctIndex = randInt(0, numProblems - 1);
+                const problemsInWave = []; const tempProblems = [];
+                const currentGrade = this.grades[this.selectedGradeIndex].value; 
+                const range = this.getAnswerRangeForGrade(currentGrade);
+
+                let correctValue; 
+                if (this.problemMode === 'answerInBox') { correctValue = this.targetAnswer; } 
+                else { correctValue = this.targetProblem.answer; }
+
+                const usedAnswers = new Set(); 
+
+                for (let i = 0; i < numProblems; i++) { 
+                    let pData; let p; let asteroidExpression; let asteroidAnswer;
+                    if (this.problemMode === 'answerInBox') {
+                         if (i === correctIndex) { pData = generateMathProblem(correctValue, currentGrade); asteroidExpression = pData.expression; asteroidAnswer = pData.answer; usedAnswers.add(asteroidAnswer); } 
+                         else { let dA; do { dA = randInt(range.min, range.max); } while (dA === correctValue || usedAnswers.has(dA)); usedAnswers.add(dA); pData = generateMathProblem(dA, currentGrade); asteroidExpression = pData.expression; asteroidAnswer = pData.answer; }
+                         p = new Problem(asteroidExpression, asteroidAnswer, 0, 0, problemHeight, problemSpeed);
+                         if (i === correctIndex) p.isCorrectTarget = true; 
+                    } else { 
+                         if (i === correctIndex) { asteroidAnswer = correctValue; usedAnswers.add(asteroidAnswer); } 
+                         else { let dA; const diff = randInt(1, Math.max(2, Math.floor(correctValue * 0.2))); const direction = randInt(0, 1) === 0 ? 1 : -1; dA = correctValue + diff * direction; while (dA < range.min || dA > range.max || usedAnswers.has(dA) || dA === correctValue) { const newDiff = randInt(1, Math.max(2, Math.floor(correctValue * 0.2))); const newDirection = randInt(0, 1) === 0 ? 1 : -1; dA = correctValue + newDiff * newDirection; if(Math.random() < 0.1) dA = randInt(range.min, range.max); } usedAnswers.add(dA); asteroidAnswer = dA; }
+                         asteroidExpression = asteroidAnswer.toString(); 
+                         p = new Problem(asteroidExpression, asteroidAnswer, 0, 0, problemHeight, problemSpeed);
+                    }
+                    tempProblems.push(p); 
+                }
+                let totalReqW = 0; const maxOsc = 12; const spaceBuf = 20; 
+                const pDims = tempProblems.map(p => p.getDimensions(ctx)); 
+                pDims.forEach((dim, i) => { totalReqW += dim.width + maxOsc * 2; if (i < numProblems - 1) totalReqW += spaceBuf; }); 
+                const freeSp = this.width - totalReqW; let startX = freeSp / 2; 
+                if(startX < maxOsc) startX = maxOsc; 
+                let currentX = startX;
+                for (let i = 0; i < numProblems; i++) { const tempP = tempProblems[i]; const { width, height } = pDims[i]; const centerIX = currentX + width / 2; tempP.initialX = centerIX; tempP.x = centerIX; tempP.y = problemY; problemsInWave.push(tempP); currentX += width + maxOsc * 2 + spaceBuf; } 
+                this.problems.push(...problemsInWave);
+            }
+
+            getAnswerRangeForGrade(gradeValue) { 
+                 if (gradeValue === 0) return { min: 1, max: 10 };
+                 if (gradeValue === 1) return { min: 5, max: 20 };
+                 if (gradeValue === 2) return { min: 10, max: 40 };
+                 if (gradeValue === 3) return { min: 15, max: 50 };
+                 return { min: 20, max: 75 }; // Grade 4+
+            }
+
+            handleInput(deltaTime) { 
+                this.player.dx = 0; const moveSpeed = this.player.speed * (deltaTime / 16); if (this.keys['ArrowLeft'] || this.keys['a']) this.player.dx = -moveSpeed; if (this.keys['ArrowRight'] || this.keys['d']) this.player.dx = moveSpeed;
+            }
+            shoot() { 
+                const now = Date.now(); if (now > this.lastShootTime + this.shootCooldown) { const p = new Projectile(this.player.x + this.player.width / 2, this.player.y); this.projectiles.push(p); this.lastShootTime = now; playLaserSound(); }
+            }
+
+            // Function to create particle explosion
+            createExplosion(x, y, count = 30, color = '#A3A3A3') { 
+                for (let i = 0; i < count; i++) {
+                    this.particles.push(new Particle(x, y, color));
+                }
+            }
+
+            // MODIFIED: update method with revised hit logic (all problems fly off on wrong hit)
+            update(deltaTime) {
+                if (this.gameState !== 'playing') return; 
+
+                this.handleInput(deltaTime); 
+                if (this.player) this.player.update(this.width); 
+                this.stars.forEach(star => star.update());
+                this.particles = this.particles.filter(p => { p.update(); return p.life > 0; });
+
+                // Update projectiles (remove if off-screen)
+                this.projectiles = this.projectiles.filter(p => { 
+                    p.update(); 
+                    const margin = p.isHoming ? 50 : p.height; 
+                    return p.y > -margin && p.y < this.height + margin && p.x > -margin && p.x < this.width + margin;
+                });
+
+                const popLine = this.height - 10; 
+                this.problems = this.problems.filter(problem => {
+                    problem.update();
+                    // Remove if flying off AND off-screen (top) OR normally falling off bottom
+                    if (problem.isFlyingOff) {
+                        return problem.y > -problem.size; // Only check top bound for fly-off removal
+                    } else if (problem.y - problem.getDimensions(ctx).halfHeight > popLine) { 
+                        if (this.problemMode === 'answerInBox' && problem.isCorrectTarget) { this.changeHealth(-25); playWarningSound(); } 
+                        else if (this.problemMode === 'problemInBox' && problem.answer === this.targetProblem.answer) { this.changeHealth(-25); playWarningSound(); }
+                        return false; 
+                    } 
+                    return true; 
+                });
+                
+                let correctHit = false; 
+                let incorrectHit = false; 
+                let hitProjectile = null; 
+
+                // --- Projectile vs Problem Collision ---
+                for (let pIdx = this.projectiles.length - 1; pIdx >= 0; pIdx--) {
+                    const p = this.projectiles[pIdx];
+                    if (p.isHoming) continue; 
+
+                    for (let probIdx = this.problems.length - 1; probIdx >= 0; probIdx--) {
+                        const prob = this.problems[probIdx];
+                        if (prob.isFlyingOff) continue; 
+
+                        const { width: pW, height: pH } = prob.getDimensions(ctx);
+                        const pBox = p.getHitbox();
+                        const probL = prob.x - pW/2; const probR = prob.x + pW/2; const probT = prob.y - pH/2; const probB = prob.y + pH/2; 
+                        const collision = pBox.right > probL && pBox.left < probR && pBox.bottom > probT && pBox.top < probB;
+                        
+                        if (collision) { 
+                            hitProjectile = p; 
+                            let isCorrectHitThisTime = false;
+                            if (this.problemMode === 'answerInBox') { isCorrectHitThisTime = prob.isCorrectTarget; } 
+                            else { isCorrectHitThisTime = (prob.answer === this.targetProblem.answer); }
+
+                            if (isCorrectHitThisTime) { 
+                                correctHit = true; 
+                                this.score += 100 * this.level; 
+                                this.changeHealth(10); 
+                                this.correctAnswersInMode++; 
+                                if (this.correctAnswersInMode >= 5) { this.problemMode = (this.problemMode === 'answerInBox' ? 'problemInBox' : 'answerInBox'); this.correctAnswersInMode = 0; }
+                                this.setNewTarget(); 
+                                playCorrectHitSound(); 
+                            } else { 
+                                incorrectHit = true; 
+                                // this.changeHealth(-5); // <-- Removed damage for wrong hit
+                                playShieldHitSound(); 
+                            } 
+                            break; 
+                        } 
+                    }
+                    if (hitProjectile) break; 
+                }
+
+                // Process Hits 
+                if (correctHit) {
+                    // Explode ALL problems
+                    this.problems.forEach(prob => { if (!prob.isFlyingOff) { this.createExplosion(prob.x, prob.y, 35, '#86EFAC'); } }); 
+                    this.problems = []; 
+                    // Remove the projectile that hit
+                    if (hitProjectile) this.projectiles = this.projectiles.filter(p => p !== hitProjectile); 
+                    this.problemSpawnTimer = Math.max(15, this.minSpawnInterval); 
+                } else if (incorrectHit) {
+                    // Make ALL problems fly off
+                    this.problems.forEach(prob => { if (!prob.isFlyingOff) { prob.startFlyOff(); } });
+                    // Make the hitting projectile home
+                    if (hitProjectile) { hitProjectile.startHoming(this.player); }
+                    // Don't remove problems immediately, filter loop handles fly-off removal
+                }
+
+                 // --- Homing Projectile vs Player Collision ---
+                 if (this.player) { 
+                     const playerBox = this.player.getHitbox();
+                     for (let pIdx = this.projectiles.length - 1; pIdx >= 0; pIdx--) {
+                         const p = this.projectiles[pIdx];
+                         if (p.isHoming) {
+                             const pBox = p.getHitbox();
+                             const collision = pBox.right > playerBox.left && pBox.left < playerBox.right && pBox.bottom > playerBox.top && pBox.top < playerBox.bottom;
+                             if (collision) { this.changeHealth(-20); playPlayerHitSound(); this.createExplosion(p.x, p.y, 15, '#FFA500'); this.projectiles.splice(pIdx, 1); }
+                         }
+                     }
+                 }
+                
+                 // MODIFIED: Slower level progression and problem count increase
+                 this.level = Math.floor(this.score / 2000) + 1; // Level up every 2000 points
+                 // Increase problems per wave later, max 6
+                 this.problemsPerWave = Math.min(6, Math.floor(this.score / 3500) + 2); 
+
+
+                // Spawning Logic (Check only non-flying problems)
+                if (this.problems.filter(p => !p.isFlyingOff).length === 0 ) { 
+                    this.problemSpawnTimer--;
+                    if (this.problemSpawnTimer <= 0) { 
+                        this.spawnProblem(); 
+                        this.setNextSpawnTimer(); 
+                    }
+                }
+
+                if (this.health <= 0) this.endGame();
+                // Removed the redundant this.updateUI() call here.
+            }
+
+            setNextSpawnTimer() { 
+                 // MODIFIED: Slower spawn interval reduction
+                 const intervalReduction = (this.level - 1) * 5; // Less reduction per level
+                 let newInterval = this.baseSpawnInterval - intervalReduction;
+                 newInterval = Math.max(newInterval, this.minSpawnInterval);
+                 this.problemSpawnTimer = randInt(newInterval * 0.9, newInterval * 1.1); 
+            }
+            
+            // MODIFIED: Added explicit updateUI() call
+            changeHealth(delta) { 
+                this.health += delta; 
+                this.health = Math.max(0, Math.min(this.maxHealth, this.health)); 
+                this.updateUI(); // 👈 Ensures UI updates the moment health changes
+            }
+            
+            // MODIFIED: updateUI displays based on mode
+            updateUI() { 
+                scoreDisplay.textContent = this.score;
+                levelDisplay.textContent = this.level; 
+                if (targetDisplay) {
+                     if (this.problemMode === 'answerInBox') {
+                         targetDisplay.textContent = this.targetAnswer;
+                         targetLabel.textContent = "TARGET ANSWER";
+                     } else if (this.targetProblem) { 
+                         targetDisplay.textContent = this.targetProblem.expression;
+                         targetLabel.textContent = "TARGET PROBLEM";
+                     } else {
+                         targetDisplay.textContent = '?'; 
+                         targetLabel.textContent = "TARGET";
+                     }
+                }
+                // LOGIC to set health bar width and color
+                const healthPercent = this.health; 
+                healthBar.style.width = `${healthPercent}%`;
+                
+                if (healthPercent > 60) healthBar.style.backgroundColor = '#34D399'; 
+                else if (healthPercent > 30) healthBar.style.backgroundColor = '#FBBF24'; 
+                else healthBar.style.backgroundColor = '#F87171'; 
+            }
+
+            // MODIFIED: Draw method handles game states
+            draw(ctx) { 
+                ctx.fillStyle = '#0C1322'; ctx.fillRect(0, 0, this.width, this.height); 
+                this.stars.forEach(star => star.draw(ctx));
+                this.particles.forEach(p => p.draw(ctx)); 
+                if (this.gameState === 'playing' || this.gameState === 'paused') {
+                     this.problems.forEach(p => p.draw(ctx)); 
+                     this.projectiles.forEach(p => p.draw(ctx)); 
+                     if(this.player) this.player.draw(ctx); 
+                }
+                if (this.gameState === 'gameOver') this.drawGameOver(ctx); 
+                else if (this.gameState === 'start') this.drawStartScreen(ctx);
+                else if (this.gameState === 'paused') this.drawPauseMenu(ctx);
+            }
+            drawStartScreen(ctx) { 
+                ctx.fillStyle = 'rgba(2, 6, 23, 0.8)'; ctx.fillRect(0, 0, this.width, this.height); 
+                ctx.fillStyle = '#7DD3FC'; ctx.font = 'bold 24px Orbitron, sans-serif'; ctx.textAlign = 'center'; 
+                ctx.fillText('SPACE COMMAND MATH', this.width / 2, this.height * 0.15); 
+                ctx.font = '14px Orbitron, sans-serif'; ctx.fillStyle = '#E0F2FE';
+                ctx.fillText('Shoot the saucer matching the target!', this.width / 2, this.height * 0.25); // Changed asteroid to saucer
+                ctx.font = '10px Orbitron, sans-serif'; ctx.fillStyle = '#A3A3A3';
+                ctx.fillText('Move: ARROWS/A/D | Shoot: SPACEBAR', this.width / 2, this.height * 0.32); 
+                ctx.font = '12px Orbitron, sans-serif'; ctx.fillStyle = '#E0F2FE';
+                ctx.fillText('SELECT GRADE (UP/DOWN ARROWS)', this.width / 2, this.height * 0.42); 
+                const optionStartY = this.height * 0.47; const optionHeight = 35; const optionSpacing = 8; 
+                this.grades.forEach((grade, index) => { const yPos = optionStartY + index * (optionHeight + optionSpacing); const isFocused = index === this.focusedGradeIndex; ctx.lineWidth = 2; ctx.strokeStyle = isFocused ? '#7DD3FC' : '#334155'; ctx.fillStyle = isFocused ? 'rgba(56, 189, 248, 0.3)' : 'rgba(30, 41, 59, 0.7)'; ctx.beginPath(); ctx.roundRect(this.width / 2 - 150, yPos, 300, optionHeight, 5); ctx.fill(); ctx.stroke(); ctx.fillStyle = '#E0F2FE'; ctx.font = 'bold 14px Orbitron, sans-serif'; ctx.textAlign = 'left'; ctx.fillText(grade.text, this.width / 2 - 135, yPos + optionHeight / 2 + 2); ctx.font = '10px Orbitron, sans-serif'; ctx.textAlign = 'right'; ctx.fillText(grade.desc, this.width / 2 + 135, yPos + optionHeight / 2 + 1); });
+                ctx.textAlign = 'center'; ctx.font = '14px Orbitron, sans-serif'; ctx.fillStyle = '#FACC15'; ctx.fillText('Press SPACEBAR or Click/Tap to Start Mission!', this.width / 2, this.height * 0.88); 
+            }
+            drawGameOver(ctx) { 
+                ctx.fillStyle = 'rgba(2, 6, 23, 0.9)'; ctx.fillRect(0, 0, this.width, this.height); 
+                ctx.fillStyle = '#F87171'; ctx.font = 'bold 36px Orbitron, sans-serif'; ctx.textAlign = 'center'; 
+                ctx.fillText('MISSION FAILED', this.width / 2, this.height * 0.15); 
+                ctx.fillStyle = '#E0F2FE'; ctx.font = '20px Orbitron, sans-serif'; 
+                ctx.fillText(`FINAL SCORE: ${this.score}`, this.width / 2, this.height * 0.25); 
+                ctx.font = '12px Orbitron, sans-serif'; ctx.fillStyle = '#E0F2FE';
+                ctx.fillText('SELECT GRADE (UP/DOWN ARROWS)', this.width / 2, this.height * 0.42); 
+                const optionStartY = this.height * 0.47; const optionHeight = 35; const optionSpacing = 8; 
+                this.grades.forEach((grade, index) => { const yPos = optionStartY + index * (optionHeight + optionSpacing); const isFocused = index === this.focusedGradeIndex; ctx.lineWidth = 2; ctx.strokeStyle = isFocused ? '#7DD3FC' : '#334155'; ctx.fillStyle = isFocused ? 'rgba(56, 189, 248, 0.3)' : 'rgba(30, 41, 59, 0.7)'; ctx.beginPath(); ctx.roundRect(this.width / 2 - 150, yPos, 300, optionHeight, 5); ctx.fill(); ctx.stroke(); ctx.fillStyle = '#E0F2FE'; ctx.font = 'bold 14px Orbitron, sans-serif'; ctx.textAlign = 'left'; ctx.fillText(grade.text, this.width / 2 - 135, yPos + optionHeight / 2 + 2); ctx.font = '10px Orbitron, sans-serif'; ctx.textAlign = 'right'; ctx.fillText(grade.desc, this.width / 2 + 135, yPos + optionHeight / 2 + 1); });
+                ctx.textAlign = 'center'; ctx.font = '14px Orbitron, sans-serif'; ctx.fillStyle = '#FACC15'; ctx.fillText('Press SPACEBAR or Click/Tap to Retry!', this.width / 2, this.height * 0.88); 
+            }
+            drawPauseMenu(ctx) { 
+                ctx.fillStyle = 'rgba(2, 6, 23, 0.85)'; 
+                ctx.fillRect(0, 0, this.width, this.height); 
+                ctx.fillStyle = '#7DD3FC'; 
+                ctx.font = 'bold 36px Orbitron, sans-serif'; ctx.textAlign = 'center'; 
+                ctx.fillText('PAUSED', this.width / 2, this.height / 3); 
+                ctx.font = '16px Orbitron, sans-serif'; ctx.fillStyle = '#E0F2FE'; 
+                ctx.fillText('Press P to Resume', this.width / 2, this.height / 2); 
+                ctx.font = '14px Orbitron, sans-serif'; ctx.fillStyle = '#A3A3A3'; 
+                ctx.fillText('Press M for Main Menu', this.width / 2, this.height / 1.7); 
+            }
+            endGame() { this.gameState = 'gameOver'; this.updateUI(); playPowerDownSound(); }
+            togglePause() { if (this.gameState === 'playing') { this.gameState = 'paused'; playMenuNavigateSound(); } else if (this.gameState === 'paused') { this.gameState = 'playing'; playMenuSelectSound(); } }
+            goToMainMenu() { if (this.gameState === 'paused') { this.gameState = 'start'; this.focusedGradeIndex = this.selectedGradeIndex; playMenuSelectSound(); } }
+            updateGradeFocus(playFocusSound = true) { if (playFocusSound) { playMenuNavigateSound(); } }
+            selectGrade() { this.selectedGradeIndex = this.focusedGradeIndex; playMenuSelectSound(); }
+        }
+
+        // --- Game Loop and Initialization ---
+        let lastTime = 0;
+        const gameLoop = (timestamp) => { 
+            const deltaTime = timestamp - lastTime; lastTime = timestamp; if (game && game.gameState === 'playing') game.update(deltaTime); if(game) game.draw(ctx); requestAnimationFrame(gameLoop);
+        };
+        const startGame = () => { 
+            if (!isAudioInitialized) initializeAudio(); if (!game) game = new Game(canvas); if (game.gameState === 'start' || game.gameState === 'gameOver') { game.selectGrade(); game.setup(); playPowerUpSound(); }
+        };
+
+        // --- Event Listeners ---
+        const handleResize = () => { 
+            const container = document.getElementById('game-container'); const bottomPanel = document.getElementById('target-display-container'); const uiPanel = document.getElementById('header-container'); canvas.width = container.clientWidth; canvas.height = container.clientHeight - uiPanel.offsetHeight - (bottomPanel ? bottomPanel.offsetHeight : 0); if (game) { game.width = canvas.width; game.height = canvas.height; game.createStars(); if(game.player) { game.player.x = (game.width - game.player.width) / 2; game.player.y = game.height - game.player.height - 15; } } else { game = new Game(canvas); game.setup(); game.gameState = 'start'; } if (game && game.gameState !== 'playing') game.draw(ctx); 
+            
+            // Force a UI update at the VERY end of resize/setup
+            if (game) game.updateUI(); 
+        };
+
+        window.addEventListener('resize', handleResize);
+        window.addEventListener('load', () => { 
+            handleResize(); 
+            // if (game) game.updateUI(); // <-- Removed from here
+            requestAnimationFrame(gameLoop); 
+        });
+        
+        // MODIFIED: keydown listener handles different game states
+        document.addEventListener('keydown', (e) => { 
+            if (!game) return; 
+
+            if (game.gameState === 'playing') {
+                 game.keys[e.key] = true; 
+                 if (e.key === ' ' && !e.repeat) { game.shoot(); e.preventDefault(); } 
+                 else if ((e.key === 'p' || e.key === 'P') && !e.repeat) { game.togglePause(); e.preventDefault(); }
+            } else if (game.gameState === 'paused') {
+                 if ((e.key === 'p' || e.key === 'P') && !e.repeat) { game.togglePause(); e.preventDefault(); } 
+                 else if ((e.key === 'm' || e.key === 'M') && !e.repeat) { game.goToMainMenu(); e.preventDefault(); }
+            } else if (game.gameState === 'start' || game.gameState === 'gameOver') {
+                 const numGrades = game.grades.length;
+                 if (e.key === 'ArrowUp') { game.focusedGradeIndex = (game.focusedGradeIndex - 1 + numGrades) % numGrades; game.updateGradeFocus(); e.preventDefault(); } 
+                 else if (e.key === 'ArrowDown') { game.focusedGradeIndex = (game.focusedGradeIndex + 1) % numGrades; game.updateGradeFocus(); e.preventDefault(); } 
+                 else if (e.key === ' ' || e.key === 'Enter') { startGame(); e.preventDefault(); }
+            }
+        });
+        
+        document.addEventListener('keyup', (e) => { if(game) game.keys[e.key] = false; });
+        
+        // MODIFIED: Canvas click handles starting/resuming
+        canvas.addEventListener('click', (e) => {
+            if (!game) return;
+
+             if (game.gameState === 'start' || game.gameState === 'gameOver') {
+                 const rect = canvas.getBoundingClientRect(); const clickY = e.clientY - rect.top; 
+                 // MODIFIED: Adjusted Y positions to match drawing
+                 const optionStartY = game.height * 0.47; 
+                 const optionHeight = 35; const optionSpacing = 8;
+                 
+                 for(let i=0; i < game.grades.length; i++) {
+                     const yPos = optionStartY + i * (optionHeight + optionSpacing);
+                     const optionX = game.width / 2 - 150; 
+                     const optionWidth = 300;
+                     const clickX = e.clientX - rect.left;
+                     if (clickX >= optionX && clickX <= optionX + optionWidth && clickY >= yPos && clickY <= yPos + optionHeight) {
+                          game.focusedGradeIndex = i; 
+                          game.updateGradeFocus(false); 
+                          startGame(); 
+                          return; 
+                     }
+                 }
+                 startGame(); 
+             } 
+        });
+
+    </script>
+</body>
+</html>
+
+
+
+
