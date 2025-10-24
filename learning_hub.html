@@ -4,209 +4,344 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grade 3 Student Learning Hub Content</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'hub-bg': '#1A1A1A',        /* Darker Gray Background */
+                        'card-bg': '#374151',        /* Card Background */
+                        'marquee-inner-bg': '#2F3742', /* Slightly darker than cards for contrast */
+                        'arcade-red': '#FF4136',    /* Pure Bright Red */
+                        'arcade-blue': '#0074D9',   /* Pure Action Blue */
+                        'arcade-green': '#2ECC40',      /* Pure Bright Green */
+                        'arcade-yellow': '#FFDC00', /* Pure Lemon Yellow */
+                        'text-dark': '#374151',      /* Softer dark gray */
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],  
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Load KaTeX for math rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
     <style>
-        /* Basic styles for embedding */
+        /* --- Define drift animations (from index.html) --- */
+        @keyframes star-drift-left {
+            from { background-position: 0 0; }
+            to { background-position: -8% -100%; }
+        }
+
+        @keyframes star-drift-right {
+            from { background-position: 0 0; }
+            to { background-position: 8% -100%; }
+        }
+        
+        @keyframes neon-flicker {
+            0% { opacity: 1.0; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Base styles */
         body {
-            font-family: 'Inter', sans-serif;
-            color: #333;
-            line-height: 1.6;
-            margin: 0;
-            padding: 20px;
+            background-color: #1A1A1A; 
+            font-family: var(--tw-font-sans);
+            position: relative;  
+            overflow-x: hidden;
         }
-        h1 {
-            color: #1a202c;
-            border-bottom: 3px solid #3182ce;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
-        h2 {
-            color: #2b6cb0;
-            margin-top: 30px;
-            padding-top: 10px;
-            border-bottom: 1px dashed #e2e8f0;
-        }
-        h3 {
-            color: #2c5282;
-            margin-top: 20px;
-        }
-        table {
+
+        /* --- PARALLAX STARFIELD BACKGROUND LAYERS (from index.html) --- */
+        
+        body::before, body::after, #background-layer-3, #background-layer-4 {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            border-collapse: collapse;
-            margin: 15px 0;
+            height: 150%; 
+            z-index: -3; 
         }
-        th, td {
-            border: 1px solid #e2e8f0;
-            padding: 10px;
-            text-align: left;
+        
+        /* Layer 1 (Slowest) */
+        body::before { 
+            background: 
+                radial-gradient(circle at 10% 80%, rgba(46, 255, 64, 0.3) 0.5px, transparent 4px),
+                radial-gradient(circle at 70% 20%, rgba(180, 50, 255, 0.2) 0.5px, transparent 4px),
+                radial-gradient(circle at 35% 50%, rgba(255, 255, 0, 0.3) 0.5px, transparent 4px);
+            background-size: 150px 150px; 
+            z-index: -4;
+            transform: translateY(var(--bg-scroll-y-l1, 0px));
+            animation: star-drift-left 60s linear infinite, neon-flicker 6s ease-in-out infinite alternate; 
         }
-        th {
-            background-color: #f7fafc;
-            color: #2d3748;
-            font-weight: bold;
+
+        /* Layer 2 (Farther/Slow) */
+        body::after { 
+            background: 
+                radial-gradient(circle at 20% 10%, rgba(50, 50, 255, 0.4) 0.5px, transparent 6px),
+                radial-gradient(circle at 90% 40%, rgba(255, 50, 50, 0.3) 0.5px, transparent 6px),
+                radial-gradient(circle at 55% 75%, rgba(46, 255, 64, 0.4) 0.5px, transparent 6px);
+            background-size: 180px 180px; 
+            z-index: -3; 
+            transform: translateY(var(--bg-scroll-y-l2, 0px));
+            animation: star-drift-right 40s linear infinite, neon-flicker 4s 2s infinite alternate; 
         }
-        .pro-tip {
-            border-left: 5px solid #48bb78;
-            background-color: #f0fff4;
-            padding: 15px;
-            margin: 15px 0;
+
+        /* Layer 3 (Closer/Medium) */
+        #background-layer-3 {
+            background: 
+                radial-gradient(circle at 80% 5%, rgba(255, 255, 0, 0.5) 1px, transparent 8px),
+                radial-gradient(circle at 15% 90%, rgba(180, 50, 255, 0.4) 1px, transparent 8px),
+                radial-gradient(circle at 40% 30%, rgba(50, 50, 255, 0.5) 1px, transparent 8px);
+            background-size: 220px 220px; 
+            z-index: -2; 
+            transform: translateY(var(--bg-scroll-y-l3, 0px));
+            animation: star-drift-left 25s linear infinite, neon-flicker 2.5s infinite alternate; 
         }
-        .math-symbol {
-            font-weight: bold;
-            color: #dd6b20;
-            font-size: 1.2em;
+        
+        /* Layer 4 (Closest/Fastest) */
+        #background-layer-4 { 
+            background: 
+                radial-gradient(circle at 5% 50%, rgba(255, 50, 50, 0.6) 1px, transparent 10px),
+                radial-gradient(circle at 60% 10%, rgba(46, 255, 64, 0.5) 1px, transparent 10px),
+                radial-gradient(circle at 95% 70%, rgba(255, 220, 0, 0.6) 1px, transparent 10px);
+            background-size: 260px 260px; 
+            z-index: -1;
+            transform: translateY(var(--bg-scroll-y-l4, 0px));
+            animation: star-drift-right 15s linear infinite, neon-flicker 1.5s 0.75s infinite alternate; 
         }
-        .example-list li {
-            margin-bottom: 8px;
+
+        /* Custom styles for tables (matching card background) */
+        .hub-table th, .hub-table td {
+            border: 1px solid #4B5563; /* Darker border for contrast */
+        }
+        .hub-table thead {
+            background-color: #4B5563; /* Tailwind gray-600 */
         }
     </style>
 </head>
-<body>
+<body class="bg-hub-bg text-gray-300 min-h-screen p-4 sm:p-8 font-sans">
 
-    <h1 style="font-size: 2.5rem;">🚀 Math Mission: Grade 3 Learning Hub</h1>
+    <!-- Parallax Background Layers -->
+    <div id="background-layer-3"></div>
+    <div id="background-layer-4"></div>
 
-    <p>Hey Math Explorers! This is your special guide to the big ideas in Grade 3 Math. We'll learn the secrets of numbers, how to solve problems, and how to spot cool patterns!</p>
+    <div class="max-w-4xl mx-auto bg-card-bg shadow-xl rounded-2xl p-6 sm:p-10 border border-gray-600">
 
-    <h2 style="font-size: 1.8rem;">## 🔢 B1: The Secret Life of Numbers (Number Sense)</h2>
+        <!-- Main Header -->
+        <h1 class="text-4xl sm:text-5xl font-extrabold uppercase text-arcade-yellow text-center mb-6 border-b-4 border-arcade-yellow pb-4 tracking-wider">
+            🚀 Math Mission: Grade 3 Learning Hub
+        </h1>
 
-    <p>Your job is to become a detective and learn all about numbers up to <strong>1000</strong>!</p>
+        <p class="text-lg text-gray-300 mb-8 text-center">Hey Math Explorers! This is your special guide to the big ideas in Grade 3 Math. We'll learn the secrets of numbers, how to solve problems, and how to spot cool patterns!</p>
 
-    <h3 style="font-size: 1.4rem;">### 🔍 Place Value: What's a Digit Worth?</h3>
+        <!-- B1 Section -->
+        <h2 class="text-3xl font-bold text-arcade-blue mt-8 mb-4 border-b border-gray-600 pb-2 flex items-center">
+            <span class="text-4xl mr-2">🔢</span> B1: The Secret Life of Numbers (Number Sense)
+        </h2>
 
-    <p>A number is like a secret code where the spot (place) matters most!</p>
+        <p class="text-gray-300 mb-6">Your job is to become a detective and learn all about numbers up to <strong>1000</strong>!</p>
 
-    <table>
-        <thead>
-            <tr>
-                <th><strong>Spot</strong></th>
-                <th><strong>Digit Name</strong></th>
-                <th><strong>Value Example in 549</strong></th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td><strong>3rd Spot</strong></td>
-                <td><strong>Hundreds</strong></td>
-                <td>500 (Five Hundred)</td>
-            </tr>
-            <tr>
-                <td><strong>2nd Spot</strong></td>
-                <td><strong>Tens</strong></td>
-                <td>40 (Four Tens)</td>
-            </tr>
-            <tr>
-                <td><strong>1st Spot</strong></td>
-                <td><strong>Ones</strong></td>
-                <td>9 (Nine Ones)</td>
-            </tr>
-        </tbody>
-    </table>
+        <h3 class="text-2xl font-semibold text-arcade-red mb-4 flex items-center">
+            <span class="mr-2">🔍</span> Place Value: What's a Digit Worth?
+        </h3>
 
-    <div class="pro-tip">
-        <p><strong>✅ Pro Tip: Expanded Form</strong></p>
-        <p>We can <strong>decompose</strong> (break apart) a number to see its value:</p>
-        <p style="text-align: center; font-size: 1.5rem; margin: 15px 0;">
-            $873 = 800 + 70 + 3$
-        </p>
-        <p>To <strong>compose</strong> (put together) the number, you just add the pieces up!</p>
-    </div>
+        <p class="text-gray-300 mb-4">A number is like a secret code where the spot (place) matters most!</p>
 
-    <h3 style="font-size: 1.4rem;">### 📏 Comparing Numbers (B1.2 & B1.3)</h3>
+        <table class="hub-table w-full border border-gray-600 rounded-lg overflow-hidden mb-6 shadow-md">
+            <thead class="bg-marquee-inner-bg text-arcade-yellow">
+                <tr>
+                    <th class="p-3"><strong>Spot</strong></th>
+                    <th class="p-3"><strong>Digit Name</strong></th>
+                    <th class="p-3"><strong>Value Example in 549</strong></th>
+                </tr>
+            </thead>
+            <tbody class="bg-card-bg text-gray-300">
+                <tr>
+                    <td class="p-3 font-medium"><strong>3rd Spot</strong></td>
+                    <td class="p-3"><strong>Hundreds</strong></td>
+                    <td class="p-3">500 (Five Hundred)</td>
+                </tr>
+                <tr>
+                    <td class="p-3 font-medium"><strong>2nd Spot</strong></td>
+                    <td class="p-3"><strong>Tens</strong></td>
+                    <td class="p-3">40 (Four Tens)</td>
+                </tr>
+                <tr>
+                    <td class="p-3 font-medium"><strong>1st Spot</strong></td>
+                    <td class="p-3"><strong>Ones</strong></td>
+                    <td class="p-3">9 (Nine Ones)</td>
+                </tr>
+            </tbody>
+        </table>
 
-    <p>We use special signs to see which number is bigger, smaller, or the same:</p>
+        <!-- Pro Tip Box 1 -->
+        <div class="pro-tip bg-marquee-inner-bg border-l-4 border-arcade-green p-4 rounded-lg shadow-md mb-6">
+            <p class="font-bold text-arcade-green mb-2"><strong>✅ Pro Tip: Expanded Form</strong></p>
+            <p class="text-gray-300">We can <strong>decompose</strong> (break apart) a number to see its value:</p>
+            <p id="math-decompose" class="text-center font-bold text-2xl text-arcade-yellow my-3">
+                $873 = 800 + 70 + 3$
+            </p>
+            <p class="text-gray-300">To <strong>compose</strong> (put together) the number, you just add the pieces up!</p>
+        </div>
 
-    <ul>
-        <li><span class="math-symbol">&gt;</span> (<strong>Greater Than</strong>) &rightarrow; The big mouth eats the bigger number!</li>
-        <li><span class="math-symbol">&lt;</span> (<strong>Less Than</strong>) &rightarrow; The small point points to the smaller number.</li>
-        <li><span class="math-symbol">=</span> (<strong>Equal To</strong>) &rightarrow; They are exactly the same size.</li>
-    </ul>
+        <h3 class="text-2xl font-semibold text-arcade-red mb-4 flex items-center">
+            <span class="mr-2">📏</span> Comparing Numbers (B1.2 & B1.3)
+        </h3>
 
-    <p><strong>How to Compare:</strong> Always start with the <strong>hundreds</strong> place first!</p>
+        <p class="text-gray-300 mb-4">We use special signs to see which number is bigger, smaller, or the same:</p>
 
-    <div class="pro-tip">
-        <p><strong>✅ Mission: Rounding</strong></p>
-        <p>Rounding means finding the closest <strong>10</strong> or <strong>100</strong> to make the number easier to work with.</p>
-
-        <ul class="example-list">
-            <li>If the digit next door is <strong>5 or more</strong> (5, 6, 7, 8, 9), you <strong>round up</strong>! (e.g., 57 &rightarrow; 60)</li>
-            <li>If the digit next door is <strong>4 or less</strong> (4, 3, 2, 1, 0), you <strong>round down</strong>! (e.g., 53 &rightarrow; 50)</li>
+        <ul class="list-disc list-inside space-y-2 mb-6 text-gray-300">
+            <li><span class="font-bold text-arcade-red text-lg">&gt;</span> (<strong>Greater Than</strong>) &rightarrow; The big mouth eats the bigger number!</li>
+            <li><span class="font-bold text-arcade-red text-lg">&lt;</span> (<strong>Less Than</strong>) &rightarrow; The small point points to the smaller number.</li>
+            <li><span class="font-bold text-arcade-red text-lg">=</span> (<strong>Equal To</strong>) &rightarrow; They are exactly the same size.</li>
         </ul>
+
+        <p class="font-medium text-arcade-blue mb-4"><strong>How to Compare:</strong> Always start with the <strong>hundreds</strong> place first!</p>
+
+        <!-- Pro Tip Box 2 -->
+        <div class="pro-tip bg-marquee-inner-bg border-l-4 border-arcade-yellow p-4 rounded-lg shadow-md mb-6">
+            <p class="font-bold text-arcade-yellow mb-2"><strong>✅ Mission: Rounding</strong></p>
+            <p class="text-gray-300">Rounding means finding the closest <strong>10</strong> or <strong>100</strong> to make the number easier to work with.</p>
+
+            <ul class="list-disc list-inside ml-4 mt-3 text-gray-300">
+                <li>If the digit next door is <strong>5 or more</strong> (5, 6, 7, 8, 9), you <strong>round up</strong>! (e.g., 57 &rightarrow; 60)</li>
+                <li>If the digit next door is <strong>4 or less</strong> (4, 3, 2, 1, 0), you <strong>round down</strong>! (e.g., 53 &rightarrow; 50)</li>
+            </ul>
+        </div>
+
+        <h3 class="text-2xl font-semibold text-arcade-red mb-4 flex items-center">
+            <span class="mr-2">🏃</span> Skip Counting (B1.4)
+        </h3>
+
+        <p class="text-gray-300 mb-6">You can count faster by taking big jumps! Practice counting by: <strong>50s, 100s, and 200s</strong> up to 1000.</p>
+
+        <!-- B2 Section -->
+        <h2 class="text-3xl font-bold text-arcade-blue mt-8 mb-4 border-b border-gray-600 pb-2 flex items-center">
+            <span class="text-4xl mr-2">➕</span> B2: The Power of Operations
+        </h2>
+
+        <p class="text-gray-300 mb-6">These are your tools for solving problems: adding, taking away, multiplying, and sharing!</p>
+
+        <h3 class="text-2xl font-semibold text-arcade-red mb-4 flex items-center">
+            <span class="mr-2">🧠</span> Mental Math Secrets (B2.3)
+        </h3>
+
+        <p class="text-gray-300 mb-4">Before you use a pencil, try to <strong>estimate</strong>!</p>
+
+        <ul class="list-disc list-inside space-y-2 mb-6 text-gray-300">
+            <li><strong>Estimation:</strong> Round the big numbers first, then solve. This helps you check if your final answer is reasonable.</li>
+            <li>Example: To solve $512 + 389$, round it to $500 + 400 = 900$. Your real answer should be close to 900!</li>
+        </ul>
+
+        <h3 class="text-2xl font-semibold text-arcade-red mb-4 flex items-center">
+            <span class="mr-2">✖️</span> Multiplication & Division (B2.2 & B2.6)
+        </h3>
+
+        <p class="text-gray-300 mb-4">You need to know your <strong>Math Facts</strong> for the numbers <strong>2, 5, and 10</strong>!</p>
+
+        <ul class="list-disc list-inside space-y-2 mb-6 text-gray-300">
+            <li><strong>Multiplication ($\times$)</strong> is fast adding. ($5 \times 4 = 5 + 5 + 5 + 5$)</li>
+            <li><strong>Division ($\div$)</strong> is fair sharing.
+                <ul class="list-circle list-inside ml-4 text-gray-400">
+                    <li>Example: $30 \div 5 = 6$ (30 cookies shared among 5 friends means 6 cookies each).</li>
+                </ul>
+            </li>
+        </ul>
+
+        <!-- Pro Tip Box 3 -->
+        <div class="pro-tip bg-marquee-inner-bg border-l-4 border-arcade-blue p-4 rounded-lg shadow-md mb-6">
+            <p class="font-bold text-arcade-blue mb-2"><strong>✅ Inverse Secret (B2.1):</strong> Multiplication and division are opposites!</p>
+            <p class="text-gray-300">If $5 \times 6 = 30$, then $30 \div 5 = 6$.</p>
+        </div>
+
+        <h3 class="text-2xl font-semibold text-arcade-red mb-4 flex items-center">
+            <span class="mr-2">🍰</span> Fractions (B1.6 & B1.7)
+        </h3>
+
+        <p class="text-gray-300 mb-4">Fractions are about <strong>fair shares</strong>!</p>
+
+        <ul class="list-disc list-inside space-y-2 mb-6 text-gray-300">
+            <li><strong>Unit Fractions:</strong> Fractions where the top number (numerator) is <strong>1</strong>. We use these to talk about equal pieces.
+                <ul class="list-circle list-inside ml-4 text-gray-400">
+                    <li>Example: $\frac{1}{4}$ means 1 piece out of 4 total pieces.</li>
+                </ul>
+            </li>
+            <li><strong>Equivalent Fractions:</strong> These are fractions that look different but have the same size!
+                <ul class="list-circle list-inside ml-4 text-gray-400">
+                    <li>Example: $\frac{1}{2}$ is the same as $\frac{2}{4}$ (they cover the same amount of pizza!).</li>
+                </ul>
+            </li>
+        </ul>
+
+        <!-- C1 Section -->
+        <h2 class="text-3xl font-bold text-arcade-blue mt-8 mb-4 border-b border-gray-600 pb-2 flex items-center">
+            <span class="text-4xl mr-2">🎨</span> C1: Pattern Detectives
+        </h2>
+
+        <p class="text-gray-300 mb-4">Everything in math has a pattern! Your job is to spot the <strong>rule</strong> and keep the pattern going.</p>
+
+        <h3 class="text-2xl font-semibold text-arcade-red mb-4 flex items-center">
+            <span class="mr-2">➡️</span> Types of Patterns
+        </h3>
+
+        <ol class="list-decimal list-inside space-y-3 ml-4 text-gray-300">
+            <li><strong>Repeating:</strong> The same rule happens over and over.
+                <ul class="list-circle list-inside ml-4 text-gray-400">
+                    <li>Example: $2, 5, 2, 5, 2, \ldots$ (Rule: $+3, -3, +3, -3$)</li>
+                </ul>
+            </li>
+            <li><strong>Growing:</strong> The numbers get bigger by adding or multiplying the same amount each time.
+                <ul class="list-circle list-inside ml-4 text-gray-400">
+                    <li>Example: $10, 20, 30, 40, \ldots$ (Rule: Add 10 each time)</li>
+                </ul>
+            </li>
+            <li><strong>Shrinking:</strong> The numbers get smaller by subtracting the same amount each time.
+                <ul class="list-circle list-inside ml-4 text-gray-400">
+                    <li>Example: $500, 400, 300, \ldots$ (Rule: Subtract 100 each time)</li>
+                </ul>
+            </li>
+        </ol>
     </div>
 
-    <h3 style="font-size: 1.4rem;">### 🏃 Skip Counting (B1.4)</h3>
+    <script>
+        // Renders KaTeX math expressions after the page loads
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: "$", right: "$", display: false} 
+                ],
+                throwOnError : false 
+            });
+        });
 
-    <p>You can count faster by taking big jumps! Practice counting by: <strong>50s, 100s, and 200s</strong> up to 1000.</p>
-
-    <h2 style="font-size: 1.8rem;">## ➕ B2: The Power of Operations</h2>
-
-    <p>These are your tools for solving problems: adding, taking away, multiplying, and sharing!</p>
-
-    <h3 style="font-size: 1.4rem;">### 🧠 Mental Math Secrets (B2.3)</h3>
-
-    <p>Before you use a pencil, try to <strong>estimate</strong>!</p>
-
-    <ul>
-        <li><strong>Estimation:</strong> Round the big numbers first, then solve. This helps you check if your final answer is reasonable.</li>
-        <li>Example: To solve $512 + 389$, round it to $500 + 400 = 900$. Your real answer should be close to 900!</li>
-    </ul>
-
-    <h3 style="font-size: 1.4rem;">### ✖️ Multiplication & Division (B2.2 & B2.6)</h3>
-
-    <p>You need to know your <strong>Math Facts</strong> for the numbers <strong>2, 5, and 10</strong>!</p>
-
-    <ul>
-        <li><strong>Multiplication (&times;)</strong> is fast adding. ($5 \times 4 = 5 + 5 + 5 + 5$)</li>
-        <li><strong>Division (&divide;)</strong> is fair sharing.
-            <ul>
-                <li>Example: $30 \div 5 = 6$ (30 cookies shared among 5 friends means 6 cookies each).</li>
-            </ul>
-        </li>
-    </ul>
-
-    <div class="pro-tip" style="border-left: 5px solid #3182ce; background-color: #ebf8ff;">
-        <p><strong>✅ Inverse Secret (B2.1):</strong> Multiplication and division are opposites!</p>
-        <p>If $5 \times 6 = 30$, then $30 \div 5 = 6$.</p>
-    </div>
-
-    <h3 style="font-size: 1.4rem;">### 🍰 Fractions (B1.6 & B1.7)</h3>
-
-    <p>Fractions are about <strong>fair shares</strong>!</p>
-
-    <ul>
-        <li><strong>Unit Fractions:</strong> Fractions where the top number (numerator) is <strong>1</strong>. We use these to talk about equal pieces.
-            <ul>
-                <li>Example: $\frac{1}{4}$ means 1 piece out of 4 total pieces.</li>
-            </ul>
-        </li>
-        <li><strong>Equivalent Fractions:</strong> These are fractions that look different but have the same size!
-            <ul>
-                <li>Example: $\frac{1}{2}$ is the same as $\frac{2}{4}$ (they cover the same amount of pizza!).</li>
-            </ul>
-        </li>
-    </ul>
-
-    <h2 style="font-size: 1.8rem;">## 🎨 C1: Pattern Detectives</h2>
-
-    <p>Everything in math has a pattern! Your job is to spot the <strong>rule</strong> and keep the pattern going.</p>
-
-    <h3 style="font-size: 1.4rem;">### ➡️ Types of Patterns</h3>
-
-    <ol class="example-list">
-        <li><strong>Repeating:</strong> The same rule happens over and over.
-            <ul>
-                <li>Example: $2, 5, 2, 5, 2, \ldots$ (Rule: $+3, -3, +3, -3$)</li>
-            </ul>
-        </li>
-        <li><strong>Growing:</strong> The numbers get bigger by adding or multiplying the same amount each time.
-            <ul>
-                <li>Example: $10, 20, 30, 40, \ldots$ (Rule: Add 10 each time)</li>
-            </ul>
-        </li>
-        <li><strong>Shrinking:</strong> The numbers get smaller by subtracting the same amount each time.
-            <ul>
-                <li>Example: $500, 400, 300, \ldots$ (Rule: Subtract 100 each time)</li>
-            </ul>
-        </li>
-    </ol>
-
+        // --- PARALLAX EFFECT SCRIPT (from index.html) ---
+        window.addEventListener('scroll', function() {
+            const scrollPosition = window.scrollY;
+            
+            // Define the movement factors (4 distinct speeds)
+            const factorL1 = 0.05; // Farthest/Slowest
+            const factorL2 = 0.20; // Farther/Slow
+            const factorL3 = 0.45; // Closer/Medium
+            const factorL4 = 0.70; // Closest/Fastest
+            
+            // Calculate the new background positions for each layer
+            const newBgYL1 = scrollPosition * factorL1;
+            const newBgYL2 = scrollPosition * factorL2;
+            const newBgYL3 = scrollPosition * factorL3;
+            const newBgYL4 = scrollPosition * factorL4;
+            
+            // Update the CSS custom properties on the body, affecting all 4 layers
+            document.body.style.setProperty('--bg-scroll-y-l1', `-${newBgYL1}px`);
+            document.body.style.setProperty('--bg-scroll-y-l2', `-${newBgYL2}px`);
+            document.body.style.setProperty('--bg-scroll-y-l3', `-${newBgYL3}px`);
+            document.body.style.setProperty('--bg-scroll-y-l4', `-${newBgYL4}px`);
+        });
+    </script>
 </body>
 </html>
