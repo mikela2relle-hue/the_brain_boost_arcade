@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quest 1: Place Value</title>
+    <title>Place Value Quest: Quest 1</title>
     <!-- Load Press Start 2P for the arcade theme and Inter for clean text -->
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     
@@ -50,8 +50,8 @@
             justify-content: center;
             align-items: center;
             flex-direction: column; 
-            /* Adjusted padding-top to bring content closer to the header */
-            padding: 200px 2rem 2rem 2rem; 
+            /* Increased padding-top to clear the fixed title */
+            padding: 100px 2rem 2rem 2rem; 
             position: relative;
         }
         
@@ -62,14 +62,13 @@
             
             /* FIXED POSITIONING */
             position: fixed; 
-            top: 120px; /* Moved header up to shrink margin */
+            top: 20px; 
             left: 50%;
             transform: translateX(-50%); /* Centers horizontally */
             z-index: 60; 
             margin: 0; /* Remove any default margins that might interfere */
             width: 100%;
-            /* WIDTH INCREASED TO 1000PX */
-            max-width: 1000px; 
+            max-width: 1000px; /* Widened from 900px */
         }
 
         /* Arcade Button Styling (Primary) */
@@ -230,8 +229,8 @@
     </button>
     
     <!-- Floating Title Header -->
-    <h1 class="quest-title-header text-xs sm:text-xl md:text-3xl lg:text-5xl font-extrabold uppercase text-arcade-yellow tracking-tight text-center">
-        QUEST 1: PLACE VALUE
+    <h1 class="quest-title-header text-2xl sm:text-5xl font-extrabold uppercase text-arcade-yellow tracking-tight text-center">
+        Quest 1: Place Value
     </h1>
 
     <!-- START MENU MODAL (Full Screen Overlay) -->
@@ -731,3 +730,4 @@
     </script>
 </body>
 </html>
+
