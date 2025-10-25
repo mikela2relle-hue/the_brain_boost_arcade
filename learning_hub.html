@@ -3,37 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Learning Hub</title>
+    <title>Arcade Learning Hub</title>
     
-    <!-- Load Fonts -->
+    <!-- Load Press Start 2P for the arcade theme and Inter for clean text -->
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Load Tone.js for sound effects -->
+    <script src="https://cdn.jsdelivr.net/npm/tone@14.8.49/build/Tone.min.js"></script>
     
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Load Tone.js for Sound -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
-
+    <script>
+        // Custom Tailwind Config for Brain Boost Arcade Theme colors
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'hub-bg': '#1A1A1A',
+                        /* Increased transparency for background elements (80% opacity) */
+                        'card-bg': 'rgba(45, 45, 45, 0.8)', 
+                        'card-bg-alt': 'rgba(55, 65, 81, 0.3)', /* Home Button: 30% opacity for subtle look */
+                        'arcade-red': '#FF4136',
+                        'arcade-blue': '#0074D9',
+                        'arcade-green': '#2ECC40',
+                        'arcade-yellow': '#FFDC00',
+                        'text-light': '#E5E7EB',
+                        'text-medium': '#9CA3AF',
+                        'border-light': '#4B5563',
+                    },
+                    fontFamily: {
+                        pixel: ['"Press Start 2P"', 'cursive'],
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
     <style>
         /* Custom arcade theme styles */
         body {
+            /* Pixel font for the student hub */
             font-family: 'Press Start 2P', cursive;
             background-color: #1a1a1a;
+            /* Restored dot-grid background */
             background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
             background-size: 15px 15px;
             color: #ffffff;
             min-height: 100vh;
-            display: flex;
+            /* Flexbox for centering content vertically and horizontally */
+            display: flex; 
             justify-content: center;
             align-items: center;
+            flex-direction: column;
+            padding-top: 2rem;
+            padding-bottom: 2rem;
         }
 
-        /* Flicker animation for the title */
+        /* Home Button Styling (Subtle Look) */
+        .home-button-subtle {
+            /* Updated to use pixel font and matching large radius */
+            background-color: rgba(55, 65, 81, 0.3); /* Base: 30% opacity */
+            color: #E5E7EB;
+            border: 2px solid transparent;
+            box-shadow: none;
+            transition: all 0.2s ease;
+            font-family: 'Press Start 2P', cursive; /* Retro font */
+            font-weight: 400;
+            letter-spacing: 0.05em;
+        }
+        .home-button-subtle:hover, .home-button-subtle:focus {
+            /* Subtle glow on hover/focus */
+            background-color: rgba(75, 85, 99, 0.3); /* Hover: Slightly darker transparent */
+            border-color: #FFDC00; /* Arcade Yellow border */
+            box-shadow: 0 0 5px rgba(255, 220, 0, 0.5);
+            transform: scale(1.02);
+        }
+
+        /* Flicker animation for title */
         @keyframes flicker {
             0%, 18%, 22%, 25%, 53%, 57%, 100% {
                 text-shadow: 0 0 4px #fff, 0 0 11px #fff, 0 0 19px #fff, 0 0 40px #0ff, 0 0 80px #0ff, 0 0 90px #0ff, 0 0 100px #0ff, 0 0 150px #0ff;
+                opacity: 1;
             }
             20%, 24%, 55% {
                 text-shadow: none;
+                opacity: 0.8;
             }
         }
 
@@ -51,27 +105,26 @@
             }
         }
 
-        /* Content container style */
+        /* Main content container style - 20% transparent */
         .content-container {
             border: 4px solid #00c6ff;
             border-radius: 16px;
-            background-color: rgba(16, 16, 16, 0.8);
+            background-color: rgba(16, 16, 16, 0.8); /* 20% transparent */
             box-shadow: 0 0 25px #00c6ff, 0 0 40px #007bff, inset 0 0 10px #00c6ff;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(2px);
             width: 100%;
-            max-width: 1000px;
-            margin: 20px;
+            max-width: 1200px;
         }
 
-        /* Styling for the grade selection buttons */
+        /* Styling for the grade selection buttons (Large Tiles) */
         .grade-button {
             background-color: #007bff;
             color: #ffffff;
             font-family: 'Press Start 2P', cursive;
             font-size: 1rem;
-            padding: 2rem 1.5rem;
-            min-width: 200px;
-            min-height: 160px;
+            padding: 3rem 1.5rem;
+            min-width: 240px; 
+            min-height: 180px; 
             text-align: center;
             border: 4px solid #00c6ff;
             border-radius: 16px;
@@ -80,8 +133,8 @@
             transition: all 0.2s ease;
             cursor: pointer;
             margin: 15px;
-            display: flex;
-            flex-direction: column;
+            display: flex; 
+            flex-direction: column; 
             align-items: center;
             justify-content: center;
         }
@@ -92,13 +145,13 @@
             background-color: #008cff;
         }
         
-        /* "Video Game Style" selected button */
+        /* Video Game Style "Active" button */
         .grade-button.active {
             background-color: #008cff;
-            border-color: #F8D800; /* Yellow border */
+            border-color: #F8D800;
             color: #f0f0f0;
             text-shadow: 0 0 3px #fff, 0 0 8px #F8D800, 0 0 12px #F8D800;
-            box-shadow: 0 0 10px #F8D800, 0 0 20px #F8D800, 0 0 35px #F8D800, inset 0 0 8px #F8D800; /* Yellow glow */
+            box-shadow: 0 0 10px #F8D800, 0 0 20px #F8D800, 0 0 35px #F8D800, inset 0 0 8px #F8D800;
             transform: scale(1.03);
         }
 
@@ -108,52 +161,113 @@
             box-shadow: 0 0 15px #F8D800, 0 0 25px #F8D800, 0 0 45px #F8D800, inset 0 0 10px #F8D800;
         }
 
-        /* Keyboard navigation focus - Yellow outline */
+        /* Keyboard navigation focus: Bright Yellow for contrast */
         .grade-button.focused {
-            outline: 4px solid #F8D800; /* Bright yellow */
+            outline: 6px solid #FFDC00; /* Use bright yellow for max contrast */
             outline-offset: 4px;
-            background-color: #008cff; /* Match hover bg for clarity */
+            background-color: #008cff;
+            box-shadow: 0 0 10px #FFDC00, 0 0 20px #FFDC00, 0 0 35px #FFDC00, inset 0 0 8px #FFDC00;
         }
 
         /* Style for the icon inside the button */
         .grade-icon {
-            font-size: 3rem; /* Larger icon size */
-            margin-bottom: 0.5rem; /* Space between icon and text */
-            line-height: 1; /* Ensure icon doesn't add extra height */
+            font-size: 4rem; /* Even larger icon size */
+            margin-bottom: 0.5rem; 
+            line-height: 1; 
+        }
+
+        /* Footer and Mission Statement Styling */
+        .mission-statement {
+            background-color: rgba(45, 45, 45, 0.8); /* 20% transparent */
+            border: 1px solid #4B5563;
+        }
+
+        .footer-link {
+            font-family: 'Inter', sans-serif; /* Use Inter for clean readability */
         }
 
     </style>
 </head>
 <body class="min-h-screen p-4 sm:p-8">
 
-    <div class="container mx-auto">
+    <!-- Main Container centered in viewport -->
+    <div class="container mx-auto flex flex-col items-center min-h-screen justify-center">
         
-        <!-- Header Section -->
-        <header class="text-center my-8 sm:my-12">
-            <!-- Flickering Arcade Title -->
+        <!-- Return Home Button -->
+        <div class="w-full max-w-6xl mx-auto flex justify-start mb-8 sm:mb-12">
+            <a href="index.html" class="home-button-subtle px-6 py-3 rounded-2xl uppercase tracking-wider text-sm"> 
+                <!-- Changed to simplified arrow + Home text -->
+                <span class="text-xs mr-2">&lt;-</span>
+                HOME
+            </a>
+        </div>
+
+        <!-- Header -->
+        <header class="text-center mb-8 sm:mb-12">
             <h1 class="arcade-title flicker">LEARNING HUB</h1>
             <p class="text-lg text-gray-300 mt-4" style="font-family: 'Press Start 2P', cursive; font-size: 0.875rem;">Select Your Grade To Start</p>
         </header>
 
-        <!-- Main Content Area -->
-        <main class="content-container p-6 sm:p-10">
+        <!-- Main Content (Grade Selection) -->
+        <main class="content-container p-6 sm:p-10 flex-shrink-0">
             
-            <!-- Grade Selection Section -->
             <section id="grade-selection">
-                <h2 class="text-2xl font-semibold mb-6 text-center text-yellow-300" style="font-family: 'Press Start 2P', cursive; font-size: 1rem;">SELECT GRADE</h2>
-                <!-- Container for Grade Buttons -->
+                <h2 class="text-2xl font-semibold mb-8 text-center text-arcade-yellow" style="font-family: 'Press Start 2P', cursive; font-size: 1rem;">SELECT GRADE</h2>
                 <div id="grade-buttons" class="flex flex-wrap justify-center">
-                    <!-- Buttons will be dynamically added here -->
+                    <!-- Grade buttons generated by JavaScript -->
                 </div>
             </section>
 
         </main>
+
+        <!-- Mission Statement Block -->
+        <section class="mission-statement max-w-4xl mx-auto mt-24 mb-16 p-8 rounded-2xl shadow-2xl">
+            <div class="h-1 bg-arcade-yellow w-1/4 mx-auto mb-6 rounded-full"></div>
+            <h2 class="text-2xl font-bold text-gray-100 text-center mb-4" style="font-family: 'Press Start 2P', cursive;">
+                WELCOME, FUTURE MASTER!
+            </h2>
+            <p class="text-text-medium text-center max-w-2xl mx-auto font-sans">
+                The Brain Boost Arcade connects challenging games with core learning. Every activity is designed to sharpen reflexes, expand knowledge, and build powerful skills. Select your grade level and power up your brain!
+            </p>
+            <div class="h-1 bg-arcade-yellow w-1/4 mx-auto mt-6 rounded-full"></div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center py-6 text-sm border-t border-border-light w-full max-w-6xl mx-auto mt-12">
+            <p class="text-text-medium" style="font-family: 'Press Start 2P', cursive; font-size: 0.75rem;">
+                &copy; 2025 THE BRAIN BOOST ARCADE. <span class="text-arcade-yellow">SYSTEMS ONLINE.</span>
+            </p>
+            <div class="mt-4 space-x-4">
+                <!-- Subtle Parent Hub Link -->
+                <a href="teacher_parent_hub.html" class="footer-link text-text-medium hover:text-arcade-yellow transition-colors text-sm font-semibold">
+                    Teacher & Parent Hub
+                </a>
+                <span class="text-text-medium text-xs">|</span>
+                <a href="#" class="footer-link text-text-medium hover:text-arcade-yellow transition-colors text-xs">Privacy Protocol</a>
+                <a href="#" class="footer-link text-text-medium hover:text-arcade-yellow transition-colors text-xs">Contact Support</a>
+            </div>
+        </footer>
+
     </div>
 
-        <script>
+    <script>
+        // --- Tone.js Setup ---
+        let initialized = false;
+        // Synth for movement sound
+        const moveSynth = new Tone.Synth({
+            oscillator: { type: 'sawtooth' }, // Buzzy, arcade sound
+            envelope: { attack: 0.001, decay: 0.05, sustain: 0.01, release: 0.1 }
+        }).toDestination();
+        // Synth for selection sound
+        const selectSynth = new Tone.Synth({
+            oscillator: { type: 'square' }, // Squarer, punchy sound
+            envelope: { attack: 0.005, decay: 0.1, sustain: 0.01, release: 0.2 }
+        }).toDestination();
+
+        // --- Grade Data and State ---
         const gradeButtonsContainer = document.getElementById('grade-buttons');
         const grades = [
-            { text: "JK", icon: "👾" },
+            { text: "JK", icon: "🧸" },
             { text: "SK", icon: "🚀" },
             { text: "Grade 1", icon: "⭐" },
             { text: "Grade 2", icon: "🎮" },
@@ -164,50 +278,18 @@
             { text: "Grade 7", icon: "🧑‍🚀" },
             { text: "Grade 8", icon: "👑" }
         ];
-        let selectedGrade = "JK"; // Default to JK
-        
+        let selectedGrade = "JK"; 
         let currentIndex = 0;
         let buttons = [];
-        let audioInitialized = false; // Flag to track if audio context is started
 
-        // --- Sound Effects Setup ---
-        let moveSound, selectSound;
-
-        // Initialize sounds (called on first user interaction)
-        async function initializeAudio() {
-            await Tone.start();
-            console.log('Audio context started');
-
-            // Sound for moving selection
-            moveSound = new Tone.Synth({
-                oscillator: { type: 'sawtooth' }, // Buzzy arcade sound
-                envelope: { attack: 0.01, decay: 0.1, sustain: 0.1, release: 0.1 }
-            }).toDestination();
-            moveSound.volume.value = -15; // Quieter sound
-
-            // Sound for selecting an item
-            selectSound = new Tone.Synth({
-                oscillator: { type: 'square' }, // Another classic arcade sound
-                envelope: { attack: 0.01, decay: 0.2, sustain: 0.1, release: 0.2 }
-            }).toDestination();
-            selectSound.volume.value = -10; // Slightly louder
-
-            audioInitialized = true;
+        // Function to start Tone.js audio context on first user interaction
+        function initializeAudio() {
+            if (!initialized) {
+                // Tone.js requires a user interaction to start the audio context
+                Tone.start();
+                initialized = true;
+            }
         }
-
-        // Play move sound
-        function playMoveSound() {
-            if (!audioInitialized) return;
-            moveSound.triggerAttackRelease('C5', '16n'); // Higher pitch blip
-        }
-
-        // Play select sound
-        function playSelectSound() {
-            if (!audioInitialized) return;
-            selectSound.triggerAttackRelease('G4', '8n'); // Lower pitch confirm
-        }
-        
-        // --- Button Display and Selection Logic ---
 
         // Function to create and display grade buttons
         function displayGradeButtons() {
@@ -215,14 +297,13 @@
             grades.forEach((gradeData, index) => {
                 const button = document.createElement('button');
                 button.className = 'grade-button';
+                button.setAttribute('tabindex', index + 1); // Make buttons focusable via Tab/Arrow Keys
                 
-                // Create icon element
                 const icon = document.createElement('span');
                 icon.className = 'grade-icon';
                 icon.textContent = gradeData.icon;
                 button.appendChild(icon);
 
-                // Create text element
                 const text = document.createElement('span');
                 text.textContent = gradeData.text;
                 button.appendChild(text);
@@ -230,173 +311,148 @@
                 if (gradeData.text === selectedGrade) {
                     button.classList.add('active');
                 }
+
+                // Click handler (also triggered by Enter/Space)
                 button.onclick = () => {
-                     // Initialize audio on first click if not already done
-                    if (!audioInitialized) {
-                        initializeAudio().then(() => {
-                            selectGrade(gradeData.text); // Select after audio is ready
-                            playSelectSound();
-                        });
-                    } else {
-                        selectGrade(gradeData.text);
-                        playSelectSound();
-                    }
+                    initializeAudio();
+                    selectSynth.triggerAttackRelease('C4', '8n'); 
+                    selectGrade(gradeData.text);
                 };
+
+                // Focus handler for visual feedback on keyboard navigation
+                button.onfocus = () => {
+                    // Remove 'focused' from previous button if it exists
+                    buttons.forEach(btn => btn.classList.remove('focused')); 
+                    
+                    currentIndex = index;
+                    button.classList.add('focused');
+                    initializeAudio();
+                    moveSynth.triggerAttackRelease('G5', '32n'); // High blip on move
+                };
+
                 gradeButtonsContainer.appendChild(button);
             });
-             buttons = gradeButtonsContainer.getElementsByClassName('grade-button'); // Update buttons array
-             updateFocusStyleOnly(); // Ensure the currently focused button has the style
+            // Update the live NodeList/Array
+            buttons = Array.from(gradeButtonsContainer.getElementsByClassName('grade-button'));
         }
 
-        // Function to handle grade selection (via click or Enter)
+        // Function to handle grade selection (update UI)
         function selectGrade(gradeText) {
             selectedGrade = gradeText;
-            displayGradeButtons(); // Re-render buttons to update active state
+            
+            // 1. Update the active style
+            buttons.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.querySelector('span:last-child').textContent === gradeText) {
+                    btn.classList.add('active');
+                }
+            });
 
-            // Update currentIndex based on the newly selected grade
-             let newFocusIndex = grades.findIndex(grade => grade.text === gradeText);
-             if (newFocusIndex !== -1) {
+            // 2. Find the index of the newly selected grade and ensure it stays focused
+            let newFocusIndex = grades.findIndex(grade => grade.text === gradeText);
+            if (newFocusIndex >= 0) {
                 currentIndex = newFocusIndex;
-             }
-             updateFocusStyleOnly(); // Apply focus style immediately
-        }
-
-        // --- Keyboard Navigation ---
-
-        // Function to update visual focus style without playing sound or changing selection
-        function updateFocusStyleOnly() {
-             if (buttons.length === 0) return;
-             // Remove focus from all buttons first
-             for (let i = 0; i < buttons.length; i++) {
-                 buttons[i].classList.remove('focused');
-             }
-             // Add focus to the current button
-             if (currentIndex >= 0 && currentIndex < buttons.length) {
+            }
+            
+            // Re-apply focus styles and focus element explicitly
+            buttons.forEach(btn => btn.classList.remove('focused'));
+            if (buttons[currentIndex]) {
                 buttons[currentIndex].classList.add('focused');
-                buttons[currentIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                buttons[currentIndex].focus(); 
             }
         }
 
-
-        // Function to update keyboard focus index and style
+        // Function to update keyboard focus
         function updateFocus(newIndex) {
             if (buttons.length === 0) return;
 
-            // Calculate number of columns dynamically for Up/Down navigation
-            let numColumns = 1;
-            if (buttons.length > 0) {
-                const firstButton = buttons[0];
-                const buttonRect = firstButton.getBoundingClientRect();
-                const containerWidth = gradeButtonsContainer.clientWidth;
-                const buttonOuterWidth = buttonRect.width + (15 * 2); // Button width + margins (15px * 2)
-                if (buttonOuterWidth > 0) {
-                    numColumns = Math.max(1, Math.floor(containerWidth / buttonOuterWidth));
-                }
+            // Handle wrap-around
+            if (newIndex < 0) {
+                newIndex = buttons.length - 1;
+            } else if (newIndex >= buttons.length) {
+                newIndex = 0;
             }
-
-
-            // Handle wrapping
-             let proposedIndex = newIndex;
-             if (proposedIndex < 0) {
-                // If moving up/left from the first row/column
-                 if (currentIndex < numColumns && newIndex === currentIndex - numColumns) { // Trying to move up from top row
-                     proposedIndex = buttons.length - (buttons.length % numColumns) + (currentIndex % numColumns); // Go to last row, same column
-                     if (proposedIndex >= buttons.length) proposedIndex -= numColumns; // Adjust if last row isn't full
-                 } else if (currentIndex % numColumns === 0 && newIndex === currentIndex - 1) { // Trying to move left from first column
-                     proposedIndex = currentIndex + numColumns - 1; // Go to end of same row
-                     if (proposedIndex >= buttons.length) proposedIndex = buttons.length - 1; // Adjust if at the very end
-                 } else {
-                     proposedIndex = buttons.length -1; // Default wrap to end
-                 }
-
-             } else if (proposedIndex >= buttons.length) {
-                 // If moving down/right from the last row/column
-                 if (currentIndex >= buttons.length - numColumns && newIndex === currentIndex + numColumns) { // Trying to move down from last row
-                      proposedIndex = currentIndex % numColumns; // Go to first row, same column
-                 } else if ((currentIndex + 1) % numColumns === 0 && newIndex === currentIndex + 1) { // Trying to move right from last column
-                      proposedIndex = currentIndex - (numColumns - 1); // Go to start of same row
-                 } else {
-                      proposedIndex = 0; // Default wrap to start
-                 }
-             }
-
-             // Ensure index stays within bounds after complex wrapping calculation
-             if (proposedIndex < 0) proposedIndex = buttons.length - 1;
-             if (proposedIndex >= buttons.length) proposedIndex = 0;
-
-
-            if (proposedIndex !== currentIndex) {
-                 currentIndex = proposedIndex;
-                 updateFocusStyleOnly();
-                 playMoveSound(); // Play sound only when index actually changes
-             }
+            
+            // Apply new focus (calls button.onfocus and plays sound)
+            currentIndex = newIndex;
+            buttons[currentIndex].focus();
         }
 
         // Keyboard navigation event listener
         window.addEventListener('keydown', (e) => {
-             // Initialize audio on first key press if not already done
-             if (!audioInitialized) {
-                 initializeAudio();
-             }
+            initializeAudio(); // Initialize audio on first keypress
 
+            // Determine if a button is currently focused to decide if we should handle navigation
+            const isButtonFocused = document.activeElement && document.activeElement.classList.contains('grade-button');
+            
             if (buttons.length === 0) return;
 
-            // Calculate number of columns for Up/Down navigation (re-calculated on keydown for responsiveness)
+            // If nothing is focused but a nav key is pressed, focus the last active element
+            if (!isButtonFocused && (e.key.startsWith('Arrow') || e.key === 'Enter' || e.key === ' ')) {
+                buttons[currentIndex]?.focus();
+                return;
+            }
+            
+            if (!isButtonFocused) return; // If something else is focused (like a link in the footer), let the browser handle it.
+
+
+            // Calculate number of columns dynamically for Up/Down navigation
             let numColumns = 1;
             if (buttons.length > 0) {
-                const firstButton = buttons[0];
-                const buttonRect = firstButton.getBoundingClientRect();
-                const containerWidth = gradeButtonsContainer.clientWidth;
-                const buttonOuterWidth = buttonRect.width + (15 * 2); 
-                if (buttonOuterWidth > 0) {
-                    numColumns = Math.max(1, Math.floor(containerWidth / buttonOuterWidth));
+                const rects = buttons.map(btn => btn.getBoundingClientRect());
+                if (rects.length > 1) {
+                    const tolerance = 5; 
+                    const firstTop = rects[0].top;
+                    numColumns = rects.filter(rect => Math.abs(rect.top - firstTop) < tolerance).length;
                 }
             }
+
+            let nextIndex = currentIndex;
 
             switch (e.key) {
                 case 'ArrowLeft':
                     e.preventDefault();
-                    updateFocus(currentIndex - 1);
+                    nextIndex = currentIndex - 1;
                     break;
                 case 'ArrowRight':
                     e.preventDefault();
-                    updateFocus(currentIndex + 1);
+                    nextIndex = currentIndex + 1;
                     break;
                 case 'ArrowUp':
                     e.preventDefault();
-                    updateFocus(currentIndex - numColumns);
+                    nextIndex = currentIndex - numColumns;
                     break;
                 case 'ArrowDown':
                     e.preventDefault();
-                    updateFocus(currentIndex + numColumns);
+                    nextIndex = currentIndex + numColumns;
                     break;
                 case 'Enter':
-                case ' ': // Spacebar
+                case ' ':
                     e.preventDefault();
-                    buttons[currentIndex].click(); // Trigger the click handler which includes sound
-                    break;
+                    buttons[currentIndex].click(); 
+                    return; 
                 default:
-                    return; // Ignore other keys
+                    return;
             }
+            updateFocus(nextIndex);
         });
 
 
         // Initial setup
-        function init() {
-            displayGradeButtons(); // Display buttons first
+        window.onload = function init() {
+            displayGradeButtons();
             
-            // Set initial focus based on selectedGrade
+            // Set initial focus
             currentIndex = grades.findIndex(grade => grade.text === selectedGrade);
-            if (currentIndex < 0) { // Fallback if selectedGrade isn't found
+            if (currentIndex < 0) { 
                 currentIndex = 0;
             }
-            updateFocusStyleOnly(); // Apply initial focus style
+            // Ensure the element for the starting index is present and focused
+            if (buttons[currentIndex]) {
+                buttons[currentIndex].classList.add('focused', 'active');
+                buttons[currentIndex].focus(); 
+            }
         }
-
-        // Run the app on window load
-        window.onload = init;
-
     </script>
 </body>
 </html>
-
