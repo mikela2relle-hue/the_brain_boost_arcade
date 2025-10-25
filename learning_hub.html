@@ -281,17 +281,17 @@
         // --- Grade Data and State (All file paths are defined for readiness) ---
         const gradeButtonsContainer = document.getElementById('grade-buttons');
         const grades = [
-            // Added leading '/' to file paths for robust relative navigation
-            { text: "JK", icon: "🧸", file: "/jk/jk_hub.html", isLocked: true },
-            { text: "SK", icon: "🚀", file: "/sk/sk_hub.html", isLocked: true },
-            { text: "Grade 1", icon: "⭐", file: "/grade_1/grade_1_hub.html", isLocked: true },
-            { text: "Grade 2", icon: "🎮", file: "/grade_2/grade_2_hub.html", isLocked: true },
-            { text: "Grade 3", icon: "💎", file: "/grade_3/grade_3_hub.html", isLocked: false }, // UNLOCKED (ONLY SELECTABLE)
-            { text: "Grade 4", icon: "🕹️", file: "/grade_4/grade_4_hub.html", isLocked: true },
-            { text: "Grade 5", icon: "🤖", file: "/grade_5/grade_5_hub.html", isLocked: true },
-            { text: "Grade 6", icon: "👽", file: "/grade_6/grade_6_hub.html", isLocked: true },
-            { text: "Grade 7", icon: "🧑‍🚀", file: "/grade_7/grade_7_hub.html", isLocked: true },
-            { text: "Grade 8", icon: "👑", file: "/grade_8/grade_8_hub.html", isLocked: true }
+            // Corrected to use directory-relative paths (removing leading / for robust navigation)
+            { text: "JK", icon: "🧸", file: "jk/jk_hub.html", isLocked: true },
+            { text: "SK", icon: "🚀", file: "sk/sk_hub.html", isLocked: true },
+            { text: "Grade 1", icon: "⭐", file: "grade_1/grade_1_hub.html", isLocked: true },
+            { text: "Grade 2", icon: "🎮", file: "grade_2/grade_2_hub.html", isLocked: true },
+            { text: "Grade 3", icon: "💎", file: "the_brain_boost_arcade/learning_hub/grade_3/grade_3_hub.html", isLocked: false }, // UNLOCKED (ONLY SELECTABLE)
+            { text: "Grade 4", icon: "🕹️", file: "grade_4/grade_4_hub.html", isLocked: true },
+            { text: "Grade 5", icon: "🤖", file: "grade_5/grade_5_hub.html", isLocked: true },
+            { text: "Grade 6", icon: "👽", file: "grade_6/grade_6_hub.html", isLocked: true },
+            { text: "Grade 7", icon: "🧑‍🚀", file: "grade_7/grade_7_hub.html", isLocked: true },
+            { text: "Grade 8", icon: "👑", file: "grade_8/grade_8_hub.html", isLocked: true }
         ];
         // Set initial selected grade to the first unlocked one (Grade 3)
         let selectedGrade = grades.find(g => !g.isLocked)?.text || "JK"; 
