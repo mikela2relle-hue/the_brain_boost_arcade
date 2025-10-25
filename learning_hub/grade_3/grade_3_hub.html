@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arcade Learning Hub</title>
+    
+    <!-- Load Press Start 2P for the arcade theme and Inter for clean text -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Custom Tailwind Config for Brain Boost Arcade Theme colors
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'hub-bg': '#1A1A1A',
+                        /* Increased transparency for background elements (80% opacity) */
+                        'card-bg': 'rgba(45, 45, 45, 0.8)', 
+                        'card-bg-alt': 'rgba(55, 65, 81, 0.3)', /* Home Button: 30% opacity for subtle look */
+                        'arcade-red': '#FF4136',
+                        'arcade-blue': '#0074D9',
+                        'arcade-green': '#2ECC40',
+                        'arcade-yellow': '#FFDC00',
+                        'text-light': '#E5E7EB',
+                        'text-medium': '#9CA3AF',
+                        'border-light': '#4B5563',
+                    },
+                    fontFamily: {
+                        pixel: ['"Press Start 2P"', 'cursive'],
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom arcade theme styles */
+        body {
+            /* Pixel font for the student hub */
+            font-family: 'Press Start 2P', cursive;
+            background-color: #1a1a1a;
+            /* Restored dot-grid background */
+            background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 15px 15px;
+            color: #ffffff;
+            min-height: 100vh;
+            /* Flexbox for centering content vertically and horizontally */
+            display: flex; 
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+
+        /* Home Button Styling (Subtle Look) */
+        .home-button-subtle {
+            /* Updated to use pixel font and matching large radius */
+            background-color: rgba(55, 65, 81, 0.3); /* Base: 30% opacity */
+            color: #E5E7EB;
+            border: 2px solid transparent;
+            box-shadow: none;
+            transition: all 0.2s ease;
+            font-family: 'Press Start 2P', cursive; /* Retro font */
+            font-weight: 400;
+            letter-spacing: 0.05em;
+            outline: none;
+        }
+        .home-button-subtle:hover, .home-button-subtle:focus {
+            /* Subtle glow on hover/focus */
+            background-color: rgba(75, 85, 99, 0.3); /* Hover: Slightly darker transparent */
+            border-color: #FFDC00; /* Arcade Yellow border */
+            box-shadow: 0 0 5px rgba(255, 220, 0, 0.5);
+            transform: scale(1.02);
+            outline: none;
+        }
+
+        /* Flicker animation for title */
+        @keyframes flicker {
+            0%, 18%, 22%, 25%, 53%, 57%, 100% {
+                text-shadow: 0 0 4px #fff, 0 0 11px #fff, 0 0 19px #fff, 0 0 40px #0ff, 0 0 80px #0ff, 0 0 90px #0ff, 0 0 100px #0ff, 0 0 150px #0ff;
+                opacity: 1;
+            }
+            20%, 24%, 55% {
+                text-shadow: none;
+                opacity: 0.8;
+            }
+        }
+
+        /* Arcade title style */
+        .arcade-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 2.5rem; /* 40px */
+            color: #f0f0f0;
+            animation: flicker 1.5s infinite alternate;
+        }
+        
+        @media (min-width: 640px) {
+            .arcade-title {
+                font-size: 3.5rem; /* 56px */
+            }
+        }
+
+        /* Main content container style - 20% transparent */
+        .content-container {
+            border: 4px solid #00c6ff;
+            border-radius: 16px;
+            background-color: rgba(16, 16, 16, 0.8); /* 20% transparent */
+            box-shadow: 0 0 25px #00c6ff, 0 0 40px #007bff, inset 0 0 10px #00c6ff;
+            backdrop-filter: blur(2px);
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        /* Styling for the grade selection buttons (Large Tiles) */
+        .grade-button {
+            background-color: #007bff;
+            color: #ffffff;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.5rem; /* Increased text size */
+            padding: 3rem 1.5rem;
+            min-width: 240px; 
+            min-height: 180px; 
+            text-align: center;
+            border: 4px solid #00c6ff;
+            border-radius: 16px;
+            text-shadow: 0 0 3px #fff, 0 0 8px #fff, 0 0 12px #00c6ff;
+            box-shadow: 0 0 10px #00c6ff, 0 0 15px #00c6ff, 0 0 25px #007bff, inset 0 0 5px #00c6ff;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            margin: 15px;
+            /* Make button relative for lock overlay positioning */
+            position: relative; 
+            /* Ensure the button does not get a native focus ring */
+            outline: none; 
+        }
+
+        /* Apply lift and glow to ALL buttons on hover */
+        .grade-button:hover {
+            transform: scale(1.05) translateY(-3px);
+            box-shadow: 0 0 15px #00c6ff, 0 0 25px #00c6ff, 0 0 40px #007bff, inset 0 0 10px #00c6ff;
+            background-color: #008cff;
+        }
+        
+        /* Video Game Style "Active" button (Grade 3) */
+        .grade-button.active {
+            background-color: #008cff;
+            border-color: #F8D800;
+            color: #f0f0f0;
+            text-shadow: 0 0 3px #fff, 0 0 8px #F8D800, 0 0 12px #F8D800;
+            box-shadow: 0 0 10px #F8D800, 0 0 20px #F8D800, 0 0 35px #F8D800, inset 0 0 8px #F8D800;
+            transform: scale(1.03);
+            cursor: pointer;
+        }
+        .grade-button.active:hover {
+            /* Maintain hover effect but ensure it looks "active" */
+            transform: scale(1.07) translateY(-3px);
+            box-shadow: 0 0 15px #F8D800, 0 0 25px #F8D800, 0 0 45px #F8D800, inset 0 0 10px #F8D800;
+        }
+
+        /* Style for the icon inside the button */
+        .grade-icon {
+            font-size: 6rem; /* Increased icon size */
+            margin-bottom: 1rem; /* Increased spacing to separate from text */
+            line-height: 1; 
+        }
+
+        /* --- LOCK STATE STYLES --- */
+        .locked-button {
+            cursor: default;
+            /* Prevent any focus ring from ever appearing on locked buttons */
+            outline: none !important; 
+        }
+        
+        /* Apply dimming to the content (icon and text) */
+        .locked-content {
+            opacity: 0.4; /* Dimming effect */
+            transition: opacity 0.2s ease;
+        }
+
+        /* Lock Icon Overlay */
+        .locked-icon-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3rem; 
+            color: #FFDC00; /* Arcade Yellow for high visibility */
+            text-shadow: 0 0 10px #FFDC00, 0 0 20px rgba(255, 220, 0, 0.7);
+            z-index: 10;
+            pointer-events: none; 
+            transition: transform 0.2s ease; 
+        }
+
+        /* Lock Icon Hover Effect: Scale the lock icon itself */
+        .grade-button.locked-button:hover .locked-icon-overlay {
+            transform: scale(1.5); /* Scales up by 50% */
+        }
+
+        /* Footer and Mission Statement Styling */
+        .mission-statement {
+            background-color: rgba(45, 45, 45, 0.8); /* 20% transparent */
+            border: 1px solid #4B5563;
+        }
+
+        .footer-link {
+            font-family: 'Inter', sans-serif; /* Use Inter for clean readability */
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 sm:p-8">
+
+    <!-- Main Container centered in viewport -->
+    <div class="container mx-auto flex flex-col items-center min-h-screen justify-center">
+        
+        <!-- Return Home Button -->
+        <div class="w-full max-w-6xl mx-auto flex justify-start mb-8 sm:mb-12">
+            <a href="index.html" class="home-button-subtle px-6 py-3 rounded-2xl uppercase tracking-wider text-sm"> 
+                <!-- Changed to simplified arrow + Home text -->
+                <span class="text-xs mr-2">&lt;-</span>
+                HOME
+            </a>
+        </div>
+
+        <!-- Header -->
+        <header class="text-center mb-8 sm:mb-12">
+            <h1 class="arcade-title flicker">LEARNING HUB</h1>
+            <p class="text-lg text-gray-300 mt-4" style="font-family: 'Press Start 2P', cursive; font-size: 0.875rem;">Select Your Grade To Start</p>
+        </header>
+
+        <!-- Main Content (Grade Selection) -->
+        <main class="content-container p-6 sm:p-10 flex-shrink-0">
+            
+            <section id="grade-selection">
+                <h2 class="text-2xl font-semibold mb-8 text-center text-arcade-yellow" style="font-family: 'Press Start 2P', cursive; font-size: 1rem;">SELECT GRADE</h2>
+                <div id="grade-buttons" class="flex flex-wrap justify-center">
+                    <!-- Grade buttons generated by JavaScript -->
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Mission Statement Block -->
+        <section class="mission-statement max-w-4xl mx-auto mt-24 mb-16 p-8 rounded-2xl shadow-2xl">
+            <div class="h-1 bg-arcade-yellow w-1/4 mx-auto mb-6 rounded-full"></div>
+            <h2 class="text-2xl font-bold text-gray-100 text-center mb-4" style="font-family: 'Press Start 2P', cursive;">
+                WELCOME, FUTURE MASTER!
+            </h2>
+            <p class="text-text-medium text-center max-w-2xl mx-auto font-sans">
+                The Brain Boost Arcade connects challenging games with core learning. Every activity is designed to sharpen reflexes, expand knowledge, and build powerful skills. Select your grade level and power up your brain!
+            </p>
+            <div class="h-1 bg-arcade-yellow w-1/4 mx-auto mt-6 rounded-full"></div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center py-6 text-sm border-t border-border-light w-full max-w-6xl mx-auto mt-12">
+            <p class="text-text-medium" style="font-family: 'Press Start 2P', cursive; font-size: 0.75rem;">
+                &copy; 2025 THE BRAIN BOOST ARCADE. <span class="text-arcade-yellow">SYSTEMS ONLINE.</span>
+            </p>
+            <div class="mt-4 space-x-4">
+                <!-- Subtle Parent Hub Link -->
+                <a href="teacher_parent_hub.html" class="footer-link text-text-medium hover:text-arcade-yellow transition-colors text-sm font-semibold">
+                    Teacher & Parent Hub
+                </a>
+                <span class="text-text-medium text-xs">|</span>
+                <a href="#" class="footer-link text-text-medium hover:text-arcade-yellow transition-colors text-xs">Privacy Protocol</a>
+                <a href="#" class="footer-link text-text-medium hover:text-arcade-yellow transition-colors text-xs">Contact Support</a>
+            </div>
+        </footer>
+
+    </div>
+
+    <script>
+        // --- Grade Data and State (All file paths are defined for readiness) ---
+        const gradeButtonsContainer = document.getElementById('grade-buttons');
+        const grades = [
+            // Added leading '/' to file paths for robust relative navigation
+            { text: "JK", icon: "🧸", file: "/jk/jk_hub.html", isLocked: true },
+            { text: "SK", icon: "🚀", file: "/sk/sk_hub.html", isLocked: true },
+            { text: "Grade 1", icon: "⭐", file: "/grade_1/grade_1_hub.html", isLocked: true },
+            { text: "Grade 2", icon: "🎮", file: "/grade_2/grade_2_hub.html", isLocked: true },
+            { text: "Grade 3", icon: "💎", file: "/grade_3/grade_3_hub.html", isLocked: false }, // UNLOCKED (ONLY SELECTABLE)
+            { text: "Grade 4", icon: "🕹️", file: "/grade_4/grade_4_hub.html", isLocked: true },
+            { text: "Grade 5", icon: "🤖", file: "/grade_5/grade_5_hub.html", isLocked: true },
+            { text: "Grade 6", icon: "👽", file: "/grade_6/grade_6_hub.html", isLocked: true },
+            { text: "Grade 7", icon: "🧑‍🚀", file: "/grade_7/grade_7_hub.html", isLocked: true },
+            { text: "Grade 8", icon: "👑", file: "/grade_8/grade_8_hub.html", isLocked: true }
+        ];
+        // Set initial selected grade to the first unlocked one (Grade 3)
+        let selectedGrade = grades.find(g => !g.isLocked)?.text || "JK"; 
+        let buttons = [];
+
+        // Function to create and display grade buttons
+        function displayGradeButtons() {
+            gradeButtonsContainer.innerHTML = ''; // Clear existing buttons
+            grades.forEach((gradeData, index) => {
+                const isLocked = gradeData.isLocked; // Get lock status
+                
+                const button = document.createElement('button');
+                // Apply 'locked-button' class to disabled grades
+                button.className = 'grade-button' + (isLocked ? ' locked-button' : ''); 
+                
+                // Remove tabindex to prevent keyboard focus
+                button.setAttribute('tabindex', '-1'); 
+
+                // Create a content wrapper for dimming
+                const contentWrapper = document.createElement('div');
+                contentWrapper.className = isLocked ? 'locked-content flex flex-col items-center justify-center' : 'flex flex-col items-center justify-center';
+                
+                const icon = document.createElement('span');
+                icon.className = 'grade-icon';
+                icon.textContent = gradeData.icon;
+                contentWrapper.appendChild(icon);
+
+                const text = document.createElement('span');
+                text.textContent = gradeData.text;
+                contentWrapper.appendChild(text);
+                
+                button.appendChild(contentWrapper); // Append content wrapper to button
+
+                // Add lock icon overlay if locked
+                if (isLocked) {
+                    const lockOverlay = document.createElement('div');
+                    lockOverlay.className = 'locked-icon-overlay';
+                    lockOverlay.textContent = '🔒';
+                    button.appendChild(lockOverlay);
+                }
+
+                if (gradeData.text === selectedGrade) {
+                    button.classList.add('active');
+                }
+
+                // Click handler (Only unlocked buttons should be clickable)
+                button.onclick = () => {
+                    // Block selection/activation of locked buttons
+                    if (gradeData.isLocked) {
+                        return;
+                    }
+                    
+                    // Navigate if unlocked (Grade 3)
+                    window.location.href = gradeData.file;
+                };
+
+                gradeButtonsContainer.appendChild(button);
+            });
+            // Update the live NodeList/Array
+            buttons = Array.from(gradeButtonsContainer.getElementsByClassName('grade-button'));
+        }
+
+        // Initial setup
+        window.onload = function init() {
+            displayGradeButtons();
+            
+            // Find the active button (Grade 3) and apply the active styling
+            const activeGrade = grades.find(g => !g.isLocked);
+            if (activeGrade) {
+                const activeIndex = grades.indexOf(activeGrade);
+                if (buttons[activeIndex]) {
+                    buttons[activeIndex].classList.add('active');
+                }
+            }
+        }
+    </script>
+</body>
+</html>
