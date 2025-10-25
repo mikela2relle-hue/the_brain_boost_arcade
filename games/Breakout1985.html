@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brick Breaker - Retro Edition</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- We'll use Inter as a base, but apply font-mono (Monospace) extensively for retro look -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind Configuration and Custom Styles -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'black-bg': '#000000',
+                        'light-gray': '#E0E0E0',
+                        'medium-gray': '#AAAAAA',
+                        'paddle-color': '#FFFFFF',
+                        'ball-color': '#FFFFFF',
+                        'brick-color': '#AAAAAA',
+                        'status-ok': '#E0E0E0',
+                        'status-alert': '#FF4444', /* Keeping a subtle red for alerts/game over */
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    },
+                },
+            },
+        }
+    </script>
+
+    <style>
+        /*
+         * MONOCHROME RETRO STYLING 
+         * Replaced the neon glow with a sharp, high-contrast border and subtle inner shadow.
+         */
+        .mono-panel {
+            box-shadow: 0 0 0 2px #E0E0E0, inset 0 0 15px rgba(255, 255, 255, 0.05);
+            border-radius: 0; /* Sharp corners for retro feel */
+        }
+
+        /* Retro Button Styling */
+        .mono-button {
+            transition: all 0.1s ease-in-out;
+            /* Initial state */
+            border: 2px solid #E0E0E0;
+            color: #E0E0E0;
+            background-color: transparent;
+            text-shadow: none;
+        }
+
+        .mono-button:hover {
+            /* Hover/Selected State: Inverted colors */
+            background-color: #E0E0E0;
+            border-color: #000000;
+            color: #000000; /* Dark text on light background */
+            box-shadow: inset 0 0 5px #AAAAAA;
+            transform: scale(1.01);
+        }
+
+        /* Typography for Data - using light gray and mono font */
+        .stat-label {
+            color: var(--tw-colors-medium-gray);
+            font-weight: 400;
+        }
+
+        .stat-value {
+            color: var(--tw-colors-light-gray);
+            font-weight: 700;
+            text-shadow: none;
+        }
+
+        /* Ensure the body takes up the full viewport */
+        body {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--tw-colors-black-bg);
+            font-family: 'Roboto Mono', monospace; /* Set global retro font */
+        }
+
+        /* Canvas container styles */
+        #simulation-viewport {
+            position: relative;
+            background-color: #000000;
+            border-radius: 0;
+            flex-grow: 1;
+        }
+        
+        #gameCanvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Menu overlay styling */
+        .menu-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 10;
+        }
+
+    </style>
+</head>
+<body class="bg-black-bg font-mono p-4 sm:p-8">
+
+    <!-- Main Wrapper: Handles the two-column structure and global padding -->
+    <div id="main-wrapper" class="flex flex-col lg:flex-row gap-6 max-w-7xl mx-auto w-full h-full lg:h-[800px]">
+
+        <!-- UI/HUD Panel (Left Column) -->
+        <div id="ui-panel" class="mono-panel bg-black-bg p-6 lg:w-1/3 flex flex-col space-y-8 min-h-[300px] lg:min-h-full">
+            
+            <h1 class="text-xl font-bold text-light-gray tracking-wider uppercase text-center border-b pb-3 border-medium-gray">
+                // SYSTEM STATUS: LOG
+            </h1>
+
+            <!-- Dynamic Status Display (Connected to Game) -->
+            <div class="space-y-4">
+                <div class="flex justify-between items-center text-lg">
+                    <span class="stat-label">SCORE:</span>
+                    <span id="score-value" class="stat-value text-3xl">0</span>
+                </div>
+                <div class="flex justify-between items-center text-lg">
+                    <span class="stat-label">LEVEL:</span>
+                    <span id="level-value" class="stat-value text-3xl text-light-gray">1</span>
+                </div>
+                <div class="flex justify-between items-center text-lg">
+                    <span class="stat-label">BALL SPEED (X/Y):</span>
+                    <span id="speed-value" class="stat-value">3/3</span>
+                </div>
+                <div class="flex justify-between items-center text-lg">
+                    <span class="stat-label">STATUS:</span>
+                    <span id="game-status" class="stat-value text-light-gray">READY</span>
+                </div>
+            </div>
+
+            <!-- Controls/Menu -->
+            <div class="flex-grow space-y-4 pt-6 border-t border-medium-gray">
+                <button id="start-button" class="mono-button w-full px-4 py-3 text-lg font-semibold tracking-widest">
+                    RESTART GAME
+                </button>
+                <button id="controls-button" class="mono-button w-full px-4 py-3 text-lg font-semibold tracking-widest">
+                    CONTROLS (A/D or Arrows)
+                </button>
+                <button id="pause-button" class="mono-button w-full px-4 py-3 text-lg font-semibold tracking-widest">
+                    PAUSE
+                </button>
+            </div>
+
+            <!-- Footer/Controls Explanation -->
+            <div class="text-xs text-medium-gray text-center pt-4">
+                <p>COMMAND: SPACEBAR [LAUNCH/RESTART]</p>
+                <p>COMMAND: P [PAUSE/RESUME]</p>
+            </div>
+
+        </div>
+
+        <!-- Game Area (Right Column - Brick Breaker Game) -->
+        <div id="game-wrapper" class="mono-panel bg-black-bg p-6 lg:w-2/3 flex flex-col overflow-hidden min-h-[500px] lg:min-h-full">
+            <h2 class="text-2xl font-extrabold text-light-gray tracking-widest uppercase border-b pb-4 border-medium-gray mb-6">
+                >> EXECUTE: BREAKOUT.EXE
+            </h2>
+
+            <!-- Main Game Area -->
+            <div id="simulation-viewport" class="p-1 flex-grow">
+                <canvas id="gameCanvas" width="600" height="600"></canvas>
+
+                <!-- Game Menu Overlay -->
+                <div id="menu-overlay" class="menu-overlay flex flex-col justify-center items-center text-center text-light-gray">
+                    <h3 id="menu-title" class="text-5xl font-extrabold mb-4">
+                        BREAKOUT V1985.01
+                    </h3>
+                    <p id="menu-message" class="text-xl mb-8">
+                        PRESS SPACEBAR TO LAUNCH BALL.
+                    </p>
+                    <p class="text-medium-gray">
+                        USE LEFT/RIGHT ARROWS (OR A/D) TO CONTROL PADDLE.
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Command Input Simulation (Kept for Aesthetic) -->
+            <div class="mt-6 flex items-center border-t pt-4 border-medium-gray">
+                <span class="text-medium-gray text-lg mr-2">></span>
+                <input type="text" value="AWAITING COMMAND..." disabled class="flex-grow bg-transparent text-light-gray text-lg focus:outline-none placeholder-medium-gray" />
+                <button class="mono-button text-sm px-4 py-2 opacity-50 cursor-not-allowed">EXEC</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Game Logic and Interaction -->
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const overlay = document.getElementById('menu-overlay');
+        const menuTitle = document.getElementById('menu-title');
+        const menuMessage = document.getElementById('menu-message');
+
+        // HUD Elements
+        const scoreValue = document.getElementById('score-value');
+        const levelValue = document.getElementById('level-value');
+        const speedValue = document.getElementById('speed-value');
+        const gameStatus = document.getElementById('game-status');
+        const startButton = document.getElementById('start-button');
+        const pauseButton = document.getElementById('pause-button');
+        
+        // --- GAME CONSTANTS & STATE ---
+        const PADDLE_WIDTH = 80;
+        const PADDLE_HEIGHT = 10;
+        const BALL_RADIUS = 5;
+        const BRICK_ROWS = 5;
+        const BRICK_COLS = 8;
+        const BRICK_HEIGHT = 15;
+        const BRICK_GAP = 4;
+        const BASE_BALL_VELOCITY = 3;
+
+        let paddle = {};
+        let ball = {};
+        let bricks = [];
+        let score = 0;
+        let level = 1;
+        let lives = 3; 
+        let gameLoopInterval;
+        let isPaused = false;
+        let isGameOver = true;
+        let ballLaunched = false;
+        let rightPressed = false;
+        let leftPressed = false;
+        let canvasWidth = 600;
+        let canvasHeight = 600;
+
+        // --- INITIALIZATION ---
+
+        function setCanvasSize() {
+            const viewport = document.getElementById('simulation-viewport');
+            // Calculate size based on container, ensuring it's a multiple of TILE_SIZE for visual consistency
+            canvasWidth = Math.floor(viewport.clientWidth / 2) * 2;
+            canvasHeight = Math.floor(viewport.clientHeight / 2) * 2;
+            
+            // Adjust to ensure a minimum size on small screens
+            if (canvasWidth < 400 || canvasHeight < 400) {
+                 canvasWidth = Math.min(600, Math.floor(viewport.clientWidth / 2) * 2);
+                 canvasHeight = Math.min(400, Math.floor(viewport.clientHeight / 2) * 2);
+            }
+
+            canvas.width = canvasWidth;
+            canvas.height = canvasHeight;
+            resetGameObjects();
+        }
+
+        window.addEventListener('resize', setCanvasSize);
+        window.onload = function() {
+            setCanvasSize(); // Initial call
+            drawMenu('BREAKOUT V1985.01', 'PRESS SPACEBAR TO LAUNCH BALL.');
+            updateHUD();
+        };
+
+        function resetGameObjects() {
+            paddle = { 
+                width: PADDLE_WIDTH,
+                height: PADDLE_HEIGHT,
+                x: (canvas.width - PADDLE_WIDTH) / 2,
+                y: canvas.height - PADDLE_HEIGHT - 10,
+                dx: 7 // paddle movement speed
+            };
+
+            ball = {
+                radius: BALL_RADIUS,
+                x: paddle.x + paddle.width / 2,
+                y: paddle.y - BALL_RADIUS,
+                vx: 0, // velocity x
+                vy: 0  // velocity y
+            };
+        }
+
+        function buildBricks() {
+            bricks = [];
+            const brickWidth = (canvas.width - (BRICK_COLS + 1) * BRICK_GAP) / BRICK_COLS;
+            
+            for (let r = 0; r < BRICK_ROWS; r++) {
+                bricks[r] = [];
+                for (let c = 0; c < BRICK_COLS; c++) {
+                    const x = c * (brickWidth + BRICK_GAP) + BRICK_GAP;
+                    const y = r * (BRICK_HEIGHT + BRICK_GAP) + BRICK_GAP * 5; // Offset from top
+                    
+                    bricks[r][c] = {
+                        x: x,
+                        y: y,
+                        width: brickWidth,
+                        height: BRICK_HEIGHT,
+                        status: 1 // 1 is intact, 0 is broken
+                    };
+                }
+            }
+        }
+
+        function initGame() {
+            isGameOver = false;
+            isPaused = false;
+            score = 0;
+            level = 1;
+            lives = 3;
+            ballLaunched = false;
+            
+            resetGameObjects();
+            buildBricks();
+
+            updateHUD();
+            overlay.classList.add('hidden');
+            
+            if (gameLoopInterval) clearInterval(gameLoopInterval);
+            gameLoopInterval = setInterval(main, 1000 / 60); // Run at 60 FPS
+        }
+
+        function nextLevel() {
+            level++;
+            // Increase ball speed
+            const currentSpeed = Math.abs(ball.vx) + Math.abs(ball.vy);
+            const newBase = Math.min(BASE_BALL_VELOCITY + (level * 0.5), 8); // Cap max speed
+            
+            resetGameObjects();
+            ball.vx = 0; ball.vy = 0;
+            ballLaunched = false;
+
+            buildBricks();
+            updateHUD();
+            drawMenu(`LEVEL ${level} INITIATED`, 'PRESS SPACEBAR TO LAUNCH BALL.');
+        }
+
+        // --- GAME LOOP & DRAWING ---
+
+        function main() {
+            if (isGameOver || isPaused) return;
+
+            clearCanvas();
+            drawBricks();
+            drawPaddle();
+            drawBall();
+            
+            handlePaddleMovement();
+            
+            if (ballLaunched) {
+                moveBall();
+                checkWallCollision();
+                checkPaddleCollision();
+                checkBrickCollision();
+                checkLossCondition();
+                
+                if (checkLevelComplete()) {
+                    nextLevel();
+                    return;
+                }
+            } else {
+                // Ball tracks paddle before launch
+                ball.x = paddle.x + paddle.width / 2;
+            }
+        }
+
+        function clearCanvas() {
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function drawPaddle() {
+            const color = tailwind.config.theme.extend.colors['paddle-color'];
+            ctx.fillStyle = color;
+            ctx.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
+            
+            // Retro border
+            ctx.strokeStyle = '#FFFFFF'; 
+            ctx.lineWidth = 1;
+            ctx.strokeRect(paddle.x, paddle.y, paddle.width, paddle.height);
+        }
+
+        function drawBall() {
+            const color = tailwind.config.theme.extend.colors['ball-color'];
+            ctx.fillStyle = color;
+            
+            // Draw a square for the ball to maintain retro pixel look
+            ctx.fillRect(ball.x - ball.radius, ball.y - ball.radius, ball.radius * 2, ball.radius * 2);
+        }
+
+        function drawBricks() {
+            const color = tailwind.config.theme.extend.colors['brick-color'];
+            bricks.forEach(row => {
+                row.forEach(brick => {
+                    if (brick.status === 1) {
+                        ctx.fillStyle = color;
+                        ctx.fillRect(brick.x, brick.y, brick.width, brick.height);
+                        
+                        // Retro border
+                        ctx.strokeStyle = '#000000';
+                        ctx.lineWidth = 1;
+                        ctx.strokeRect(brick.x, brick.y, brick.width, brick.height);
+                    }
+                });
+            });
+        }
+
+        // --- MOVEMENT & COLLISION ---
+
+        function handlePaddleMovement() {
+            if (rightPressed && paddle.x < canvas.width - paddle.width) {
+                paddle.x += paddle.dx;
+            } else if (leftPressed && paddle.x > 0) {
+                paddle.x -= paddle.dx;
+            }
+        }
+
+        function moveBall() {
+            ball.x += ball.vx;
+            ball.y += ball.vy;
+        }
+
+        function checkWallCollision() {
+            // Right and Left walls
+            if (ball.x + ball.radius > canvas.width || ball.x - ball.radius < 0) {
+                ball.vx = -ball.vx;
+            }
+            // Top wall
+            if (ball.y - ball.radius < 0) {
+                ball.vy = -ball.vy;
+            }
+        }
+
+        function checkPaddleCollision() {
+            if (
+                ball.y + ball.radius > paddle.y && 
+                ball.y + ball.radius < paddle.y + paddle.height && // Avoid double counting after bounce
+                ball.x + ball.radius > paddle.x && 
+                ball.x - ball.radius < paddle.x + paddle.width && 
+                ball.vy > 0 // Only check if ball is moving down
+            ) {
+                ball.vy = -ball.vy;
+
+                // Angle adjustment based on hit position
+                const hitPoint = ball.x - (paddle.x + paddle.width / 2);
+                ball.vx = hitPoint * 0.1; // Max angle adjustment based on speed
+
+                updateHUD();
+            }
+        }
+
+        function checkBrickCollision() {
+            bricks.forEach(row => {
+                row.forEach(brick => {
+                    if (brick.status === 1) {
+                        if (
+                            ball.x > brick.x && 
+                            ball.x < brick.x + brick.width && 
+                            ball.y > brick.y && 
+                            ball.y < brick.y + brick.height
+                        ) {
+                            ball.vy = -ball.vy; // Reverse Y velocity
+                            brick.status = 0;   // Destroy brick
+                            score += 10;
+                            updateHUD();
+                        }
+                    }
+                });
+            });
+        }
+
+        function checkLossCondition() {
+            // Ball falls below paddle
+            if (ball.y + ball.radius > canvas.height) {
+                lives--;
+                updateHUD();
+                
+                if (lives <= 0) {
+                    gameOver();
+                } else {
+                    // Reset ball and paddle, waiting for new launch
+                    resetGameObjects();
+                    ballLaunched = false;
+                    drawMenu(`LIFE LOST. LIVES REMAINING: ${lives}`, 'PRESS SPACEBAR TO LAUNCH BALL.');
+                }
+            }
+        }
+
+        function checkLevelComplete() {
+            let intactBricks = 0;
+            bricks.forEach(row => {
+                row.forEach(brick => {
+                    if (brick.status === 1) {
+                        intactBricks++;
+                    }
+                });
+            });
+            return intactBricks === 0;
+        }
+
+        function gameOver() {
+            isGameOver = true;
+            clearInterval(gameLoopInterval);
+            updateHUD();
+            drawMenu('SYSTEM FAILURE: CRASH', `FINAL SCORE: ${score}. PRESS SPACEBAR TO RESTART.`);
+        }
+
+        // --- HUD & MENU LOGIC ---
+
+        function updateHUD() {
+            scoreValue.textContent = score.toLocaleString();
+            levelValue.textContent = `${level} | LIVES: ${lives}`;
+            
+            const vx = Math.round(Math.abs(ball.vx * 10)); // Scale up for display visibility
+            const vy = Math.round(Math.abs(ball.vy * 10));
+            speedValue.textContent = `${vx}/${vy}`;
+            
+            if (isGameOver) {
+                gameStatus.textContent = 'TERMINATED';
+                gameStatus.className = 'stat-value text-status-alert';
+            } else if (isPaused) {
+                 gameStatus.textContent = 'PAUSED';
+                 gameStatus.className = 'stat-value text-medium-gray';
+            } else if (!ballLaunched) {
+                gameStatus.textContent = 'IDLE';
+                gameStatus.className = 'stat-value text-light-gray';
+            }
+            else {
+                gameStatus.textContent = 'ONLINE';
+                gameStatus.className = 'stat-value text-light-gray';
+            }
+            pauseButton.textContent = isPaused ? 'RESUME' : 'PAUSE';
+        }
+
+        function drawMenu(title, message) {
+            menuTitle.textContent = title;
+            menuMessage.textContent = message;
+            overlay.classList.remove('hidden');
+        }
+
+        function togglePause() {
+            if (isGameOver) return;
+
+            isPaused = !isPaused;
+            if (isPaused) {
+                clearInterval(gameLoopInterval);
+                drawMenu('SYSTEM PAUSED', 'PRESS P OR RESUME TO CONTINUE.');
+            } else {
+                gameLoopInterval = setInterval(main, 1000 / 60);
+                overlay.classList.add('hidden');
+            }
+            updateHUD();
+        }
+
+        function launchBall() {
+             if (isGameOver) {
+                initGame();
+                return;
+            }
+            if (!ballLaunched) {
+                // Initial launch velocity
+                const baseSpeed = BASE_BALL_VELOCITY + (level * 0.5);
+                ball.vx = baseSpeed;
+                ball.vy = -baseSpeed;
+                ballLaunched = true;
+                overlay.classList.add('hidden');
+                updateHUD();
+            }
+        }
+
+        // --- INPUT HANDLING ---
+
+        function keyDownHandler(e) {
+            if (e.keyCode === 39 || e.keyCode === 68) { // Right Arrow or D
+                rightPressed = true;
+            } else if (e.keyCode === 37 || e.keyCode === 65) { // Left Arrow or A
+                leftPressed = true;
+            } else if (e.keyCode === 32) { // Spacebar
+                e.preventDefault(); // Prevent scrolling
+                launchBall();
+            } else if (e.keyCode === 80) { // P Key
+                togglePause();
+            }
+        }
+
+        function keyUpHandler(e) {
+            if (e.keyCode === 39 || e.keyCode === 68) { // Right Arrow or D
+                rightPressed = false;
+            } else if (e.keyCode === 37 || e.keyCode === 65) { // Left Arrow or A
+                leftPressed = false;
+            }
+        }
+
+        document.addEventListener('keydown', keyDownHandler, false);
+        document.addEventListener('keyup', keyUpHandler, false);
+        
+        startButton.addEventListener('click', () => { 
+            if (isGameOver) { initGame(); } else { launchBall(); }
+        });
+        pauseButton.addEventListener('click', togglePause);
+        
+        // Ensure initial draw
+        setCanvasSize();
+        drawMenu('BREAKOUT V1985.01', 'PRESS SPACEBAR TO LAUNCH BALL.');
+    </script>
+
+</body>
+</html>

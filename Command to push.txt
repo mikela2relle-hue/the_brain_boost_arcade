@@ -1,0 +1,1 @@
+git add . && git commit -m "Final layout and data fix: single column cards, game path, and session storage update" && git push -u origin master

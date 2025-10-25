@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arcade Games List</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'hub-bg': '#1A1A1A',
+                        'card-bg': '#374151',
+                        'arcade-red': '#FF4136',    /* Theme Color */
+                        'arcade-blue': '#0074D9',
+                        'arcade-green': '#2ECC40',
+                        'arcade-yellow': '#FFDC00',
+                        'play-red': '#FF4136', 
+                        'play-blue': '#0074D9', 
+                        'play-green': '#2ECC40',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],  
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* --- RED THEME ANIMATION KEYFRAMES --- */
+        @keyframes neon-pulse-theme {
+            0%, 100% {
+                text-shadow: 0 0 20px rgba(255, 65, 54, 0.3), 0 0 35px rgba(255, 65, 54, 0.15); /* arcade-red */
+            }
+            50% {
+                text-shadow: 0 0 25px rgba(255, 65, 54, 0.5), 0 0 40px rgba(255, 65, 54, 0.3);
+            }
+        }
+        
+        /* --- SUBTLE STATIC BACKGROUND STYLES (Copied from secondary pages) --- */
+        @keyframes star-drift-left { from { background-position: 0 0; } to { background-position: -8% -100%; } }
+        @keyframes star-drift-right { from { background-position: 0 0; } to { background-position: 8% -100%; } }
+
+        body {
+            background-color: #1A1A1A; position: relative; overflow-x: hidden; min-height: 100vh; color: #ccc;
+        }
+
+        body::before, body::after { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 150%; z-index: -3; opacity: 0.1; }
+
+        /* Farthest layer - SLOWER drift, tight glow */
+        body::before { 
+            background: 
+                radial-gradient(circle at 10% 80%, rgba(46, 255, 64, 0.3) 0.5px, transparent 2px),
+                radial-gradient(circle at 70% 20%, rgba(180, 50, 255, 0.2) 0.5px, transparent 2px);
+            background-size: 150px 150px; z-index: -4;
+            animation: star-drift-left 120s linear infinite; 
+        }
+
+        /* Closest layer - FASTER drift, tight glow */
+        body::after { 
+            background: 
+                radial-gradient(circle at 5% 50%, rgba(255, 50, 50, 0.6) 1px, transparent 4px),
+                radial-gradient(circle at 60% 10%, rgba(255, 220, 0, 0.6) 1px, transparent 4px);
+            background-size: 260px 260px; z-index: -1;
+            animation: star-drift-right 60s linear infinite; 
+        }
+        
+        /* --- ARCADE PAGE SPECIFIC STYLES --- */
+        .header-title {
+            animation: neon-pulse-theme 2s ease-in-out infinite alternate; /* Applies Red Pulse */
+        }
+        .arcade-button {
+            display: inline-block; font-size: 1rem; padding: 0.5rem 1rem; border-radius: 0.5rem;
+            color: white; font-weight: 900; text-transform: uppercase; border-bottom-width: 4px; 
+            transition: all 0.1s ease-in-out; transform: translateY(0);
+        }
+        .arcade-button:hover { transform: translateY(-1px); border-bottom-width: 5px; }
+        .arcade-button:active { transform: translateY(1px); border-bottom-width: 2px; }
+
+        .game-card {
+            background-color: var(--tw-colors-card-bg);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border-radius: 1rem;
+            overflow: hidden;
+            transition: all 0.3s;
+            position: relative;
+            border-left: 5px solid; /* Dynamic color border */
+            min-height: 180px;
+        }
+        .game-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+        /* Theme accent for titles inside cards to match the red theme */
+        .text-theme { color: var(--tw-colors-arcade-red); }
+
+    </style>
+</head>
+<body class="bg-hub-bg text-gray-300 p-4 sm:p-8 font-sans">
+
+    <header class="max-w-6xl mx-auto text-center pt-8 pb-10">
+        <!-- HOME BUTTON -->
+        <a href="index.html" class="absolute top-4 left-4 sm:top-8 sm:left-8 arcade-button bg-gray-500/50 border-gray-700 hover:bg-gray-500/70 text-gray-200">
+            <span class="text-xl">🏠</span> HOME
+        </a>
+        
+        <h1 class="header-title text-3xl sm:text-5xl font-extrabold uppercase tracking-wider text-gray-400">
+            ARCADE GAMES LIST
+        </h1>
+        <p class="text-lg sm:text-xl text-gray-400 mt-2">
+            Choose your challenge, press start, and boost your brain!
+        </p>
+    </header>
+    
+    <main class="max-w-6xl mx-auto mt-10">
+        
+        <div id="game-list-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Game cards will be dynamically inserted here -->
+        </div>
+
+        <section class="max-w-4xl mx-auto mt-16 p-8 bg-card-bg rounded-2xl shadow-2xl">
+            <div class="h-1 bg-arcade-red w-1/4 mx-auto mb-6 rounded-full"></div>
+            <h3 class="text-2xl font-bold text-gray-100 text-center mb-4">
+                The Retro Gaming Experience
+            </h3>
+            <div class="grid grid-cols-2 gap-x-6 text-sm text-gray-300">
+                <ul class="list-disc list-inside ml-2 space-y-1">
+                    <li class="text-arcade-red font-bold">Monochrome Mastery</li>
+                    <li>**High Contrast:** Sharper focus with black, white, and red.</li>
+                    <li>**Deep Focus:** No distractions from flashy colors.</li>
+                </ul>
+                <ul class="list-disc list-inside ml-2 space-y-1">
+                    <li class="text-arcade-red font-bold">Skill and Speed</li>
+                    <li>**Pure Mechanics:** Success relies only on player skill.</li>
+                    <li>**Low Latency:** Optimized for maximum responsiveness.</li>
+                </ul>
+            </div>
+            <div class="h-1 bg-arcade-red w-1/4 mx-auto mt-6 rounded-full"></div>
+        </section>
+
+    </main>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('game-list-container');
+            let gameList = [];
+
+            // CRITICAL FIX: Retrieve the game list data from session storage (written by index.html)
+            const storedGames = sessionStorage.getItem('GAME_LIST_DATA');
+            
+            try {
+                if (storedGames) {
+                    gameList = JSON.parse(storedGames);
+                } else {
+                    // Fallback list using the CORRECT file paths (for direct access/debugging)
+                    gameList = [
+                        { name: "Snake 1985", file: "games/Snake1985.html", color: "play-green", description: "The classic retro challenge! Grow your snake on the monochrome grid, avoid walls and your own tail." },
+                        { name: "Breakout 1985", file: "games/Breakout1985.html", color: "play-red", description: "Use your paddle to reflect the ball and smash the blocks above. Clear the screen to win!" },
+                        { name: "Galaga 1985", file: "games/Galaga1985.html", color: "play-blue", description: "Defend the galaxy in this vertical space shooter against insect-like aliens. Fire quickly!" },
+                        { name: "Gradius 1985", file: "games/Gradius1985.html", color: "play-red", description: "A monochrome side-scrolling odyssey. Navigate dangerous terrain, turrets, and hostile ships." }
+                    ];
+                }
+            } catch (error) {
+                console.error("Error loading games from session storage:", error);
+                // Fallback to empty list
+                gameList = [];
+            }
+
+            if (gameList && gameList.length > 0) {
+                gameList.forEach(game => {
+                    const borderColor = `var(--tw-colors-${game.color})`;
+                    
+                    const cardHtml = `
+                        <div class="game-card p-6" style="border-left-color: ${borderColor};">
+                            <h2 class="text-2xl font-bold text-theme mb-3">${game.name}</h2>
+                            <p class="text-sm text-gray-400 mb-6">${game.description}</p>
+                            <a href="${game.file}" class="arcade-button bg-arcade-red/80 border-arcade-red hover:bg-arcade-red text-xs">
+                                Play Game <span class="text-lg ml-1">▶️</span>
+                            </a>
+                        </div>
+                    `;
+                    container.insertAdjacentHTML('beforeend', cardHtml);
+                });
+            } else {
+                container.innerHTML = '<p class="text-center text-gray-500 col-span-full">Error: Could not load the game list. Please return to the Home page to refresh data.</p>';
+            }
+        });
+    </script>
+
+</body>
+</html>

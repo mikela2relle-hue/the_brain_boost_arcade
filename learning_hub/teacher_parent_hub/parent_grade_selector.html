@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teacher & Parent Hub</title>
+    <title>Curriculum Overview - Select Grade</title>
     
     <!-- Fonts: Using 'Inter' as the primary font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display-swap" rel="stylesheet">
@@ -38,8 +38,6 @@
         }
     </script>
     
-    <!-- No Tone.js on this page -->
-
     <!-- Copied Styles from index.html -->
     <style>
         @keyframes star-drift-left { from { background-position: 0 0; } to { background-position: -8% -100%; } }
@@ -47,10 +45,8 @@
         @keyframes neon-flicker { 0% { opacity: 1.0; } 50% { opacity: 0.5; } }
 
         body {
-            /* Use theme color */
             background-color: #1A1A1A; 
             font-family: var(--tw-font-sans);
-            /* Use theme color */
             color: #E5E7EB; 
             position: relative;
             overflow-x: hidden;
@@ -81,8 +77,6 @@
            background-size: 260px 260px; z-index: -1; transform: translateY(var(--bg-scroll-y-l4, 0px));
            animation: star-drift-right 15s linear infinite, neon-flicker 1.5s 0.75s infinite alternate;
         }
-
-        /* Removed old .content-container styles */
     </style>
 </head>
 <body class="bg-hub-bg text-text-light min-h-screen p-4 sm:p-8 font-sans">
@@ -97,12 +91,11 @@
         <!-- Page Header - Styled like index.html -->
         <header class="max-w-6xl mx-auto text-center pt-16 pb-12">
             
-            <!-- Title - Styled like index.html -->
             <h1 class="text-3xl sm:text-5xl font-extrabold uppercase tracking-widest text-arcade-yellow mb-4">
-                Teacher & Parent Hub
+                Curriculum Overview
             </h1>
             <p class="text-lg sm:text-xl text-text-medium">
-                Manage students, view resources, and track progress.
+                Select a grade to see learning goals.
             </p>
         </header>
 
@@ -110,35 +103,65 @@
         <!-- Main Content Box - Styled like "Mission Statement" block -->
         <main class="max-w-4xl mx-auto mt-8 p-8 bg-card-bg-alt rounded-2xl shadow-xl border border-border-light">
             
-            <div class="space-y-4">
-                <!-- Professional-style navigation buttons (Dark Theme) -->
-                <button class="w-full text-center p-5 sm:p-6 mb-4 rounded-lg border border-border-light bg-card-bg transition-all duration-200 ease-in-out hover:bg-opacity-70 focus:outline-none focus:ring-4 focus:ring-arcade-yellow">
-                    <h3 class="text-xl font-semibold text-text-light">Student Progress</h3>
-                    <p class="text-text-medium text-sm mt-1">View activity and assessment results.</p>
+            <!-- Grade Selector Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                
+                <!-- JK Button -->
+                <button class="text-center p-6 rounded-lg border border-border-light bg-card-bg transition-all duration-200 ease-in-out hover:bg-opacity-70 focus:outline-none focus:ring-4 focus:ring-arcade-yellow">
+                    <h3 class="text-2xl font-semibold text-text-light">JK</h3>
+                </button>
+                
+                <!-- SK Button -->
+                <button class="text-center p-6 rounded-lg border border-border-light bg-card-bg transition-all duration-200 ease-in-out hover:bg-opacity-70 focus:outline-none focus:ring-4 focus:ring-arcade-yellow">
+                    <h3 class="text-2xl font-semibold text-text-light">SK</h3>
                 </button>
 
-                <!-- This is now a link -->
-                <a href="parent_grade_selector.html" class="block w-full text-center p-5 sm:p-6 mb-4 rounded-lg border border-border-light bg-card-bg transition-all duration-200 ease-in-out hover:bg-opacity-70 focus:outline-none focus:ring-4 focus:ring-arcade-yellow">
-                    <h3 class="text-xl font-semibold text-text-light">Curriculum Overview</h3>
-                    <p class="text-text-medium text-sm mt-1">Explore learning goals for each grade.</p>
-                </a>
-
-                <button class="w-full text-center p-5 sm:p-6 mb-4 rounded-lg border border-border-light bg-card-bg transition-all duration-200 ease-in-out hover:bg-opacity-70 focus:outline-none focus:ring-4 focus:ring-arcade-yellow">
-                    <h3 class="text-xl font-semibold text-text-light">Parent Resources</h3>
-                    <p class="text-text-medium text-sm mt-1">Find tips and guides for at-home learning.</p>
+                <!-- Grade 1 Button -->
+                <button class="text-center p-6 rounded-lg border border-border-light bg-card-bg transition-all duration-200 ease-in-out hover:bg-opacity-70 focus:outline-none focus:ring-4 focus:ring-arcade-yellow">
+                    <h3 class="text-2xl font-semibold text-text-light">Grade 1</h3>
                 </button>
 
-                <button class="w-full text-center p-5 sm:p-6 mb-4 rounded-lg border border-border-light bg-card-bg transition-all duration-200 ease-in-out hover:bg-opacity-70 focus:outline-none focus:ring-4 focus:ring-arcade-yellow">
-                    <h3 class="text-xl font-semibold text-text-light">Account Settings</h3>
-                    <p class="text-text-medium text-sm mt-1">Manage linked students and communication.</p>
+                <!-- Grade 2 Button -->
+                <button class="text-center p-6 rounded-lg border border-border-light bg-card-bg transition-all duration-200 ease-in-out hover:bg-opacity-70 focus:outline-none focus:ring-4 focus:ring-arcade-yellow">
+                    <h3 class="text-2xl font-semibold text-text-light">Grade 2</h3>
+                </button>
+
+                <!-- Grade 3 Button -->
+                <button class="text-center p-6 rounded-lg border border-border-light bg-card-bg transition-all duration-200 ease-in-out hover:bg-opacity-70 focus:outline-none focus:ring-4 focus:ring-arcade-yellow">
+                    <h3 class="text-2xl font-semibold text-text-light">Grade 3</h3>
+                </button>
+
+                <!-- Grade 4 Button -->
+                <button class="text-center p-6 rounded-lg border border-border-light bg-card-bg transition-all duration-200 ease-in-out hover:bg-opacity-70 focus:outline-none focus:ring-4 focus:ring-arcade-yellow">
+                    <h3 class="text-2xl font-semibold text-text-light">Grade 4</h3>
+                </button>
+
+                <!-- Grade 5 Button -->
+                <button class="text-center p-6 rounded-lg border border-border-light bg-card-bg transition-all duration-200 ease-in-out hover:bg-opacity-70 focus:outline-none focus:ring-4 focus:ring-arcade-yellow">
+                    <h3 class="text-2xl font-semibold text-text-light">Grade 5</h3>
+                </button>
+
+                <!-- Grade 6 Button -->
+                <button class="text-center p-6 rounded-lg border border-border-light bg-card-bg transition-all duration-200 ease-in-out hover:bg-opacity-70 focus:outline-none focus:ring-4 focus:ring-arcade-yellow">
+                    <h3 class="text-2xl font-semibold text-text-light">Grade 6</h3>
+                </button>
+
+                <!-- Grade 7 Button -->
+                <button class="text-center p-6 rounded-lg border border-border-light bg-card-bg transition-all duration-200 ease-in-out hover:bg-opacity-70 focus:outline-none focus:ring-4 focus:ring-arcade-yellow">
+                    <h3 class="text-2xl font-semibold text-text-light">Grade 7</h3>
+                </button>
+
+                <!-- Grade 8 Button -->
+                <button class="text-center p-6 rounded-lg border border-border-light bg-card-bg transition-all duration-200 ease-in-out hover:bg-opacity-70 focus:outline-none focus:ring-4 focus:ring-arcade-yellow">
+                    <h3 class="text-2xl font-semibold text-text-light">Grade 8</h3>
                 </button>
             </div>
 
-            <!-- Link to go back to the Student Hub -->
-            <div class="text-center mt-8">
-                <!-- Styled with theme color -->
-                <a href="learning_hub.html" class="text-arcade-yellow hover:opacity-80 hover:underline text-sm font-semibold">
-                    &larr; Back to Student Hub
+
+            <!-- Link to go back to the Teacher Hub -->
+            <div class="text-center mt-10">
+                <a href="teacher_parent_hub.html" class="text-arcade-yellow hover:opacity-80 hover:underline text-sm font-semibold">
+                    &larr; Back to Teacher & Parent Hub
                 </a>
             </div>
 
@@ -169,4 +192,3 @@
     </script>
 </body>
 </html>
-

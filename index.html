@@ -10,6 +10,7 @@
             theme: {
                 extend: {
                     colors: {
+<<<<<<< HEAD
                         'hub-bg': '#1A1A1A',
                         'card-bg': '#2d2d2d',
                         'card-bg-alt': '#374151',
@@ -25,12 +26,26 @@
                     },
                     fontFamily: {
                         sans: ['Inter', 'system-ui', 'sans-serif'],
+=======
+                        'hub-bg': '#1A1A1A',        /* Darker Gray Background - WAS #C8C8C8 */
+                        'card-bg': '#374151',       /* Pure White Cards - WAS #ffffff */
+                        'marquee-inner-bg': '#2F3742', /* NEW: Slightly darker than cards for contrast */
+                        'arcade-red': '#FF4136',    /* Pure Bright Red */
+                        'arcade-blue': '#0074D9',   /* Pure Action Blue */
+                        'arcade-green': '#2ECC40',      /* Pure Bright Green */
+                        'arcade-yellow': '#FFDC00', /* Pure Lemon Yellow */
+                        'text-dark': '#374151',     /* Softer dark gray, was #1f2937 */
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],  
+>>>>>>> 76dc45e934a42d857fbbd7c61179f09778a64221
                     }
                 }
             }
         }
     </script>
     <style>
+<<<<<<< HEAD
         @keyframes star-drift-left { from { background-position: 0 0; } to { background-position: -8% -100%; } }
         @keyframes star-drift-right { from { background-position: 0 0; } to { background-position: 8% -100%; } }
         @keyframes neon-flicker { 0% { opacity: 1.0; } 50% { opacity: 0.5; } }
@@ -81,20 +96,162 @@
             cursor: pointer;
             z-index: 10;
         }
+=======
+        /* --- Define drift animations (downward motion and horizontal drift) --- */
+        @keyframes star-drift-left {
+            from { background-position: 0 0; }
+            to { background-position: -8% -100%; } /* Downward and increased drift to the left */
+        }
+
+        @keyframes star-drift-right {
+            from { background-position: 0 0; }
+            to { background-position: 8% -100%; } /* Downward and increased drift to the right */
+        }
+        
+        /* --- Keyframes for subtle neon flicker (brief dip in opacity) --- */
+        @keyframes neon-flicker {
+            0% { opacity: 1.0; }
+            50% { opacity: 0.5; }
+        }
+
+        /* --- Keyframes for pulsing text glow (Less Intense, Wide Blur) --- */
+        @keyframes neon-pulse {
+            0%, 100% {
+                /* Smoother, ambient base glow */
+                text-shadow: 0 0 20px rgba(255, 220, 0, 0.3), 0 0 35px rgba(255, 220, 0, 0.15);
+            }
+            50% {
+                /* Reduced pulse peak for a smoother effect */
+                text-shadow: 0 0 25px rgba(255, 220, 0, 0.5), 0 0 40px rgba(255, 220, 0, 0.3);
+            }
+        }
+
+        /* Base styles */
+        body {
+            background-color: #1A1A1A; 
+            font-family: var(--tw-font-sans);
+            position: relative;  
+            overflow-x: hidden;
+            min-height: 200vh; /* Ensure scrollability */
+        }
+
+        /* --- PARALLAX STARFIELD BACKGROUND LAYERS (4 unique speeds, mixed neon colors, increased glow) --- */
+        
+        /* Common style for all background layers (body::before, body::after, and layer divs) */
+        body::before, body::after, #background-layer-3, #background-layer-4 {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 150%; 
+            z-index: -3; 
+        }
+        
+        /* Layer 1 (Slowest): Farthest specs - SLOWEST DRIFT, SLOWEST FLICKER, LEFT DRIFT */
+        body::before { 
+            background: 
+                /* Green dots - WIDER GLOW */
+                radial-gradient(circle at 10% 80%, rgba(46, 255, 64, 0.3) 0.5px, transparent 4px),
+                /* Purple dots - WIDER GLOW */
+                radial-gradient(circle at 70% 20%, rgba(180, 50, 255, 0.2) 0.5px, transparent 4px),
+                /* Yellow dots - WIDER GLOW */
+                radial-gradient(circle at 35% 50%, rgba(255, 255, 0, 0.3) 0.5px, transparent 4px);
+            background-size: 150px 150px; 
+            z-index: -4; /* Farthest back */
+            transform: translateY(var(--bg-scroll-y-l1, 0px));
+            animation: star-drift-left 60s linear infinite, neon-flicker 6s ease-in-out infinite alternate; 
+        }
+
+        /* Layer 2 (Farther/Slow): SLOW DRIFT, MEDIUM FLICKER, RIGHT DRIFT */
+        body::after { 
+            background: 
+                /* Blue dots - WIDER GLOW */
+                radial-gradient(circle at 20% 10%, rgba(50, 50, 255, 0.4) 0.5px, transparent 6px),
+                /* Red dots - WIDER GLOW */
+                radial-gradient(circle at 90% 40%, rgba(255, 50, 50, 0.3) 0.5px, transparent 6px),
+                /* Green dots - WIDER GLOW */
+                radial-gradient(circle at 55% 75%, rgba(46, 255, 64, 0.4) 0.5px, transparent 6px);
+            background-size: 180px 180px; 
+            z-index: -3; 
+            transform: translateY(var(--bg-scroll-y-l2, 0px));
+            animation: star-drift-right 40s linear infinite, neon-flicker 4s 2s infinite alternate; 
+        }
+
+        /* Layer 3 (Closer/Medium): MEDIUM DRIFT, FAST FLICKER, LEFT DRIFT */
+        #background-layer-3 {
+            background: 
+                /* Yellow dots - WIDER GLOW */
+                radial-gradient(circle at 80% 5%, rgba(255, 255, 0, 0.5) 1px, transparent 8px),
+                /* Purple dots - WIDER GLOW */
+                radial-gradient(circle at 15% 90%, rgba(180, 50, 255, 0.4) 1px, transparent 8px),
+                /* Blue dots - WIDER GLOW */
+                radial-gradient(circle at 40% 30%, rgba(50, 50, 255, 0.5) 1px, transparent 8px);
+            background-size: 220px 220px; 
+            z-index: -2; 
+            transform: translateY(var(--bg-scroll-y-l3, 0px));
+            animation: star-drift-left 25s linear infinite, neon-flicker 2.5s infinite alternate; 
+        }
+        
+        /* Layer 4 (Closest/Fastest): FASTEST DRIFT, FASTEST FLICKER, RIGHT DRIFT */
+        #background-layer-4 { 
+            background: 
+                /* Red dots - WIDER GLOW */
+                radial-gradient(circle at 5% 50%, rgba(255, 50, 50, 0.6) 1px, transparent 10px),
+                /* Green dots - WIDER GLOW */
+                radial-gradient(circle at 60% 10%, rgba(46, 255, 64, 0.5) 1px, transparent 10px),
+                /* Yellow dots - WIDER GLOW */
+                radial-gradient(circle at 95% 70%, rgba(255, 220, 0, 0.6) 1px, transparent 10px);
+            background-size: 260px 260px; 
+            z-index: -1; /* Closest to content */
+            transform: translateY(var(--bg-scroll-y-l4, 0px));
+            animation: star-drift-right 15s linear infinite, neon-flicker 1.5s 0.75s infinite alternate; 
+        }
+
+        /* General card styling */
+        .category-card {
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);  
+            transition: all 0.3s;
+            border-radius: 1rem;
+            min-height: 200px;  
+            border: none;
+            z-index: 10;  
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative; 
+            overflow: hidden;    
+            cursor: pointer; /* Added pointer cursor to hint clickability */
+        }
+        
+        /* Apply subtle lift on hover */
+>>>>>>> 76dc45e934a42d857fbbd7c61179f09778a64221
         .category-card:hover {
             transform: translateY(-5px);
         }
 
+<<<<<<< HEAD
         .category-card::before {
             content: '';
             position: absolute;
             top: 0; left: 0;
             width: 100%; height: 100%;
+=======
+        /* --- CARD VISUAL BACKGROUNDS --- */
+        .category-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+>>>>>>> 76dc45e934a42d857fbbd7c61179f09778a64221
             background-repeat: repeat;
             opacity: 0.04;
             z-index: -1;
             transition: opacity 0.3s ease-in-out;
         }
+<<<<<<< HEAD
         .category-card:hover::before { opacity: 0.08; }
 
         #gamesHubCard::before {
@@ -166,16 +323,172 @@
     </main>
 
     <section class="max-w-4xl mx-auto mt-24 mb-16 p-8 bg-card-bg-alt rounded-2xl shadow-xl border border-border-light">
+=======
+        .category-card:hover::before {
+            opacity: 0.08;
+        }
+
+        /* Specific patterns for each card */
+        #gamesHubCard::before {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23FFFFFF" width="48px" height="48px"><path d="M0 0h24v24H0z" fill="none"/><path d="M15 7.5V2H9v5.5l3 3 3-3zM7.5 9H2v6h5.5l3-3-3-3zM9 16.5V22h6v-5.5l-3-3-3 3zM16.5 9l-3 3 3 3H22V9h-5.5z"/></svg>'); 
+            background-size: 80px 80px;
+        }
+        #learningHubCard::before {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23FFFFFF" width="48px" height="48px"><path d="M0 0h24v24H0z" fill="none"/><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/></svg>'); 
+            background-size: 70px 70px;
+        }
+        #printablesHubCard::before {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23FFFFFF" width="48px" height="48px"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>'); 
+            background-size: 75px 75px;
+        }
+
+        /* --- CUSTOM GLOW STYLES --- */
+        .glow-red { box-shadow: 0 0 17.5px rgba(229, 57, 53, 0.9); }
+        .glow-blue { box-shadow: 0 0 17.5px rgba(0, 116, 217, 0.9); }
+        .glow-green { box-shadow: 0 0 17.5px rgba(46, 204, 64, 0.9); }
+        
+        .category-card:hover.glow-red {
+            box-shadow: 0 0 15.75px rgba(255, 65, 54, 1.0), 0 0 31.5px rgba(255, 65, 54, 0.8);
+        }
+        .category-card:hover.glow-blue {
+            box-shadow: 0 0 15.75px rgba(0, 116, 217, 0.9), 0 0 31.5px rgba(0, 116, 217, 0.7);
+        }
+        .category-card:hover.glow-green {
+            box-shadow: 0 0 15.75px rgba(46, 204, 64, 0.9), 0 0 31.5px rgba(46, 204, 64, 0.7);
+        }
+        
+    </style>
+</head>
+<body class="bg-hub-bg text-gray-300 min-h-screen p-4 sm:p-8 font-sans">
+
+    
+    <div id="background-layer-3"></div>
+    <div id="background-layer-4"></div>
+
+    <header class="max-w-6xl mx-auto text-center pt-8 pb-10">
+        
+
+<h1 id="mainTitleEl" class="text-3xl sm:text-5xl font-extrabold uppercase tracking-wider text-gray-400"> </h1>
+            <p id="mainSubtitleEl" class="text-lg sm:text-xl text-gray-400 mt-2"> </p>
+        
+    </header>
+    
+    <main class="max-w-6xl mx-auto mt-10">
+    
+        <!-- NEW: Single column grid, centered, wide gap -->
+        <div class="grid grid-cols-1 gap-12 max-w-3xl mx-auto">
+
+            <!-- ARCADE HUB CARD (RED) - UPDATED FOR GENRES & STICKERS -->
+            <a href="arcade_page.html" id="gamesHubCard" class="category-card bg-card-bg p-6 border-b-4 border-arcade-red/70 glow-red">
+                <div class="relative z-10">
+                    <h2 class="text-3xl font-bold text-arcade-red mb-4 flex items-center">
+                        <span class="text-4xl mr-2">🕹️</span> The Arcade Hub
+                    </h2>
+                    
+                    <p class="text-gray-300 mb-4 text-lg">
+                        Jump into the challenge! Our retro games cover key genres to sharpen your reflexes and test your thinking. Choose a style below and press start!
+                    </p>
+
+                    <div class="grid grid-cols-2 gap-x-4 text-sm text-gray-300 mb-6">
+                        <ul class="list-disc list-inside ml-2 space-y-0.5">
+                            <li class="text-arcade-red font-bold">Action Genres 💥</li>
+                            <li>**Shooters:** Dodge and aim rockets.</li>
+                            <li>**Avoidance:** Fast reflex challenges.</li>
+                            <li>**Survival:** Keep your snake growing!</li>
+                            <li>**Logic:** Breakout and puzzle solving.</li>
+                        </ul>
+                        <ul class="list-disc list-inside ml-2 space-y-0.5">
+                            <li class="text-arcade-red font-bold">Skill Building 🧠</li>
+                            <li>**Hand-Eye:** Precision control skills.</li>
+                            <li>**Strategy:** Planning your next move.</li>
+                            <li>**Patterns:** Recognizing movements.</li>
+                            <li>**Endurance:** Long-play concentration.</li>
+                        </ul>
+                    </div>
+                </div>
+            </a>
+
+            <!-- LEARNING HUB CARD (BLUE) -->
+            <a href="learning_hub.html" id="learningHubCard" class="category-card bg-card-bg p-6 border-b-4 border-arcade-blue/70 glow-blue">
+                <div class="relative z-10">
+                    <h2 class="text-3xl font-bold text-arcade-blue mb-4 flex items-center">
+                        <span class="text-4xl mr-2">💡</span> Learn & Grow!
+                    </h2>
+                    
+                    <p class="text-gray-300 mb-4 text-lg">
+                        Let's make your brain stronger! Explore new topics and gain powerful cognitive skills with our engaging resources, including typing games to boost your keyboard speed and accuracy.
+                    </p>
+
+                    <div class="grid grid-cols-2 gap-x-4 text-sm text-gray-300 mb-6">
+                        <ul class="list-disc list-inside ml-2 space-y-0.5">
+                            <li class="text-arcade-blue font-bold">New Things to Know</li>
+                            <li>Read about history and science.</li>
+                            <li>Discover amazing animals and planets.</li>
+                            <li>Explore how technology works.</li>
+                            <li>See what's happening in the world.</li>
+                        </ul>
+                        <ul class="list-disc list-inside ml-2 space-y-0.5">
+                            <li class="text-arcade-blue font-bold">New Superpowers</li>
+                            <li>Practice solving hard problems.</li>
+                            <li>Get better at remembering facts.</li>
+                            <li>**NEW:** Practice typing fast and correctly.</li>
+                            <li>Learn how to ask big questions.</li>
+                        </ul>
+                    </div>
+                </div>
+            </a>
+
+            <!-- PRINTABLES HUB CARD (GREEN) -->
+            <a href="printables_hub.html" id="printablesHubCard" class="category-card bg-card-bg p-6 border-b-4 border-arcade-green/70 glow-green">
+                <div class="relative z-10">
+                    <h2 class="text-3xl font-bold text-arcade-green mb-4 flex items-center">
+                        <span class="text-4xl mr-2">🖍️</span> Create & Play!
+                    </h2>
+
+                    <p class="text-gray-300 mb-4 text-lg">
+                        Fun activities you can print out! Get creative with hands-on missions and puzzles that challenge your mind offline. You can also create art right here in the hub!
+                    </p>
+
+                    <div class="grid grid-cols-2 gap-x-4 text-sm text-gray-300 mb-6">
+                        <ul class="list-disc list-inside ml-2 space-y-0.5">
+                            <li class="text-arcade-green font-bold">Create Online & Art 🎨</li>
+                            <li>**NEW:** Use the online painting canvas!</li>
+                            <li>Design fun sticker pages.</li>
+                            <li>Print cool coloring pages.</li>
+                            <li>Build and save your masterpieces.</li>
+                        </ul>
+                        <ul class="list-disc list-inside ml-2 space-y-0.5">
+                            <li class="text-arcade-green font-bold">Offline Puzzles 🧩</li>
+                            <li>Solve awesome mazes.</li>
+                            <li>Try tricky word searches.</li>
+                            <li>Print logic grid challenges.</li>
+                            <li>Practice drawing and tracing.</li>
+                        </ul>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </main>
+    
+    <!-- MISSION STATEMENT BLOCK -->
+    <section class="max-w-4xl mx-auto mt-24 mb-16 p-8 bg-card-bg rounded-2xl shadow-2xl">
+>>>>>>> 76dc45e934a42d857fbbd7c61179f09778a64221
         <div class="h-1 bg-arcade-yellow w-1/4 mx-auto mb-6 rounded-full"></div>
         <h2 class="text-3xl font-bold text-gray-100 text-center mb-4">
             Welcome to the Next Level of Fun.
         </h2>
+<<<<<<< HEAD
         <p class="text-text-medium text-center max-w-2xl mx-auto">
             The Brain Boost Arcade blends challenging games with critical learning. Every activity is designed to sharpen reflexes and expand knowledge. Choose your challenge and power up your brain!
+=======
+        <p class="text-gray-400 text-center max-w-2xl mx-auto">
+            The Brain Boost Arcade is where classic, challenging games meet critical learning. Every activity—from dodging asteroids to mastering logic puzzles—is designed to sharpen your reflexes and expand your knowledge base. Choose your challenge above and power up your brain!
+>>>>>>> 76dc45e934a42d857fbbd7c61179f09778a64221
         </p>
         <div class="h-1 bg-arcade-yellow w-1/4 mx-auto mt-6 rounded-full"></div>
     </section>
 
+<<<<<<< HEAD
     <footer class="text-center py-6 text-sm border-t border-border-light max-w-6xl mx-auto mt-12">
         <p class="text-text-medium">
             &copy; 2025 THE BRAIN BOOST ARCADE. <span class="text-arcade-yellow">SYSTEMS ONLINE.</span>
@@ -199,3 +512,78 @@
 </body>
 </html>
 
+=======
+    <!-- FOOTER -->
+    <footer class="text-center py-6 text-sm border-t border-gray-700 max-w-6xl mx-auto mt-12">
+        <p class="text-gray-500">
+            &copy; 2025 THE BRAIN BOOST ARCADE. <span class="text-arcade-yellow">SYSTEMS ONLINE.</span>
+        </p>
+        <div class="mt-2 space-x-4">
+            <a href="#" class="text-gray-500 hover:text-arcade-yellow transition-colors">Privacy Protocol</a>
+            <a href="#" class="text-gray-500 hover:text-arcade-yellow transition-colors">Contact Support</a>
+        </div>
+    </footer>
+
+    <script>
+        // --- MODIFIABLE MESSAGES ---
+        const MESSAGES = {
+            mainTitle: "The Brain Boost Arcade",
+            mainSubtitle: "Where Fun Meets Smarts! Choose Your Challenge Below.",
+        };
+
+        // --- GAME LIST DATA (Used by arcade_page.html) ---
+        // CRITICAL FIX: Added 'games/' prefix to all file paths.
+        const GAME_LIST = [
+            { name: "Snake 1985", file: "games/Snake1985.html", color: "play-green", description: "The classic retro challenge! Grow your snake on the monochrome grid, avoid walls and your own tail." },
+            { name: "Breakout 1985", file: "games/Breakout1985.html", color: "play-red", description: "Use your paddle to reflect the ball and smash the blocks above. Clear the screen to win!" },
+            { name: "Galaga 1985", file: "games/Galaga1985.html", color: "play-blue", description: "Defend the galaxy in this vertical space shooter against insect-like aliens. Fire quickly!" },
+            { name: "Gradius 1985", file: "games/Gradius1985.html", color: "play-red", description: "A monochrome side-scrolling odyssey. Navigate dangerous terrain, turrets, and hostile ships." }
+        ];
+        
+        // CRITICAL FIX: Store data in Session Storage (reliable, non-cached transfer for one session)
+        sessionStorage.setItem('GAME_LIST_DATA', JSON.stringify(GAME_LIST));
+
+
+        // --- Initialization ---
+        window.onload = function() {
+            // Assign DOM Elements and Initialize Static Text
+            const mainTitleEl = document.getElementById('mainTitleEl');
+            const mainSubtitleEl = document.getElementById('mainSubtitleEl');
+
+            if(mainTitleEl) {
+                mainTitleEl.textContent = MESSAGES.mainTitle;
+            }
+            if(mainSubtitleEl) {
+                mainSubtitleEl.textContent = MESSAGES.mainSubtitle;
+            }
+        };
+    </script>
+    
+    <script>
+        // --- PARALLAX EFFECT SCRIPT ---
+        window.addEventListener('scroll', function() {
+            const scrollPosition = window.scrollY;
+            
+            // Define the movement factors (4 distinct speeds)
+            const factorL1 = 0.05; // Farthest/Slowest
+            const factorL2 = 0.20; // Farther/Slow
+            const factorL3 = 0.45; // Closer/Medium
+            const factorL4 = 0.70; // Closest/Fastest
+            
+            // Calculate the new background positions for each layer
+            const newBgYL1 = scrollPosition * factorL1;
+            const newBgYL2 = scrollPosition * factorL2;
+            const newBgYL3 = scrollPosition * factorL3;
+            const newBgYL4 = scrollPosition * factorL4;
+            
+            // Update the CSS custom properties on the body, affecting all 4 layers
+            document.body.style.setProperty('--bg-scroll-y-l1', `-${newBgYL1}px`);
+            document.body.style.setProperty('--bg-scroll-y-l2', `-${newBgYL2}px`);
+            document.body.style.setProperty('--bg-scroll-y-l3', `-${newBgYL3}px`);
+            document.body.style.setProperty('--bg-scroll-y-l4', `-${newBgYL4}px`);
+        });
+    </script>
+
+</body>
+</html>
+>>>>>>> 76dc45e934a42d857fbbd7c61179f09778a64221

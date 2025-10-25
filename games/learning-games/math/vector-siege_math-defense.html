@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vector Siege: Math Defense</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Tone.js for sound effects -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
+    <style>
+        /* Custom Sci-fi Font */
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Roboto Mono', 'Orbitron', sans-serif;
+            background-color: #0a0a0f; /* Deep space black */
+            color: #e0e0ff; /* Light cyber purple */
+        }
+        
+        #game-container {
+            border: 2px solid #3f3f8e; /* Dark purple border */
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.4), inset 0 0 15px rgba(67, 56, 202, 0.3);
+            background-color: #12121c; /* Dark navy bg */
+        }
+
+        #gameCanvas {
+            background-color: #0c0c14; /* Slightly darker canvas bg */
+            cursor: default;
+            touch-action: none;
+            /* Make canvas fluid within its container */
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Top HUD Bar */
+        #hud {
+            /* Matched bottom control panel style */
+            background: linear-gradient(to top, #181824, #12121c);
+            border-bottom: 2px solid #3f3f8e; 
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5); /* Added subtle shadow for depth */
+        }
+
+        /* Control Panel Styles */
+        #controls {
+            background: linear-gradient(to bottom, #181824, #12121c);
+            border-top: 2px solid #3f3f8e;
+            padding: 1rem;
+        }
+
+        .hud-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.1em;
+            color: #a5b4fc; /* Light indigo */
+            text-shadow: 0 0 4px #6366f1;
+            /* Ensure label centers correctly as a block */
+            display: block; 
+            text-align: center; /* Ensures the text inside the label is centered */
+        }
+        
+        /* --- SEAMLESS INTERFACE STYLES --- */
+        #problem-answer-container {
+            /* NEW: Box Styling */
+            background-color: #1e1b4b; /* Deep indigo bg */
+            border: 2px solid #4f46e5; /* Indigo border */
+            box-shadow: inset 0 0 10px rgba(129, 140, 248, 0.4);
+            border-radius: 0.375rem; 
+
+            /* Layout: inline-flex shrinks to content width, making it easy for the parent to center */
+            min-height: 52px;
+            display: inline-flex; 
+            align-items: baseline; 
+            padding: 0.5rem 1rem; 
+        }
+
+        #problem-display {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #f59e0b; /* Amber */
+            padding: 0; 
+            display: flex;
+            align-items: center;
+            justify-content: flex-end; 
+            flex-grow: 0; 
+            white-space: pre; 
+        }
+        
+        #answer-input {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #f59e0b; 
+            
+            background-color: transparent; 
+            border: none; 
+            box-shadow: none;
+            
+            /* Removes the flashing text input caret */
+            caret-color: transparent; 
+            
+            text-align: left; 
+            padding: 0; 
+            
+            /* FIX: Drastically reduce width to 2 characters */
+            width: 2ch; 
+            min-width: 2ch; 
+            max-width: 3ch; /* Optional: cap maximum growth */
+            
+            flex-shrink: 1; 
+        }
+        #answer-input:focus {
+            outline: none;
+        }
+        /* --- END SEAMLESS INTERFACE STYLES --- */
+
+        /* Hide number input arrows */
+        #answer-input::-webkit-outer-spin-button,
+        #answer-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        #answer-input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+
+        /* Health Bar */
+        .health-bar-bg {
+            background-color: #3e071e; /* Dark red */
+            border: 1px solid #9d174d; /* Pink */
+        }
+        #core-health-bar {
+            background: linear-gradient(to right, #f43f5e, #be185d);
+            box-shadow: 0 0 10px #f43f5e;
+            transition: width 0.3s ease;
+        }
+
+        /* Game Over / Pause Menu Modals */
+        .modal-overlay {
+            background-color: rgba(10, 10, 15, 0.85);
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background-color: #181824;
+            border: 2px solid #3f3f8e;
+            box-shadow: 0 0 30px #6366f1;
+        }
+        .modal-title {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+        }
+        .btn-restart {
+            font-family: 'Orbitron', sans-serif;
+            background-color: #f59e0b; /* Amber */
+            color: #12121c;
+            border-bottom: 4px solid #b45309;
+            transition: all 0.1s ease;
+        }
+        .btn-restart:active {
+            transform: translateY(2px);
+            border-bottom-width: 2px;
+        }
+
+        /* --- Menu Navigation Styles --- */
+        .menu-option {
+            background-color: #3f3f8e; /* Default dark background */
+            color: #e0e0ff;
+            border-bottom: 3px solid #1e1b4b;
+            font-family: 'Orbitron', sans-serif;
+            text-shadow: 0 0 2px #a5b4fc;
+            text-align: center;
+        }
+        /* The glow effect for the selected option, controlled by JavaScript */
+        .menu-option.selected {
+            background-color: #6366f1; /* Bright purple glow */
+            border-bottom: 3px solid #c4b5fd;
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.8);
+            transform: scale(1.02);
+        }
+
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <div id="game-container" class="relative w-full max-w-3xl rounded-lg overflow-hidden shadow-2xl">
+        <!-- HUD -->
+        <div id="hud" class="absolute top-0 left-0 right-0 p-3 z-10 flex justify-between items-center">
+            <!-- Core Health -->
+            <div>
+                <span class="hud-label">CORE HEALTH</span>
+                <div class="health-bar-bg w-48 h-5 rounded-full overflow-hidden mt-1">
+                    <div id="core-health-bar" class="h-full rounded-full" style="width: 100%;"></div>
+                </div>
+            </div>
+            <!-- Wave / Level Info -->
+            <div class="flex space-x-6 text-right">
+                <div>
+                    <span class="hud-label">SCORE</span>
+                    <div id="score-display" class="text-2xl font-bold text-white">0</div>
+                </div>
+                <div>
+                    <span class="hud-label">LEVEL</span>
+                    <div id="level-display" class="text-2xl font-bold text-white">1</div>
+                </div>
+                <div>
+                    <span class="hud-label">WAVE</span>
+                    <div id="wave-display" class="text-2xl font-bold text-white">0 / 5</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Canvas (Initial fixed size for reference) -->
+        <canvas id="gameCanvas" width="768" height="592"></canvas>
+        
+        <!-- NEW: Wave Message Overlay -->
+        <div id="wave-message-overlay" class="absolute inset-0 z-10 flex-col items-center justify-center pointer-events-none hidden">
+            <h1 id="wave-title-message" class="text-5xl font-bold text-emerald-400 opacity-90 mb-2 font-orbitron drop-shadow-lg" style="font-family: 'Orbitron', sans-serif; text-shadow: 0 0 10px rgba(52, 211, 153, 0.7);">WAVE CLEARED</h1>
+            <p id="wave-countdown" class="text-3xl text-white font-roboto-mono" style="font-family: 'Roboto Mono', monospace;">PREPARING...</p>
+        </div>
+
+        <!-- Control Panel -->
+        <div id="controls" class="p-4 flex flex-col items-center">
+            <div class="hud-label mb-1">VECTOR EQUATION INTERFACE</div>
+            <div id="problem-answer-container"> 
+                <div id="problem-display">
+                    ...
+                </div>
+                <input type="number" id="answer-input" class="h-full" placeholder="">
+            </div>
+        </div>
+        
+        <!-- Pause Menu Modal (New) -->
+        <div id="pause-menu-modal" class="modal-overlay absolute inset-0 z-30 flex-col items-center justify-center hidden">
+            <div class="modal-content p-8 rounded-lg text-center w-11/12 max-w-md">
+                <h2 class="modal-title text-3xl text-white mb-6 font-orbitron">SYSTEM PAUSED</h2>
+                
+                <!-- Main Menu -->
+                <div id="main-menu" class="space-y-4">
+                    <button class="menu-option block w-full py-3 rounded-lg text-xl font-bold uppercase transition duration-150" data-action="resume" data-menu="main">RESUME</button>
+                    <button class="menu-option block w-full py-3 rounded-lg text-xl font-bold uppercase transition duration-150" data-action="grade-select" data-menu="main">DIFFICULTY: <span id="current-grade-display">GRADE 1</span></button>
+                    <button class="menu-option block w-full py-3 rounded-lg text-xl font-bold uppercase transition duration-150" data-action="restart" data-menu="main">RESTART GAME</button>
+                </div>
+
+                <!-- Grade Selection Submenu -->
+                <div id="grade-menu" class="space-y-3 text-left hidden">
+                    <h3 class="text-xl text-amber-400 mb-4 font-orbitron text-center">SELECT GRADE LEVEL</h3>
+                    <button class="menu-option grade-option block w-full py-2 px-4 rounded-lg transition duration-150" data-grade-index="0">JK (Sum $\le 10$)</button>
+                    <button class="menu-option grade-option block w-full py-2 px-4 rounded-lg transition duration-150" data-grade-index="1">SK (Sum $\le 20$)</button>
+                    <button class="menu-option grade-option block w-full py-2 px-4 rounded-lg transition duration-150" data-grade-index="2">GRADE 1 (Subtraction $\le 20$)</button>
+                    <button class="menu-option grade-option block w-full py-2 px-4 rounded-lg transition duration-150" data-grade-index="3">GRADE 2 (Mult. $\le 9 \times 9$)</button>
+                    <button class="menu-option grade-option block w-full py-2 px-4 rounded-lg transition duration-150" data-grade-index="4">GRADE 3 (Mixed $\times$/$\div$)</button>
+                    <button class="menu-option grade-option block w-full py-2 px-4 rounded-lg transition duration-150" data-grade-index="5">GRADE 4 (Harder Mixed)</button>
+                    <button class="menu-option grade-option block w-full py-2 px-4 rounded-lg transition duration-150" data-grade-index="6">GRADE 5 (Challenging)</button>
+                    <button class="menu-option block w-full py-3 rounded-lg text-lg font-bold uppercase mt-4" data-action="back" data-menu="grade">BACK</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Over Modal (Z-index 20, below Pause Menu) -->
+        <div id="game-over-modal" class="modal-overlay absolute inset-0 z-20 flex-col items-center justify-center hidden">
+            <div class="modal-content p-8 rounded-lg text-center w-11/12 max-w-md">
+                <h2 id="game-over-title" class="modal-title text-3xl text-red-500 mb-4">CORE DESTROYED</h2>
+                <p class="text-lg mb-2">Final Score: <span id="final-score" class="font-bold text-amber-400">0</span></p>
+                <p class="text-lg mb-6">You reached Wave <span id="final-wave" class="font-bold text-white">0</span> on Level <span id="final-level" class="font-bold text-white">1</span></p>
+                <button id="restart-button" class="btn-restart w-full py-3 rounded-lg text-xl font-bold uppercase">
+                    REBOOT SYSTEM
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Game Setup ---
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const gameContainer = document.getElementById('game-container'); 
+
+        // Original fixed canvas dimensions
+        const BASE_WIDTH = 768;
+        // INCREASED HEIGHT by 80px to 592px
+        const BASE_HEIGHT = 592; 
+        const ORIGINAL_PATH_HEIGHT = 512;
+        const ASPECT_RATIO = BASE_WIDTH / BASE_HEIGHT;
+
+        // NEW: Automatically calculate margin to center the 512px path vertically
+        const VERTICAL_MARGIN = (BASE_HEIGHT - ORIGINAL_PATH_HEIGHT) / 2; // (592 - 512) / 2 = 40px
+
+        // HUD Elements
+        const coreHealthBar = document.getElementById('core-health-bar');
+        const scoreDisplay = document.getElementById('score-display');
+        const waveDisplay = document.getElementById('wave-display');
+        const levelDisplay = document.getElementById('level-display');
+        const problemDisplay = document.getElementById('problem-display');
+        const answerInput = document.getElementById('answer-input');
+        
+        // Pause Menu Elements (NEW)
+        const pauseMenuModal = document.getElementById('pause-menu-modal');
+        const mainMenu = document.getElementById('main-menu');
+        const gradeMenu = document.getElementById('grade-menu');
+        const currentGradeDisplay = document.getElementById('current-grade-display');
+        
+        // Wave Message Elements
+        const waveMessageOverlay = document.getElementById('wave-message-overlay');
+        const waveTitleMessage = document.getElementById('wave-title-message');
+        const waveCountdown = document.getElementById('wave-countdown');
+
+        // Modal Elements
+        const gameOverModal = document.getElementById('game-over-modal');
+        const gameOverTitle = document.getElementById('game-over-title');
+        const finalScore = document.getElementById('final-score');
+        const finalWave = document.getElementById('final-wave');
+        const finalLevel = document.getElementById('final-level');
+        const restartButton = document.getElementById('restart-button');
+
+        // Game State
+        let game;
+        let isAudioInitialized = false;
+
+        // Grade Levels and their corresponding difficulty base
+        const GRADE_LEVELS = [
+            { label: "JK", baseDifficulty: 1 },
+            { label: "SK", baseDifficulty: 3 },
+            { label: "GRADE 1", baseDifficulty: 5 },
+            { label: "GRADE 2", baseDifficulty: 7 },
+            { label: "GRADE 3", baseDifficulty: 9 },
+            { label: "GRADE 4", baseDifficulty: 11 },
+            { label: "GRADE 5", baseDifficulty: 13 },
+        ];
+
+
+        // --- Tone.js Sound Setup ---
+        let sounds = {};
+        const initializeAudio = async () => {
+            if (isAudioInitialized) return;
+            try {
+                await Tone.start();
+                sounds.laser = new Tone.Synth({ oscillator: { type: "sawtooth" }, envelope: { attack: 0.01, decay: 0.05, sustain: 0, release: 0.1 }, volume: -15 }).toDestination();
+                sounds.hit = new Tone.MetalSynth({ frequency: 150, envelope: { attack: 0.01, decay: 0.1, release: 0.1 }, harmonicity: 2.1, modulationIndex: 12, resonance: 2000, octaves: 0.5, volume: -10 }).toDestination();
+                sounds.coreDamage = new Tone.NoiseSynth({ noise: { type: "brown" }, envelope: { attack: 0.01, decay: 0.3, sustain: 0, release: 0.1 }, volume: -5 }).toDestination();
+                sounds.error = new Tone.Synth({ oscillator: { type: "square" }, envelope: { attack: 0.01, decay: 0.1, sustain: 0, release: 0.1 }, volume: -12 }).toDestination();
+                sounds.waveClear = new Tone.PolySynth(Tone.Synth, { oscillator: { type: "triangle" }, envelope: { attack: 0.01, decay: 0.1, sustain: 0.05, release: 0.2 }, volume: -10 }).toDestination();
+                sounds.levelUp = new Tone.PolySynth(Tone.Synth, { oscillator: { type: "sine" }, envelope: { attack: 0.01, decay: 0.2, sustain: 0.1, release: 0.3 }, volume: -8 }).toDestination();
+                sounds.menuClick = new Tone.Synth({ oscillator: { type: "sine" }, envelope: { attack: 0.001, decay: 0.05, sustain: 0, release: 0.05 }, volume: -15 }).toDestination();
+                sounds.menuConfirm = new Tone.PolySynth(Tone.Synth, { oscillator: { type: "square" }, envelope: { attack: 0.01, decay: 0.1, sustain: 0, release: 0.1 }, volume: -10 }).toDestination();
+                isAudioInitialized = true;
+            } catch (e) {
+                console.error("Audio init failed", e);
+            }
+        };
+
+        // Sound Playback Functions
+        const playSound = (soundName) => {
+            if (!isAudioInitialized) return;
+            const now = Tone.now();
+            switch (soundName) {
+                case 'laser': sounds.laser.triggerAttackRelease("G4", "16n", now); break;
+                case 'hit': sounds.hit.triggerAttackRelease("8n", now); break; 
+                case 'coreDamage': sounds.coreDamage.triggerAttackRelease("4n", now); break;
+                case 'error': sounds.error.triggerAttackRelease("C3", "16n", now); break;
+                case 'waveClear': 
+                    sounds.waveClear.triggerAttackRelease("C4", "16n", now);
+                    sounds.waveClear.triggerAttackRelease("G4", "16n", now + 0.1);
+                    sounds.waveClear.triggerAttackRelease("C5", "8n", now + 0.2);
+                    break;
+                case 'levelUp': 
+                    sounds.levelUp.triggerAttackRelease("C4", "8n", now);
+                    sounds.levelUp.triggerAttackRelease("E4", "8n", now + 0.1);
+                    sounds.levelUp.triggerAttackRelease("G4", "8n", now + 0.2);
+                    sounds.levelUp.triggerAttackRelease("C5", "4n", now + 0.3);
+                    break;
+                case 'menuClick': sounds.menuClick.triggerAttackRelease("C5", "32n", now); break;
+                case 'menuConfirm': sounds.menuConfirm.triggerAttackRelease(["E5", "G5"], "16n", now); break;
+            }
+        };
+        
+        // --- Responsiveness & Coordinate Mapping ---
+        let currentScale = 1;
+        const TILE_SIZE = 64;
+        const GRID_W = BASE_WIDTH / TILE_SIZE; // 12 tiles
+        const GRID_H = ORIGINAL_PATH_HEIGHT / TILE_SIZE; // 8 tiles (original grid height)
+
+        const PLAYABLE_HEIGHT_BASE = ORIGINAL_PATH_HEIGHT; 
+        
+        function resizeCanvas() {
+            const container = document.getElementById('game-container');
+            const containerWidth = container.clientWidth;
+            
+            canvas.width = containerWidth;
+            canvas.height = Math.floor(containerWidth / ASPECT_RATIO);
+
+            currentScale = canvas.width / BASE_WIDTH;
+        }
+
+        const getPos = (x, y) => {
+            const normalizedY = (y + 0.5) / GRID_H; 
+            const yBase = VERTICAL_MARGIN + (normalizedY * PLAYABLE_HEIGHT_BASE);
+            
+            return {
+                x: ((x + 0.5) * TILE_SIZE) * currentScale, 
+                y: yBase * currentScale 
+            };
+        };
+
+        const levelPathsBase = [
+            [{x: 0, y: 1}, {x: 8, y: 1}, {x: 8, y: 3}, {x: 2, y: 3}, {x: 2, y: 5}, {x: 10, y: 5}, {x: 10, y: 7}, {x: 11.5, y: 7}],
+            [{x: 0, y: 3}, {x: 3, y: 3}, {x: 3, y: 1}, {x: 8, y: 1}, {x: 8, y: 6}, {x: 2, y: 6}, {x: 2, y: 4}, {x: 5, y: 4}, {x: 5, y: 7.5}],
+            [{x: 0, y: 0}, {x: 10, y: 0}, {x: 10, y: 2}, {x: 1, y: 2}, {x: 1, y: 4}, {x: 10, y: 4}, {x: 10, y: 6}, {x: 1, y: 6}, {x: 1, y: 7.5}]
+        ];
+        
+        const mapPath = (basePath) => basePath.map(p => getPos(p.x, p.y));
+
+        const calculatePathLength = (basePath) => {
+            let length = 0;
+            for (let i = 0; i < basePath.length - 1; i++) {
+                const dx = (basePath[i+1].x - basePath[i].x) * TILE_SIZE;
+                const dy = (basePath[i+1].y - basePath[i].y) * TILE_SIZE; 
+                length += Math.sqrt(dx * dx + dy * dy);
+            }
+            return length;
+        };
+        const levelPathLengths = levelPathsBase.map(calculatePathLength);
+
+
+        // --- Particle Class --- (omitted for brevity in thoughts, but included in file)
+        class Particle {
+            constructor(x, y, color, size, velocityX, velocityY, decayRate) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.size = size;
+                this.vx = velocityX;
+                this.vy = velocityY;
+                this.alpha = 1;
+                this.decayRate = decayRate || 0.05;
+                this.isAlive = true;
+            }
+
+            update() {
+                this.x += this.vx * currentScale;
+                this.y += this.vy * currentScale;
+                this.alpha -= this.decayRate;
+                if (this.alpha <= 0) {
+                    this.isAlive = false;
+                }
+            }
+
+            draw(ctx) {
+                if (!this.isAlive) return;
+                ctx.globalAlpha = this.alpha;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size * currentScale, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+            }
+        }
+
+        // --- Bullet Class --- (omitted for brevity in thoughts, but included in file)
+        class Bullet {
+            constructor(startX, startY, target) {
+                this.x = startX;
+                this.y = startY;
+                this.target = target;
+                this.speed = 10;
+                this.size = 4;
+                this.color = '#38bdf8';
+                this.isAlive = true;
+                this.damage = 1.5;
+            }
+
+            update(game) {
+                if (!this.isAlive) return;
+                if (!this.target || !this.target.isAlive) {
+                    this.isAlive = false;
+                    return;
+                }
+                const dx = this.target.x - this.x;
+                const dy = this.target.y - this.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                const scaledSpeed = this.speed * currentScale;
+                if (dist < scaledSpeed || dist < this.target.size * currentScale) {
+                    this.isAlive = false;
+                    this.target.takeDamage(this.damage, game);
+                    return;
+                }
+                this.x += (dx / dist) * scaledSpeed;
+                this.y += (dy / dist) * scaledSpeed;
+                if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
+                    this.isAlive = false;
+                }
+            }
+
+            draw(ctx) {
+                if (!this.isAlive) return;
+                ctx.fillStyle = this.color;
+                ctx.shadowColor = this.color;
+                ctx.shadowBlur = 10;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size * currentScale, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+        }
+
+
+        // --- Game Classes ---
+        class Bug {
+            constructor(path, health, speed) {
+                this.path = path;
+                this.pathIndex = 0;
+                this.x = path[0].x;
+                this.y = path[0].y;
+                this.health = health;
+                this.maxHealth = health;
+                this.baseSpeed = speed;
+                this.speed = speed * (0.9 + Math.random() * 0.2);
+                this.size = 12;
+                this.color = '#e11d48';
+                this.isAlive = true;
+            }
+
+            update() {
+                if (!this.isAlive) return;
+
+                const target = this.path[this.pathIndex + 1];
+                if (!target) {
+                    this.isAlive = false;
+                    game.takeCoreDamage(20);
+                    return;
+                }
+
+                const dx = target.x - this.x;
+                const dy = target.y - this.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                
+                const moveDist = this.speed * currentScale;
+
+                if (dist < moveDist) {
+                    this.x = target.x;
+                    this.y = target.y;
+                    this.pathIndex++;
+                } else {
+                    this.x += (dx / dist) * moveDist;
+                    this.y += (dy / dist) * moveDist;
+                }
+            }
+
+            draw(ctx) {
+                if (!this.isAlive) return;
+
+                const scaledSize = this.size * currentScale;
+
+                ctx.fillStyle = this.color;
+                ctx.shadowColor = this.color;
+                ctx.shadowBlur = 10;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, scaledSize, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+
+                if (this.health < this.maxHealth) {
+                    const barWidth = 20 * currentScale;
+                    const barHeight = 4 * currentScale;
+                    const barX = this.x - barWidth / 2;
+                    const barY = this.y - scaledSize - (8 * currentScale);
+                    const healthPct = this.health / this.maxHealth;
+
+                    ctx.fillStyle = '#444';
+                    ctx.fillRect(barX, barY, barWidth, barHeight);
+                    ctx.fillStyle = healthPct > 0.5 ? '#22c55e' : (healthPct > 0.2 ? '#f59e0b' : '#ef4444');
+                    ctx.fillRect(barX, barY, barWidth * healthPct, barHeight);
+                }
+            }
+
+            takeDamage(amount, game) {
+                this.health -= amount;
+                playSound('hit');
+                
+                for(let i = 0; i < 5; i++) {
+                    game.particles.push(new Particle(
+                        this.x, this.y, 
+                        '#f87171',
+                        2, 
+                        (Math.random() - 0.5) * 2, 
+                        (Math.random() - 0.5) * 2,
+                        0.05
+                    ));
+                }
+
+                if (this.health <= 0) {
+                    this.isAlive = false;
+                    game.addScore(100);
+                    for(let i = 0; i < 20; i++) {
+                        game.particles.push(new Particle(
+                            this.x, this.y, 
+                            '#ffcc00', 
+                            3 + Math.random() * 2, 
+                            (Math.random() - 0.5) * 5, 
+                            (Math.random() - 0.5) * 5,
+                            0.02
+                        ));
+                    }
+                }
+            }
+        }
+
+        class Turret {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.size = 20;
+                this.target = null;
+                this.burstShotsLeft = 0;
+                this.timeToNextShot = 0;
+            }
+
+            findTarget(bugs) {
+                if (this.burstShotsLeft > 0 && this.target && this.target.isAlive) {
+                    return;
+                }
+                
+                this.target = null;
+                let maxProgress = -1;
+
+                bugs.forEach(bug => {
+                    if (bug.isAlive) {
+                        let progress = bug.pathIndex;
+                        const target = bug.path[bug.pathIndex + 1];
+                        if (target) {
+                            const start = bug.path[bug.pathIndex];
+                            const totalDist = Math.sqrt(Math.pow(target.x - start.x, 2) + Math.pow(target.y - start.y, 2));
+                            const currentDist = Math.sqrt(Math.pow(target.x - bug.x, 2) + Math.pow(target.y - bug.y, 2));
+                            if (totalDist > 0) {
+                                progress += (1 - (currentDist / totalDist));
+                            }
+                        }
+                        
+                        if (progress > maxProgress) {
+                            maxProgress = progress;
+                            this.target = bug;
+                        }
+                    }
+                });
+            }
+            
+            fire(game) {
+                if (this.target && this.burstShotsLeft === 0) {
+                    this.burstShotsLeft = 15;
+                    this.timeToNextShot = 0;
+                }
+            }
+            
+            update(game) {
+                this.findTarget(game.bugs);
+                
+                if (this.burstShotsLeft > 0) {
+                    this.timeToNextShot--;
+                    if (this.timeToNextShot <= 0) {
+                        this.timeToNextShot = 4;
+                        this.burstShotsLeft--;
+                        
+                        const turretPos = getPos(5, 4);
+
+                        if (this.target && this.target.isAlive) {
+                            const bullet = new Bullet(turretPos.x, turretPos.y, this.target);
+                            game.bullets.push(bullet);
+                            playSound('laser');
+                        } else {
+                            this.burstShotsLeft = 0;
+                        }
+                    }
+                }
+            }
+
+            draw(ctx) {
+                const scaledSize = this.size * currentScale;
+                const { x: drawX, y: drawY } = getPos(5, 4);
+
+                ctx.fillStyle = '#94a3b8';
+                ctx.beginPath();
+                ctx.arc(drawX, drawY, scaledSize, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.strokeStyle = '#e2e8f0';
+                ctx.lineWidth = 6 * currentScale;
+                ctx.beginPath();
+                ctx.moveTo(drawX, drawY);
+
+                let angle = 0;
+                if (this.target) {
+                    angle = Math.atan2(this.target.y - drawY, this.target.x - drawX);
+                }
+                const recoil = this.burstShotsLeft > 0 ? Math.sin(this.burstShotsLeft) * 3 * currentScale : 0;
+                ctx.lineTo(drawX + Math.cos(angle) * (scaledSize + 5 * currentScale - recoil), drawY + Math.sin(angle) * (scaledSize + 5 * currentScale - recoil));
+                ctx.stroke();
+            }
+        }
+
+        class Game {
+            constructor() {
+                this.bugs = [];
+                this.bullets = [];
+                this.particles = [];
+                this.turret = new Turret(5, 4);
+                this.path = [];
+                this.pathLength = 0;
+                this.score = 0;
+                this.coreHealth = 100;
+                this.isGameOver = false;
+                
+                // NEW MENU STATE
+                this.isPaused = false;
+                this.menuState = 'main'; // 'main' or 'grade'
+                this.menuSelection = 0;
+                this.currentGradeIndex = 2; // Default to Grade 1 (index 2)
+                
+                this.level = 1;
+                this.wave = 0;
+                this.wavesPerLevel = 5;
+                this.isWaveCleared = false;
+                this.waveClearCountdown = 0; 
+
+                this.timeToNextWave = 3 * 60; 
+                this.timeToNextBug = 0;
+                this.bugsToSpawn = 0;
+                
+                this.bugBaseHealth = 20;
+                this.bugBaseTime = 45 * 60;
+
+                this.currentProblem = null;
+                this.lastFrameTime = 0;
+                this.totalTime = 0;
+
+                this.loadLevel(1);
+            }
+            
+            // --- MENU LOGIC ---
+            togglePause() {
+                if (this.isGameOver) return;
+                this.isPaused = !this.isPaused;
+                if (this.isPaused) {
+                    this.showMenu('main');
+                } else {
+                    pauseMenuModal.classList.add('hidden');
+                    pauseMenuModal.classList.remove('flex');
+                    setTimeout(() => answerInput.focus(), 0); 
+                    requestAnimationFrame(gameLoop);
+                }
+            }
+
+            showMenu(state) {
+                this.menuState = state;
+                this.menuSelection = 0; 
+                
+                mainMenu.classList.add('hidden');
+                gradeMenu.classList.add('hidden');
+                
+                if (state === 'main') {
+                    mainMenu.classList.remove('hidden');
+                    // Reset selection to RESUME
+                    this.menuSelection = 0;
+                } else if (state === 'grade') {
+                    gradeMenu.classList.remove('hidden');
+                    // Set initial selection to current grade index
+                    this.menuSelection = this.currentGradeIndex; 
+                }
+                
+                this.updateMenuDisplay();
+                pauseMenuModal.classList.remove('hidden');
+                pauseMenuModal.classList.add('flex');
+            }
+
+            updateMenuDisplay() {
+                const menuId = this.menuState === 'main' ? 'main-menu' : 'grade-menu';
+                const options = document.getElementById(menuId).querySelectorAll('.menu-option');
+                
+                options.forEach((opt, index) => {
+                    opt.classList.remove('selected');
+                    if (index === this.menuSelection) {
+                        opt.classList.add('selected');
+                    }
+                });
+                
+                // Update the current grade display text in the main menu
+                currentGradeDisplay.textContent = GRADE_LEVELS[this.currentGradeIndex].label;
+            }
+
+            navigateMenu(direction) {
+                const menuId = this.menuState === 'main' ? 'main-menu' : 'grade-menu';
+                const options = document.getElementById(menuId).querySelectorAll('.menu-option');
+                
+                if (direction === 'up') {
+                    this.menuSelection = (this.menuSelection - 1 + options.length) % options.length;
+                } else if (direction === 'down') {
+                    this.menuSelection = (this.menuSelection + 1) % options.length;
+                }
+                playSound('menuClick');
+                this.updateMenuDisplay();
+            }
+
+            selectMenuOption() {
+                const menuId = this.menuState === 'main' ? 'main-menu' : 'grade-menu';
+                const options = document.getElementById(menuId).querySelectorAll('.menu-option');
+                const selectedOption = options[this.menuSelection];
+                const action = selectedOption.getAttribute('data-action');
+                const gradeIndex = selectedOption.getAttribute('data-grade-index');
+                
+                playSound('menuConfirm');
+
+                if (action === 'resume') {
+                    this.togglePause();
+                } else if (action === 'grade-select') {
+                    this.showMenu('grade');
+                } else if (action === 'restart') {
+                    this.restart();
+                } else if (action === 'back') {
+                    this.showMenu('main');
+                } else if (gradeIndex !== null) {
+                    // Grade selection action
+                    this.currentGradeIndex = parseInt(gradeIndex);
+                    // Force restart to apply new difficulty setting
+                    this.restart(); 
+                }
+            }
+            
+            // --- GAME SETUP LOGIC ---
+
+            loadLevel(level) {
+                this.level = level;
+                this.wave = 0;
+                
+                const pathIndex = (this.level - 1) % levelPathsBase.length;
+                this.pathBase = levelPathsBase[pathIndex];
+                this.pathLength = levelPathLengths[pathIndex];
+                this.path = mapPath(this.pathBase);
+                
+                // Difficulty scales with the CURRENT GRADE LEVEL, not just 'level'
+                const difficultyModifier = GRADE_LEVELS[this.currentGradeIndex].baseDifficulty + (this.level * 2);
+
+                this.bugBaseHealth = 20 + difficultyModifier * 2; 
+                this.bugBaseTime = Math.max(30 * 60, (45 - (difficultyModifier * 0.5)) * 60); 
+                
+                this.bugs = [];
+                this.bullets = [];
+                this.particles = [];
+                this.turret.burstShotsLeft = 0;
+                
+                this.isWaveCleared = false;
+                this.waveClearCountdown = 0;
+                
+                this.startNextWave();
+                this.updateUI();
+                
+                if (level > 1) {
+                    playSound('levelUp');
+                }
+                this.updateMenuDisplay(); // Update grade text in menu
+            }
+
+            remapEntities() {
+                this.path = mapPath(this.pathBase);
+                this.bugs.forEach(bug => {
+                    const oldPath = bug.path;
+                    bug.path = this.path; 
+                    if (bug.pathIndex < oldPath.length - 1) { 
+                        const newPos = this.path[bug.pathIndex];
+                        const oldPos = oldPath[bug.pathIndex];
+                        let relX = (bug.x - oldPos.x) / (oldPath[bug.pathIndex + 1] ? (oldPath[bug.pathIndex + 1].x - oldPos.x) : 1);
+                        let relY = (bug.y - oldPos.y) / (oldPath[bug.pathIndex + 1] ? (oldPath[bug.pathIndex + 1].y - oldPos.y) : 1);
+
+                        if (!isFinite(relX) || !isFinite(relY)) {
+                            bug.x = newPos.x;
+                            bug.y = newPos.y;
+                        } else {
+                            bug.x = newPos.x + relX * (bug.path[bug.pathIndex + 1].x - newPos.x);
+                            bug.y = newPos.y + relY * (bug.path[bug.pathIndex + 1].y - newPos.y);
+                        }
+                    } else {
+                        const endPos = this.path[this.path.length - 1];
+                        bug.x = endPos.x;
+                        bug.y = endPos.y;
+                    }
+                });
+            }
+
+            startNextWave() {
+                this.wave++;
+                
+                if (this.wave > this.wavesPerLevel) {
+                    this.loadLevel(this.level + 1);
+                    return;
+                }
+                
+                this.bugsToSpawn = 5 + (this.wave * 2) + (this.level * 3);
+                this.timeToNextBug = 0;
+                this.updateUI();
+                this.generateProblem();
+            }
+
+            generateProblem() {
+                let a, b, op, solution;
+                // Base difficulty driven by the selected grade level
+                const baseDiff = GRADE_LEVELS[this.currentGradeIndex].baseDifficulty;
+                // Progressive difficulty combines base grade with current level/wave
+                const difficulty = baseDiff + this.level + Math.floor(this.wave / 2);
+                
+                if (difficulty < 3) { // JK / Easy Addition
+                    a = Math.floor(Math.random() * 6) + 1;
+                    b = Math.floor(Math.random() * (10 - a)) + 1; // Sum <= 10
+                    solution = a + b;
+                    op = '+';
+                } else if (difficulty < 5) { // SK / Med Addition
+                    a = Math.floor(Math.random() * 10) + 5;
+                    b = Math.floor(Math.random() * 10) + 1;
+                    solution = a + b;
+                    op = '+';
+                } else if (difficulty < 7) { // Grade 1 / Subtraction
+                    a = Math.floor(Math.random() * 15) + 5;
+                    b = Math.floor(Math.random() * a) + 1;
+                    solution = a - b;
+                    op = '-';
+                } else if (difficulty < 9) { // Grade 2 / Multiplication
+                    a = Math.floor(Math.random() * 7) + 2; // 2 to 8
+                    b = Math.floor(Math.random() * 7) + 2; // 2 to 8
+                    solution = a * b;
+                    op = '×';
+                } else if (difficulty < 12) { // Grade 3 / Mixed
+                    if (Math.random() < 0.6) { // Multiplication bias
+                        a = Math.floor(Math.random() * 8) + 3; 
+                        b = Math.floor(Math.random() * 8) + 3; 
+                        solution = a * b;
+                        op = '×';
+                    } else { // Easy Division
+                        b = Math.floor(Math.random() * 6) + 3; // Divisor 3-8
+                        solution = Math.floor(Math.random() * 6) + 3; // Quotient 3-8
+                        a = b * solution;
+                        op = '÷';
+                    }
+                } else { // Grade 4/5 / Challenging Mixed
+                    if (Math.random() < 0.5) { // Harder Multiplication
+                        a = Math.floor(Math.random() * 10) + 5; // 5-14
+                        b = Math.floor(Math.random() * 8) + 4; // 4-11
+                        solution = a * b;
+                        op = '×';
+                    } else { // Harder Division
+                        b = Math.floor(Math.random() * 10) + 5; // Divisor 5-14
+                        solution = Math.floor(Math.random() * 10) + 5; // Quotient 5-14
+                        a = b * solution;
+                        op = '÷';
+                    }
+                }
+
+                this.currentProblem = { a, b, op, solution: solution.toString() };
+                problemDisplay.textContent = `${a} ${op} ${b} = `; 
+            }
+
+            checkAnswer(answer) {
+                if (this.isGameOver || this.isPaused) return;
+                
+                if (answer === this.currentProblem.solution) {
+                    this.turret.fire(this);
+                    this.generateProblem();
+                    answerInput.value = '';
+                    setTimeout(() => answerInput.focus(), 0);
+                } else {
+                    playSound('error');
+                    answerInput.value = '';
+                    setTimeout(() => answerInput.focus(), 0);
+                }
+            }
+            
+            takeCoreDamage(amount) {
+                this.coreHealth -= amount;
+                playSound('coreDamage');
+                if (this.coreHealth <= 0) {
+                    this.coreHealth = 0;
+                    this.gameOver(false);
+                }
+                this.updateUI();
+            }
+
+            addScore(amount) {
+                this.score += amount * this.level;
+                this.updateUI();
+            }
+
+            update() {
+                if (this.isGameOver || this.isPaused) return;
+                
+                const allBugsDead = this.bugs.every(b => !b.isAlive);
+                
+                // 1. Enter Pause Phase (Last bug killed)
+                if (this.bugsToSpawn === 0 && allBugsDead && !this.isWaveCleared) {
+                    this.isWaveCleared = true;
+                    this.waveClearCountdown = 5 * 60;
+                }
+                
+                // 2. Pause Phase (Countdown and Display Message)
+                if (this.isWaveCleared) {
+                    this.waveClearCountdown -= 1;
+                    
+                    const seconds = Math.ceil(this.waveClearCountdown / 60);
+                    waveMessageOverlay.classList.remove('hidden');
+                    waveMessageOverlay.classList.add('flex');
+                    
+                    const isEndOfLevel = this.wave === this.wavesPerLevel;
+
+                    waveTitleMessage.textContent = isEndOfLevel ? 
+                        `LEVEL ${this.level} SECURED` : 
+                        `WAVE ${this.wave} CLEARED`;
+                    
+                    waveCountdown.textContent = isEndOfLevel ?
+                        `NEXT LEVEL IN: ${seconds}` :
+                        `PREPARE FOR WAVE ${this.wave + 1} IN: ${seconds}`;
+
+                    if (this.waveClearCountdown <= 0) {
+                        playSound('waveClear');
+                        this.isWaveCleared = false;
+                        this.startNextWave();
+                    }
+                }
+                
+                // 3. Spawning Phase
+                else if (this.bugsToSpawn > 0) {
+                    this.timeToNextBug -= 1;
+                    if (this.timeToNextBug <= 0) {
+                        const bugHealth = this.bugBaseHealth + Math.floor(Math.random() * 5 * this.wave);
+                        
+                        const waveTimeBonus = Math.max(0, (this.wave - 1) * 2 * 60);
+                        const bugSpeed = this.pathLength / (this.bugBaseTime - waveTimeBonus);
+                        
+                        this.bugs.push(new Bug(this.path, bugHealth, bugSpeed));
+                        this.bugsToSpawn--;
+                        this.timeToNextBug = 180;
+                    }
+                    waveMessageOverlay.classList.remove('flex');
+                    waveMessageOverlay.classList.add('hidden');
+                }
+                
+                // 4. Active Play Phase
+                else {
+                    waveMessageOverlay.classList.remove('flex');
+                    waveMessageOverlay.classList.add('hidden');
+                }
+
+                // --- Update Game Objects ---
+                this.bugs = this.bugs.filter(bug => bug.isAlive);
+                this.bugs.forEach(bug => bug.update());
+                
+                this.bullets = this.bullets.filter(b => b.isAlive);
+                this.bullets.forEach(b => b.update(this));
+                
+                this.particles = this.particles.filter(p => p.isAlive);
+                this.particles.forEach(p => p.update());
+                
+                this.turret.update(this);
+            }
+
+            draw() {
+                // 1. Clear canvas
+                ctx.fillStyle = '#0c0c14';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // 2. Draw Path (unchanged)
+                ctx.strokeStyle = '#28283c';
+                ctx.lineWidth = 40 * currentScale;
+                ctx.shadowColor = '#6366f1';
+                ctx.shadowBlur = 20;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.beginPath();
+                ctx.moveTo(this.path[0].x, this.path[0].y);
+                for (let i = 1; i < this.path.length; i++) {
+                    ctx.lineTo(this.path[i].x, this.path[i].y);
+                }
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+
+                // 3. Draw Core (unchanged)
+                const corePos = this.path[this.path.length - 1];
+                ctx.fillStyle = '#f85149';
+                ctx.shadowColor = '#f85149';
+                ctx.shadowBlur = 20;
+                
+                const lastPoint = this.path[this.path.length - 2];
+                const coreAngle = Math.atan2(corePos.y - lastPoint.y, corePos.x - lastPoint.x);
+                
+                ctx.save();
+                ctx.translate(corePos.x, corePos.y);
+                ctx.rotate(coreAngle);
+                
+                const coreWidth = 50 * currentScale;
+                const coreHeight = 36 * currentScale;
+                
+                ctx.fillRect(0, -coreHeight / 2, coreWidth * 0.5, coreHeight); 
+                ctx.restore();
+                
+                ctx.shadowBlur = 0;
+
+                // 4. Draw Turret
+                this.turret.draw(ctx);
+
+                // 5. Draw Bugs
+                this.bugs.forEach(bug => bug.draw(ctx));
+                
+                // 6. Draw Bullets
+                this.bullets.forEach(b => b.draw(ctx)); 
+                
+                // 7. Draw Particles
+                this.particles.forEach(p => p.draw(ctx));
+            }
+
+            updateUI() {
+                coreHealthBar.style.width = `${this.coreHealth}%`;
+                scoreDisplay.textContent = this.score;
+                waveDisplay.textContent = `${this.wave} / ${this.wavesPerLevel}`;
+                levelDisplay.textContent = this.level;
+                
+                if (this.coreHealth > 60) {
+                    coreHealthBar.style.backgroundColor = '#10b981';
+                    coreHealthBar.style.boxShadow = '0 0 10px #10b981';
+                } else if (this.coreHealth > 30) {
+                    coreHealthBar.style.backgroundColor = '#f59e0b';
+                    coreHealthBar.style.boxShadow = '0 0 10px #f59e0b';
+                } else {
+                    coreHealthBar.style.backgroundColor = '#ef4444';
+                    coreHealthBar.style.boxShadow = '0 0 10px #ef4444';
+                }
+            }
+
+            gameOver(isWin) {
+                this.isGameOver = true;
+                if (isWin) {
+                    gameOverTitle.textContent = "SYSTEM SECURE";
+                    gameOverTitle.classList.remove('text-red-500');
+                    gameOverTitle.classList.add('text-emerald-400');
+                } else {
+                    gameOverTitle.textContent = "CORE DESTROYED";
+                    gameOverTitle.classList.add('text-red-500');
+                    gameOverTitle.classList.remove('text-emerald-400');
+                }
+                finalScore.textContent = this.score;
+                finalWave.textContent = this.wave;
+                finalLevel.textContent = this.level;
+                gameOverModal.classList.remove('hidden');
+                gameOverModal.classList.add('flex');
+            }
+
+            restart() {
+                // Hide pause menu if open
+                if (this.isPaused) this.togglePause(); 
+                
+                this.score = 0;
+                this.coreHealth = 100;
+                this.isGameOver = false;
+                this.level = 1;
+                
+                this.loadLevel(1);
+                
+                this.updateUI();
+                this.generateProblem();
+                gameOverModal.classList.add('hidden');
+                gameOverModal.classList.remove('flex');
+                setTimeout(() => answerInput.focus(), 0);
+            }
+        }
+
+        // --- Menu Event Handlers ---
+        document.querySelectorAll('.menu-option').forEach(button => {
+            button.addEventListener('click', (e) => {
+                if (!game || !game.isPaused) return;
+
+                const menuId = game.menuState === 'main' ? 'main-menu' : 'grade-menu';
+                const options = document.getElementById(menuId).querySelectorAll('.menu-option');
+                
+                // Find index of clicked button
+                let clickedIndex = -1;
+                options.forEach((opt, index) => {
+                    if (opt === e.currentTarget) {
+                        clickedIndex = index;
+                    }
+                });
+                
+                if (clickedIndex !== -1) {
+                    game.menuSelection = clickedIndex;
+                    game.selectMenuOption();
+                }
+            });
+        });
+
+
+        // --- Game Loop ---
+        let lastTimestamp = 0;
+        function gameLoop(timestamp) {
+            if (!game) return;
+            
+            // Do not run game logic if paused or over
+            if (game.isPaused || game.isGameOver) {
+                 // Still draw the current state while paused
+                 game.draw(); 
+                 return;
+            }
+            
+            const timeSinceLastFrame = timestamp - lastTimestamp;
+            const targetFrameTime = 1000 / 60;
+
+            if (timeSinceLastFrame >= targetFrameTime) {
+                const framesToUpdate = Math.min(4, Math.floor(timeSinceLastFrame / targetFrameTime));
+                
+                for(let i=0; i < framesToUpdate; i++) {
+                    game.update(lastTimestamp + (i * targetFrameTime)); 
+                }
+                lastTimestamp = lastTimestamp + (framesToUpdate * targetFrameTime);
+                
+                game.draw();
+            }
+            
+            requestAnimationFrame(gameLoop);
+        }
+
+        // --- Global Event Listeners (Menu and Input) ---
+        function submitAnswer() {
+            if (game) {
+                game.checkAnswer(answerInput.value.trim());
+            }
+        }
+        
+        document.addEventListener('keydown', (e) => {
+            initializeAudio();
+
+            // 1. Handle Pause Key ('P') - Highest priority
+            if (e.key === 'p' || e.key === 'P') {
+                e.preventDefault();
+                game.togglePause();
+                return;
+            }
+
+            // 2. Handle Menu Navigation (if paused)
+            if (game && game.isPaused) {
+                e.preventDefault();
+                if (e.key === 'ArrowUp') {
+                    game.navigateMenu('up');
+                } else if (e.key === 'ArrowDown') {
+                    game.navigateMenu('down');
+                } else if (e.key === 'Enter' || e.code === 'Space') {
+                    game.selectMenuOption();
+                }
+                return;
+            }
+
+            // 3. Handle Game Input (if unpaused)
+            if (game && !game.isPaused) {
+                if (e.key === 'Enter' || e.code === 'Space') { 
+                    submitAnswer();
+                    e.preventDefault();
+                }
+            }
+        });
+        
+        // Focus Lock - Mousedown on the document body to reliably recapture focus
+        document.body.addEventListener('mousedown', (e) => {
+            if (game && !game.isPaused && !game.isGameOver) {
+                if (e.target !== answerInput && !gameOverModal.contains(e.target) && !pauseMenuModal.contains(e.target)) {
+                    focusInputIfGameActive();
+                }
+            }
+        });
+
+        // Focus restoration helper
+        function focusInputIfGameActive() {
+            if (game && !game.isGameOver && !game.isPaused && document.activeElement !== answerInput) {
+                setTimeout(() => {
+                    answerInput.focus();
+                }, 0); 
+            }
+        }
+
+
+        // --- Initialization and Responsiveness Setup ---
+        window.addEventListener('resize', () => {
+            if (game) {
+                resizeCanvas();
+                game.remapEntities(); 
+                game.draw();
+            }
+        });
+
+        window.addEventListener('load', () => {
+            resizeCanvas(); 
+            game = new Game();
+            game.updateMenuDisplay(); // Initial display setup
+            requestAnimationFrame(gameLoop);
+            setTimeout(() => { 
+                answerInput.focus();
+            }, 0);
+        });
+
+    </script>
+</body>
+</html>
