@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Place Value Quest: Quest 1</title>
+    <!-- Load Press Start 2P for the arcade theme and Inter for clean text -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Tone.js for simple audio feedback -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
+
+    <script>
+        // Custom Tailwind Config for Brain Boost Arcade Theme colors
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'hub-bg': '#1A1A1A',
+                        'card-bg': 'rgba(45, 45, 45, 0.8)',
+                        'arcade-red': '#FF4136',
+                        'arcade-blue': '#0074D9',
+                        'arcade-green': '#2ECC40',
+                        'arcade-yellow': '#FFDC00',
+                        'text-light': '#E5E7EB',
+                        'text-medium': '#9CA3AF',
+                        'border-light': '#4B5563',
+                    },
+                    fontFamily: {
+                        pixel: ['"Press Start 2P"', 'cursive'],
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Base styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a1a1a;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 15px 15px;
+            color: #ffffff;
+            min-height: 100vh;
+            /* Flex setup for centering the entire content column */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column; 
+            padding: 2rem;
+            position: relative;
+        }
+        
+        /* Floating Title Header */
+        .quest-title-header {
+            font-family: 'Press Start 2P', cursive;
+            margin-bottom: 2rem;
+            text-shadow: 0 0 10px #FFDC00, 0 0 20px rgba(255, 220, 0, 0.7);
+        }
+
+        /* Arcade Button Styling (Primary) */
+        .arcade-btn {
+            font-family: 'Press Start 2P', cursive;
+            padding: 1rem 2.5rem;
+            border: 4px solid #fff;
+            border-radius: 12px;
+            background-color: #0074D9;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            box-shadow: 0 6px 0 0 #0056a0, 0 10px 0 0 rgba(0, 0, 0, 0.5);
+        }
+
+        .arcade-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 0 0 #0056a0, 0 12px 0 0 rgba(0, 0, 0, 0.5);
+        }
+
+        .arcade-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 0 #0056a0, 0 5px 0 0 rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Custom styles for the game container */
+        .game-container-style {
+            border: 6px solid #FFDC00;
+            border-radius: 20px;
+            background-color: rgba(16, 16, 16, 0.9);
+            box-shadow: 0 0 30px rgba(255, 220, 0, 0.5), inset 0 0 10px rgba(255, 220, 0, 0.3);
+            min-height: 500px;
+        }
+
+        /* Input field styling */
+        #answer-input {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.5rem;
+            border: 3px solid #0074D9;
+            border-radius: 8px;
+            text-align: center;
+            background-color: #E5E7EB;
+            color: #1A1A1A;
+            transition: border-color 0.2s;
+        }
+
+        #answer-input:focus {
+            outline: none;
+            border-color: #FFDC00;
+            box-shadow: 0 0 10px rgba(255, 220, 0, 0.7);
+        }
+
+        /* Hide the default number input arrows (spinners) */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        /* Feedback Modal/Pop-up Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+        }
+
+        .modal-content {
+            font-family: 'Inter', sans-serif;
+            background-color: #1A1A1A;
+            border: 6px solid #FF4136;
+            border-radius: 15px;
+            padding: 2rem;
+            max-width: 90%;
+            text-align: center;
+            box-shadow: 0 0 25px rgba(255, 65, 54, 0.8);
+        }
+        
+        /* START MENU Modal Styles (WIDER) */
+        #start-modal {
+            background-color: rgba(26, 26, 26, 0.95);
+        }
+
+        #start-modal-content {
+            background-color: #374151;
+            border: 6px solid #0074D9;
+            border-radius: 20px;
+            padding: 3rem;
+            max-width: 90%;
+            width: 800px;
+            box-shadow: 0 0 40px rgba(0, 116, 217, 0.5);
+        }
+
+        .instruction-box {
+            border: 4px dashed #FFDC00;
+            background-color: #1A1A1A;
+        }
+        
+        /* Center the input area snugly */
+        #input-area {
+            max-width: 300px; 
+            width: 100%; 
+        }
+
+        /* Ensure game over elements are centered within their container */
+        #game-over-state > * {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .target-value-text {
+            font-size: 2.25rem; /* text-4xl */
+            font-weight: 900; /* font-black */
+            color: #FFDC00; /* arcade-yellow */
+            text-shadow: 0 0 5px rgba(255, 220, 0, 0.8);
+            display: inline-block;
+            margin: 0 0.5rem;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body class="p-4">
+    
+    <!-- Floating Title Header -->
+    <h1 class="quest-title-header text-4xl sm:text-5xl font-extrabold uppercase text-arcade-yellow tracking-tight text-center">
+        PLACE VALUE: QUEST 1
+    </h1>
+
+    <!-- START MENU MODAL (Full Screen Overlay) -->
+    <div id="start-modal" class="modal">
+        <div id="start-modal-content" class="text-center">
+            
+            <div id="quest-instructions" class="text-left max-w-xl mx-auto mb-8 space-y-4 text-text-light">
+                <h2 class="text-3xl sm:text-4xl font-extrabold uppercase text-arcade-yellow mb-6 text-center" style="font-family: 'Press Start 2P', cursive;">
+                    MISSION BRIEFING
+                </h2>
+                
+                <div id="level-title-display">
+                    <!-- Title updated dynamically by JS -->
+                </div>
+
+                <div class="instruction-box p-6 rounded-xl shadow-lg mt-6">
+                    <h4 class="text-3xl font-extrabold text-arcade-red mb-4">EXAMPLE: The Vault 425</h4>
+                    <div class="text-3xl font-black space-y-3 text-left font-mono">
+                        <p class="text-text-light">
+                            The <span class="text-arcade-red">4</span> (Hundreds) is worth <span class="text-arcade-red font-black">400</span>!
+                        </p>
+                        <p class="text-text-light">
+                            The <span class="text-arcade-green">2</span> (Tens) is worth <span class="text-arcade-green font-black">20</span>!
+                        </p>
+                        <p class="text-text-light">
+                            The <span class="text-arcade-blue">5</span> (Ones) is worth <span class="text-arcade-blue font-black">5</span>!
+                        </p>
+                    </div>
+                </div>
+                <p class="text-xl font-bold mt-6 text-center">
+                    Level Up Goal: Score <span class="text-arcade-green">15 points</span>. Ultimate Mastery: <span class="text-arcade-yellow">25 points!</span>
+                </p>
+            </div>
+
+            <button id="start-button" class="arcade-btn mt-6">START LEVEL 1</button>
+            <p class="text-sm text-gray-500 mt-3">(Press Enter, Spacebar, or Arrow Keys to start)</p>
+        </div>
+    </div>
+    
+    <!-- Main Game Area (Unified Container) -->
+    <main class="w-full max-w-[900px] mx-auto">
+        <div id="game-container-main" class="game-container-style p-6 sm:p-10 flex flex-col items-center justify-center hidden">
+            
+            <!-- Unified HUD (Scoreboard) -->
+            <div id="hud" class="w-full mb-6 pb-4 border-b-4 border-arcade-yellow/50">
+                <div id="scoreboard" class="flex justify-between items-center text-xl font-bold font-pixel">
+                    <span id="score-display" class="text-arcade-green">SCORE: 00</span>
+                    <span id="timer-display" class="text-arcade-red">TIME: 30</span>
+                    <span id="level-display" class="text-arcade-blue">LEVEL 1</span>
+                </div>
+            </div>
+
+            <!-- Game Running State -->
+            <div id="game-state" class="w-full text-center flex-grow flex flex-col items-center justify-center pt-8 pb-8">
+                <p id="question-text" class="text-2xl sm:text-3xl mb-8 font-semibold text-text-light" style="font-family: 'Press Start 2P', cursive;"></p>
+                
+                <div class="flex flex-col items-center space-y-6">
+                    <div id="number-display" class="text-7xl sm:text-9xl font-black text-arcade-yellow tracking-widest font-mono">
+                        000
+                    </div>
+
+                    <!-- Input area now single element, relies on Enter key -->
+                    <div id="input-area" class="flex justify-center mt-8 w-full">
+                        <input type="number" id="answer-input" placeholder="Enter Value" class="w-full h-16 px-4" min="0" max="999">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game Over State -->
+            <div id="game-over-state" class="hidden w-full text-center">
+                <!-- Content populated by JavaScript -->
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Modal for feedback (Used for incorrect answers) -->
+    <div id="feedback-modal" class="modal hidden">
+        <div id="modal-content" class="modal-content">
+            <!-- Content populated by JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        // --- TONE.JS AUDIO SETUP ---
+        const synth = new Tone.PolySynth(Tone.Synth, {
+            oscillator: { type: "square" },
+            envelope: { release: 0.1 }
+        }).toDestination();
+
+        function playCorrectSound() {
+            // Clearer two-step positive tone: C5 -> G5
+            if (Tone.context.state !== 'running') Tone.context.resume();
+            synth.triggerAttackRelease(["C5", "G5"], "16n");
+        }
+
+        function playIncorrectSound() {
+            if (Tone.context.state !== 'running') Tone.context.resume();
+            synth.triggerAttackRelease(["F#3", "C3"], "8n");
+        }
+        
+        // UPDATED: Longer, multi-tone fanfare for passing a level or conquering the quest
+        function playPassFanfare() {
+             if (Tone.context.state !== 'running') Tone.context.resume();
+             const now = Tone.now();
+             
+             // 1. Solid base chord (C4, E4, G4)
+             synth.triggerAttackRelease(["C4", "E4", "G4"], "8n", now);
+             
+             // 2. Ascending run and final sustained note
+             synth.triggerAttackRelease("A4", "8n", now + 0.15); 
+             synth.triggerAttackRelease("B4", "8n", now + 0.30); 
+             synth.triggerAttackRelease("C5", "4n", now + 0.45); // Sustained high C for finale
+        }
+        
+        // Specific fail sound for when the player doesn't meet the requirements
+        function playFailSound() {
+             if (Tone.context.state !== 'running') Tone.context.resume();
+             // Low, descending tone
+             synth.triggerAttackRelease(["C3", "A2", "F2"], "4n");
+        }
+
+        // --- GAME STATE ---
+        let currentNumber = 0;
+        let currentPlace = '';
+        let score = 0;
+        let timeLeft = 30;
+        let timerInterval;
+        let isTimerRunning = false;
+        let currentLevel = 1;
+        const TIME_BONUS = 1; // seconds
+        const TIME_PASS_SCORE = 15; // 15 points needed when time runs out
+        const MASTERY_PASS_SCORE = 25; // 25 points needed for early level up/quest complete
+
+        // --- DOM ELEMENTS ---
+        const startModal = document.getElementById('start-modal');
+        const gameContainerMain = document.getElementById('game-container-main');
+        const gameState = document.getElementById('game-state');
+        const numberDisplay = document.getElementById('number-display');
+        const questionText = document.getElementById('question-text');
+        const answerInput = document.getElementById('answer-input');
+        const scoreDisplay = document.getElementById('score-display');
+        const timerDisplay = document.getElementById('timer-display');
+        const levelDisplay = document.getElementById('level-display');
+        const feedbackModal = document.getElementById('feedback-modal');
+        const modalContent = document.getElementById('modal-content');
+        const startButton = document.getElementById('start-button');
+        const gameOverState = document.getElementById('game-over-state');
+        const levelTitleDisplay = document.getElementById('level-title-display');
+
+        // --- GAME LOGIC ---
+
+        function updateScore(points) {
+            score += points;
+            scoreDisplay.textContent = `SCORE: ${String(score).padStart(2, '0')}`;
+        }
+
+        function updateTimer(seconds) {
+            timeLeft = Math.max(0, timeLeft + seconds);
+            timerDisplay.textContent = `TIME: ${String(timeLeft).padStart(2, '0')}`;
+        }
+
+        function checkLevelUpPass() {
+            // Check for early level up or quest complete (25 points)
+            if (score >= MASTERY_PASS_SCORE) {
+                clearInterval(timerInterval);
+                isTimerRunning = false;
+                // If on Level 1 or 2, call endGame with true score pass flag
+                endGame(true); 
+                return true;
+            }
+            return false;
+        }
+
+        function generateProblem() {
+            // Generate a random 3-digit number (100-999)
+            currentNumber = Math.floor(Math.random() * 900) + 100;
+            const places = ['Hundreds', 'Tens', 'Ones'];
+            currentPlace = places[Math.floor(Math.random() * places.length)];
+
+            if (currentLevel === 1) {
+                // Level 1: Ask for VALUE, provide highlighting
+                numberDisplay.innerHTML = formatNumberForDisplay(currentNumber, currentPlace);
+                questionText.textContent = `What is the VALUE of the ${currentPlace} place?`;
+                answerInput.placeholder = "Enter Value";
+                answerInput.setAttribute('max', '900'); // Max answer for value is 900
+            } else if (currentLevel === 2) {
+                // Level 2: Ask for DIGIT, no highlighting
+                numberDisplay.textContent = String(currentNumber);
+                questionText.innerHTML = `Which <span class="text-arcade-yellow">DIGIT</span> is in the <span class="target-value-text">${currentPlace}</span> place?`;
+                answerInput.placeholder = "Enter Digit";
+                answerInput.setAttribute('max', '9'); // Max answer for digit is 9
+            }
+
+            answerInput.value = ''; // Clear input for next problem
+            answerInput.focus();
+        }
+
+        function formatNumberForDisplay(number, place) {
+            const numStr = String(number);
+            let html = '';
+            
+            // Highlight the correct digit based on the place value asked
+            for (let i = 0; i < numStr.length; i++) {
+                let digit = numStr[i];
+                let cssClass = '';
+                
+                if (i === 0 && place === 'Hundreds') cssClass = 'text-arcade-red';
+                else if (i === 1 && place === 'Tens') cssClass = 'text-arcade-green';
+                else if (i === 2 && place === 'Ones') cssClass = 'text-arcade-blue';
+
+                html += `<span class="${cssClass}">${digit}</span>`;
+            }
+            return html;
+        }
+
+        function checkAnswer() {
+            let userAnswer = parseInt(answerInput.value);
+            // Check for valid number input
+            if (isNaN(userAnswer) || answerInput.value === '') return; 
+
+            const numStr = String(currentNumber);
+            const digits = numStr.split('').map(Number);
+            let expectedAnswer;
+
+            // 1. Calculate the Expected Answer based on the current level
+            if (currentLevel === 1) {
+                // Level 1: Expected answer is the VALUE (e.g., 400)
+                if (currentPlace === 'Hundreds') expectedAnswer = digits[0] * 100;
+                else if (currentPlace === 'Tens') expectedAnswer = digits[1] * 10;
+                else expectedAnswer = digits[2];
+
+            } else if (currentLevel === 2) {
+                // Level 2: Expected answer is the DIGIT (e.g., 4)
+                if (currentPlace === 'Hundreds') expectedAnswer = digits[0];
+                else if (currentPlace === 'Tens') expectedAnswer = digits[1];
+                else expectedAnswer = digits[2];
+            }
+            
+            if (!isTimerRunning) {
+                startTimer(); // Start the timer on the first submission
+            }
+
+            if (userAnswer === expectedAnswer) {
+                playCorrectSound();
+                updateScore(1);
+                updateTimer(TIME_BONUS); // Add time bonus
+                
+                // Check for Mastery Pass immediately after correct answer
+                if (!checkLevelUpPass()) {
+                     generateProblem(); // Move to next problem immediately if no level up
+                }
+            } else {
+                playIncorrectSound();
+                showFeedback('INCORRECT!', `The correct answer was **${expectedAnswer}**. Think about the difference between the **digit** and its **value**!`, 'CONTINUE', 'arcade-red');
+            }
+        }
+
+        function startTimer() {
+            if (isTimerRunning) return;
+
+            isTimerRunning = true;
+            timerInterval = setInterval(() => {
+                updateTimer(-1); // Subtract 1 second
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    endGame(false); // False indicates time ran out
+                }
+            }, 1000);
+        }
+
+        function endGame(isScorePass) {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+            
+            gameState.classList.add('hidden');
+            gameOverState.classList.remove('hidden');
+
+            let title, message, buttonText, buttonAction, buttonClass;
+            
+            // Determine if the player passed the level (15+ at end of time, or 25+ score pass)
+            const isPassed = isScorePass || (score >= TIME_PASS_SCORE);
+
+            if (isPassed) {
+                playPassFanfare(); // Play positive fanfare
+            } else {
+                playFailSound(); // Play fail sound
+            }
+
+
+            if (currentLevel === 1) {
+                if (isPassed) {
+                    // Passed Level 1 (Either 25+ early or 15+ at end of time)
+                    title = isScorePass ? "LEVEL 1 MASTERED!" : "LEVEL 1 PASSED!";
+                    message = `Outstanding work! You scored **${score} points** and unlocked the next challenge!`;
+                    buttonText = "START LEVEL 2";
+                    buttonAction = `prepareNextLevel(2)`;
+                    buttonClass = 'bg-arcade-green border-arcade-green';
+                } else {
+                    // Failed Level 1 (Less than 15 points)
+                    title = `QUEST FAILED!`;
+                    message = `You scored **${score} points**. You need ${TIME_PASS_SCORE} points to pass. Try again!`;
+                    buttonText = `RETRY LEVEL 1`;
+                    buttonAction = `resetGame(1)`;
+                    buttonClass = 'bg-arcade-red border-arcade-red';
+                }
+            } else if (currentLevel === 2) {
+                if (isPassed) {
+                    // Passed Level 2 (Either 25+ early or 15+ at end of time)
+                    title = "QUEST 1 CONQUERED!";
+                    message = `VICTORY! You mastered both levels and secured **${score} points**!`;
+                    buttonText = "RETURN TO HUB";
+                    buttonAction = `window.location.href = 'grade_3_hub.html'`;
+                    buttonClass = 'bg-arcade-yellow border-arcade-yellow text-hub-bg';
+                } else {
+                    // Failed Level 2 (Less than 15 points)
+                    title = `LEVEL 2 FAILED!`;
+                    message = `You scored **${score} points**. You need ${TIME_PASS_SCORE} points to pass Level 2. Try again!`;
+                    buttonText = `RETRY LEVEL 2`;
+                    buttonAction = `resetGame(2)`;
+                    buttonClass = 'bg-arcade-red border-arcade-red';
+                }
+            }
+            
+            gameOverState.innerHTML = `
+                <h2 class="text-4xl font-extrabold uppercase mb-6" style="font-family: 'Press Start 2P', cursive; color: ${buttonClass.includes('yellow') ? '#1A1A1A' : 'inherit'}; text-shadow: ${buttonClass.includes('yellow') ? 'none' : '0 0 5px rgba(255, 255, 255, 0.5)'};">
+                    ${title}
+                </h2>
+                <p class="text-xl mb-8">${message}</p>
+                <button id="end-game-btn" onclick="${buttonAction}" class="arcade-btn ${buttonClass}">
+                    ${buttonText}
+                </button>
+                <p class="text-sm text-gray-500 mt-3">(Press Enter, Spacebar, or Arrow Keys to continue)</p>
+            `;
+            // Add event listener for keyboard prompt
+            document.getElementById('end-game-btn').focus();
+        }
+
+        // Handles the next level transition: updates state and shows start modal
+        function prepareNextLevel(level) {
+            currentLevel = level;
+            resetGame(level);
+        }
+
+        function resetGame(level) {
+            // Reset state
+            currentLevel = level;
+            score = 0;
+            timeLeft = 30;
+            isTimerRunning = false;
+            
+            // Update displays
+            updateScore(0); // This just updates the display to 0
+            updateTimer(0); // This just updates the display to 30
+            levelDisplay.textContent = `LEVEL ${currentLevel}`;
+            
+            // Hide game elements and show start modal
+            gameContainerMain.classList.add('hidden');
+            gameOverState.classList.add('hidden');
+            gameState.classList.remove('hidden'); // Reset game state view
+            
+            // Update start modal content based on the new level
+            updateStartModal();
+            startModal.classList.remove('hidden');
+        }
+
+        function startGame() {
+            startModal.classList.add('hidden');
+            gameContainerMain.classList.remove('hidden');
+            generateProblem();
+            // Timer starts on first submission, not here
+        }
+
+        function showFeedback(title, message, buttonText, borderColor) {
+            modalContent.innerHTML = `
+                <h2 class="text-3xl font-extrabold uppercase mb-4 text-white" style="font-family: 'Press Start 2P', cursive; color: ${borderColor === 'arcade-red' ? '#FF4136' : '#FFDC00'};">
+                    ${title}
+                </h2>
+                <p class="text-lg mb-6">${message}</p>
+                <button id="modal-continue-btn" class="arcade-btn bg-arcade-red border-arcade-red">${buttonText}</button>
+                <p class="text-sm text-gray-500 mt-3">(Press Enter, Spacebar, or Arrow Keys to continue)</p>
+            `;
+            modalContent.style.borderColor = borderColor;
+            
+            const continueBtn = document.getElementById('modal-continue-btn');
+            continueBtn.onclick = hideFeedback;
+            continueBtn.focus();
+
+            feedbackModal.classList.remove('hidden');
+        }
+
+        function hideFeedback() {
+            feedbackModal.classList.add('hidden');
+            answerInput.value = ''; // Clear input field
+            answerInput.focus(); // Focus back on input field
+        }
+        
+        function updateStartModal() {
+            let levelHeader, buttonText;
+
+            if (currentLevel === 1) {
+                levelHeader = `
+                    <h3 class="text-2xl font-bold uppercase text-arcade-blue mb-4">
+                        LEVEL 1: VALUE IDENTIFIER
+                    </h3>
+                    <p class="text-lg">
+                        Find the **VALUE** of the highlighted Place! (Hint: Look for $100s, $10s, or $1s)
+                    </p>
+                `;
+                buttonText = "START LEVEL 1";
+            } else if (currentLevel === 2) {
+                levelHeader = `
+                    <h3 class="text-2xl font-bold uppercase text-arcade-green mb-4">
+                        LEVEL 2: DIGIT SEEKER
+                    </h3>
+                    <p class="text-lg">
+                        The highlighting is gone! Now, find the **DIGIT** (a single number) in the requested Place!
+                    </p>
+                `;
+                buttonText = "START LEVEL 2";
+            }
+            
+            levelTitleDisplay.innerHTML = levelHeader;
+            startButton.textContent = buttonText;
+        }
+
+        // --- EVENT LISTENERS ---
+        
+        // Universal button click/enter/space/arrow handler for start/end game screens
+        function handleModalButtonPress(event) {
+            const activeModal = startModal.classList.contains('hidden') ? feedbackModal.classList.contains('hidden') ? null : feedbackModal : startModal;
+            
+            if (activeModal || !gameOverState.classList.contains('hidden')) {
+                const activeContainer = activeModal || gameOverState;
+                const activeBtn = activeContainer.querySelector('#modal-continue-btn') || activeContainer.querySelector('#start-button') || activeContainer.querySelector('#end-game-btn');
+
+                // 1. Enter/Space Handler
+                if (event.code === 'Enter' || event.code === 'Space') {
+                    if (activeBtn) {
+                        event.preventDefault(); // Prevent spacebar from scrolling
+                        activeBtn.click();
+                    }
+                }
+                
+                // 2. Arrow Key Handler (Prevents scrolling and ensures focus)
+                if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.code)) {
+                    if (activeBtn) {
+                        event.preventDefault(); 
+                        activeBtn.focus(); // Re-focuses the button to confirm user control
+                    }
+                }
+            }
+        }
+
+        // Enter key handler for submitting answers
+        answerInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Prevent form submission
+                checkAnswer();
+            }
+        });
+        
+        // Add universal key handler for all menu buttons
+        document.addEventListener('keydown', handleModalButtonPress);
+
+        startButton.onclick = startGame;
+        
+        // Re-focus input after modal closes to maintain fast flow
+        feedbackModal.addEventListener('transitionend', function() {
+            if (feedbackModal.classList.contains('hidden')) {
+                answerInput.focus();
+            }
+        });
+
+        // Initial setup
+        window.onload = function() {
+            resetGame(1); // Starts at Level 1 and shows the start modal
+        };
+    </script>
+</body>
+</html>
