@@ -3,31 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Curriculum Overview - Select Grade</title>
-    
-    <!-- Fonts: Using 'Inter' as the primary font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display-swap" rel="stylesheet">
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Copied Tailwind Config from index.html -->
+    <title>Curriculum Grade Selector (Parent Hub)</title>
+    <!-- Load Tailwind CSS --><script src="https://cdn.tailwindcss.com"></script>
     <script>
+        // Custom Tailwind Config for Brain Boost Arcade Theme
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
                         'hub-bg': '#1A1A1A',
-                        'card-bg': '#2d2d2d',
-                        'card-bg-alt': '#374151',
-                        'header-bg': '#2F3742',
+                        'card-bg': 'rgba(45, 45, 45, 0.9)', /* 10% transparent */
+                        'card-bg-alt': 'rgba(55, 65, 81, 0.3)', /* Highly transparent for the subtle back button */
                         'arcade-red': '#FF4136',
                         'arcade-blue': '#0074D9',
                         'arcade-green': '#2ECC40',
                         'arcade-yellow': '#FFDC00',
                         'text-light': '#E5E7EB',
                         'text-medium': '#9CA3AF',
-                        'text-dark': '#374151',
                         'border-light': '#4B5563',
                     },
                     fontFamily: {
@@ -37,153 +29,219 @@
             }
         }
     </script>
-    
-    <!-- Copied Styles from index.html -->
     <style>
+        /* --- PARALLAX BACKGROUND STYLES --- */
         @keyframes star-drift-left { from { background-position: 0 0; } to { background-position: -8% -100%; } }
         @keyframes star-drift-right { from { background-position: 0 0; } to { background-position: 8% -100%; } }
         @keyframes neon-flicker { 0% { opacity: 1.0; } 50% { opacity: 0.5; } }
 
         body {
-            background-color: #1A1A1A; 
+            background-color: #1A1A1A;
             font-family: var(--tw-font-sans);
-            color: #E5E7EB; 
+            color: #E5E7EB;
             position: relative;
             overflow-x: hidden;
             min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Align content to the top */
+            padding-top: 3rem;
+            padding-bottom: 3rem;
         }
 
-        /* Parallax Background Layers */
+        /* Common style for all background layers */
         body::before, body::after, #background-layer-3, #background-layer-4 {
-           content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 150%; z-index: -3;
+            content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 150%; z-index: -3;
         }
-        body::before { /* Layer 1 */
-           background: radial-gradient(circle at 10% 80%, rgba(46, 255, 64, 0.3) 0.5px, transparent 4px), radial-gradient(circle at 70% 20%, rgba(180, 50, 255, 0.2) 0.5px, transparent 4px), radial-gradient(circle at 35% 50%, rgba(255, 255, 0, 0.3) 0.5px, transparent 4px);
-           background-size: 150px 150px; z-index: -4; transform: translateY(var(--bg-scroll-y-l1, 0px));
-           animation: star-drift-left 60s linear infinite, neon-flicker 6s ease-in-out infinite alternate;
+        /* Layer 1 - Slowest drift */
+        body::before { 
+            background: radial-gradient(circle at 10% 80%, rgba(46, 255, 64, 0.3) 0.5px, transparent 4px), radial-gradient(circle at 70% 20%, rgba(180, 50, 255, 0.2) 0.5px, transparent 4px), radial-gradient(circle at 35% 50%, rgba(255, 255, 0, 0.3) 0.5px, transparent 4px);
+            background-size: 150px 150px; z-index: -4; transform: translateY(var(--bg-scroll-y-l1, 0px));
+            animation: star-drift-left 60s linear infinite, neon-flicker 6s ease-in-out infinite alternate;
         }
-        body::after { /* Layer 2 */
-           background: radial-gradient(circle at 20% 10%, rgba(50, 50, 255, 0.4) 0.5px, transparent 6px), radial-gradient(circle at 90% 40%, rgba(255, 50, 50, 0.3) 0.5px, transparent 6px), radial-gradient(circle at 55% 75%, rgba(46, 255, 64, 0.4) 0.5px, transparent 6px);
-           background-size: 180px 180px; z-index: -3; transform: translateY(var(--bg-scroll-y-l2, 0px));
-           animation: star-drift-right 40s linear infinite, neon-flicker 4s 2s infinite alternate;
+        /* Layer 2 */
+        body::after { 
+            background: radial-gradient(circle at 20% 10%, rgba(50, 50, 255, 0.4) 0.5px, transparent 6px), radial-gradient(circle at 90% 40%, rgba(255, 50, 50, 0.3) 0.5px, transparent 6px), radial-gradient(circle at 55% 75%, rgba(46, 255, 64, 0.4) 0.5px, transparent 6px);
+            background-size: 180px 180px; z-index: -3; transform: translateY(var(--bg-scroll-y-l2, 0px));
+            animation: star-drift-right 40s linear infinite, neon-flicker 4s 2s infinite alternate;
         }
-        #background-layer-3 { /* Layer 3 */
-           background: radial-gradient(circle at 80% 5%, rgba(255, 255, 0, 0.5) 1px, transparent 8px), radial-gradient(circle at 15% 90%, rgba(180, 50, 255, 0.4) 1px, transparent 8px), radial-gradient(circle at 40% 30%, rgba(50, 50, 255, 0.5) 1px, transparent 8px);
-           background-size: 220px 220px; z-index: -2; transform: translateY(var(--bg-scroll-y-l3, 0px));
-           animation: star-drift-left 25s linear infinite, neon-flicker 2.5s infinite alternate;
+        /* Layer 3 */
+        #background-layer-3 { 
+            background: radial-gradient(circle at 80% 5%, rgba(255, 255, 0, 0.5) 1px, transparent 8px), radial-gradient(circle at 15% 90%, rgba(180, 50, 255, 0.4) 1px, transparent 8px), radial-gradient(circle at 40% 30%, rgba(50, 50, 255, 0.5) 1px, transparent 8px);
+            background-size: 220px 220px; z-index: -2; transform: translateY(var(--bg-scroll-y-l3, 0px));
+            animation: star-drift-left 25s linear infinite, neon-flicker 2.5s infinite alternate;
         }
-        #background-layer-4 { /* Layer 4 */
-           background: radial-gradient(circle at 5% 50%, rgba(255, 50, 50, 0.6) 1px, transparent 10px), radial-gradient(circle at 60% 10%, rgba(46, 255, 64, 0.5) 1px, transparent 10px), radial-gradient(circle at 95% 70%, rgba(255, 220, 0, 0.6) 1px, transparent 10px);
-           background-size: 260px 260px; z-index: -1; transform: translateY(var(--bg-scroll-y-l4, 0px));
-           animation: star-drift-right 15s linear infinite, neon-flicker 1.5s 0.75s infinite alternate;
+        /* Layer 4 - Fastest drift */
+        #background-layer-4 { 
+            background: radial-gradient(circle at 5% 50%, rgba(255, 50, 50, 0.6) 1px, transparent 10px), radial-gradient(circle at 60% 10%, rgba(46, 255, 64, 0.5) 1px, transparent 10px), radial-gradient(circle at 95% 70%, rgba(255, 220, 0, 0.6) 1px, transparent 10px);
+            background-size: 260px 260px; z-index: -1; transform: translateY(var(--bg-scroll-y-l4, 0px));
+            animation: star-drift-right 15s linear infinite, neon-flicker 1.5s 0.75s infinite alternate;
+        }
+
+        .back-button-subtle {
+            background-color: rgba(55, 65, 81, 0.3);
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+        .back-button-subtle:hover, .back-button-subtle:focus {
+            background-color: rgba(75, 85, 99, 0.3);
+            border-color: #FFDC00; 
+            box-shadow: 0 0 5px rgba(255, 220, 0, 0.5);
+        }
+
+        .grade-button {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        /* Apply button lift to ALL buttons on hover */
+        .grade-button:hover {
+            transform: translateY(-4px);
+        }
+        
+        /* Bright blue glow for UNLOCKED links */
+        .grade-button:hover:not(.locked-link) {
+            box-shadow: 0 0 15px rgba(0, 116, 217, 0.8), 0 0 30px rgba(0, 116, 217, 0.5);
+            border-color: #0074D9;
+        }
+
+        /* Muted glow/shadow for LOCKED links */
+        .grade-button.locked-link:hover {
+            box-shadow: 0 0 10px rgba(75, 85, 99, 0.5), 0 0 20px rgba(75, 85, 99, 0.3); 
+            border-color: #4B5563; 
+        }
+
+        /* LOCKED STATE STYLING */
+        .locked-link {
+            cursor: not-allowed;
+            /* Removed pointer-events: none; so hover effects can work! */
+            background-color: rgba(55, 65, 81, 0.9);
+            border-color: #4B5563; 
+        }
+        
+        .locked-content {
+            opacity: 0.5; /* Dims the text and inner icon for locked items */
+            transition: opacity 0.3s ease;
+        }
+
+        /* Ensure unlocked content is fully opaque (e.g., Grade 3) */
+        .grade-button:not(.locked-link) .locked-content {
+            opacity: 1;
+        }
+
+        .locked-icon-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3.5rem; 
+            color: #FFDC00; /* Bright yellow color for the lock */
+            text-shadow: 0 0 10px rgba(255, 220, 0, 0.7);
+            z-index: 10;
+            opacity: 1.0; 
+            /* Added transition for smooth scaling */
+            transition: transform 0.2s ease;
+        }
+
+        /* LOCKED ICON HOVER EFFECT: Scale the lock icon itself */
+        .grade-button.locked-link:hover .locked-icon-overlay {
+            transform: scale(1.5); /* Scales up by 50% */
         }
     </style>
 </head>
-<body class="bg-hub-bg text-text-light min-h-screen p-4 sm:p-8 font-sans">
-
-    <!-- Background Layers -->
-    <div id="background-layer-3"></div>
+<body class="bg-hub-bg text-text-light font-sans">
+    
+    <!-- PARALLAX BACKGROUND LAYERS --><div id="background-layer-3"></div>
     <div id="background-layer-4"></div>
 
-    <!-- Main container for the centered content -->
-    <div class="container mx-auto">
-        
-        <!-- Page Header - Styled like index.html -->
-        <header class="max-w-6xl mx-auto text-center pt-16 pb-12">
-            
-            <h1 class="text-3xl sm:text-5xl font-extrabold uppercase tracking-widest text-arcade-yellow mb-4">
+    <div class="max-w-6xl w-full mx-auto p-4 sm:p-8 z-10">
+
+        <!-- Back Button --><div class="mb-10">
+            <a href="teacher_parent_hub.html" class="back-button-subtle inline-flex items-center px-6 py-3 rounded-2xl text-base font-semibold text-text-light hover:text-arcade-yellow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-arcade-yellow transition-colors">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                Back
+            </a>
+        </div>
+
+        <header class="text-center mb-12">
+            <h1 class="text-4xl sm:text-5xl font-extrabold uppercase tracking-wider text-arcade-blue mb-2">
                 Curriculum Overview
             </h1>
-            <p class="text-lg sm:text-xl text-text-medium">
-                Select a grade to see learning goals.
+            <p class="text-lg sm:text-xl text-text-medium italic">
+                Select a Grade to View Detailed Learning Outcomes
             </p>
         </header>
 
-        
-        <!-- Main Content Box - Styled like "Mission Statement" block -->
-        <main class="max-w-4xl mx-auto mt-8 p-8 bg-card-bg-alt rounded-2xl shadow-xl border border-border-light">
+        <!-- Grade Selection Grid --><div id="grade-selection-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6 justify-center">
+
+            <script>
+                // Grade Data including lock status
+                const grades = [
+                    { name: "JK", icon: "🧸", isLocked: true, file: "" },
+                    { name: "SK", icon: "🚀", isLocked: true, file: "" },
+                    { name: "Grade 1", icon: "⭐", isLocked: true, file: "" },
+                    { name: "Grade 2", icon: "🎮", isLocked: true, file: "" },
+                    { name: "Grade 3", icon: "💎", isLocked: false, file: "grade3_teacher_details.html" }, /* UNLOCKED */
+                    { name: "Grade 4", icon: "🕹️", isLocked: true, file: "" },
+                    { name: "Grade 5", icon: "🤖", isLocked: true, file: "" },
+                    { name: "Grade 6", icon: "👽", isLocked: true, file: "" },
+                    { name: "Grade 7", icon: "🧑‍🚀", isLocked: true, file: "" },
+                    { name: "Grade 8", icon: "👑", isLocked: true, file: "" }
+                ];
+
+                const grid = document.getElementById('grade-selection-grid');
+
+                grades.forEach(grade => {
+                    const isLocked = grade.isLocked;
+                    const href = isLocked ? "#" : grade.file;
+                    const classes = "grade-button flex flex-col items-center justify-center p-6 bg-card-bg rounded-2xl shadow-xl border border-border-light text-center " + (isLocked ? "locked-link" : "hover:shadow-2xl hover:border-arcade-blue");
+
+                    const link = document.createElement('a');
+                    link.href = href;
+                    link.className = classes;
+                    link.style.height = '180px'; /* Fixed height for consistent look */
+                    link.innerHTML = `
+                        <div class="relative w-full h-full flex flex-col items-center justify-center">
+                            <div class="locked-content ${isLocked ? '' : 'non-locked'} flex flex-col items-center justify-center">
+                                <span class="text-5xl mb-3">${grade.icon}</span>
+                                <span class="text-xl font-bold uppercase tracking-wide text-text-light">${grade.name}</span>
+                            </div>
+                            ${isLocked ? '<div class="locked-icon-overlay">🔒</div>' : ''}
+                        </div>
+                    `;
+                    grid.appendChild(link);
+                });
+            </script>
             
-            <!-- Grade Selector Grid -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                
-                <!-- JK Button -->
-                <button class="text-center p-6 rounded-lg border border-border-light bg-card-bg transition-all duration-200 ease-in-out hover:bg-opacity-70 focus:outline-none focus:ring-4 focus:ring-arcade-yellow">
-                    <h3 class="text-2xl font-semibold text-text-light">JK</h3>
-                </button>
-                
-                <!-- SK Button -->
-                <button class="text-center p-6 rounded-lg border border-border-light bg-card-bg transition-all duration-200 ease-in-out hover:bg-opacity-70 focus:outline-none focus:ring-4 focus:ring-arcade-yellow">
-                    <h3 class="text-2xl font-semibold text-text-light">SK</h3>
-                </button>
-
-                <!-- Grade 1 Button -->
-                <button class="text-center p-6 rounded-lg border border-border-light bg-card-bg transition-all duration-200 ease-in-out hover:bg-opacity-70 focus:outline-none focus:ring-4 focus:ring-arcade-yellow">
-                    <h3 class="text-2xl font-semibold text-text-light">Grade 1</h3>
-                </button>
-
-                <!-- Grade 2 Button -->
-                <button class="text-center p-6 rounded-lg border border-border-light bg-card-bg transition-all duration-200 ease-in-out hover:bg-opacity-70 focus:outline-none focus:ring-4 focus:ring-arcade-yellow">
-                    <h3 class="text-2xl font-semibold text-text-light">Grade 2</h3>
-                </button>
-
-                <!-- Grade 3 Button -->
-                <button class="text-center p-6 rounded-lg border border-border-light bg-card-bg transition-all duration-200 ease-in-out hover:bg-opacity-70 focus:outline-none focus:ring-4 focus:ring-arcade-yellow">
-                    <h3 class="text-2xl font-semibold text-text-light">Grade 3</h3>
-                </button>
-
-                <!-- Grade 4 Button -->
-                <button class="text-center p-6 rounded-lg border border-border-light bg-card-bg transition-all duration-200 ease-in-out hover:bg-opacity-70 focus:outline-none focus:ring-4 focus:ring-arcade-yellow">
-                    <h3 class="text-2xl font-semibold text-text-light">Grade 4</h3>
-                </button>
-
-                <!-- Grade 5 Button -->
-                <button class="text-center p-6 rounded-lg border border-border-light bg-card-bg transition-all duration-200 ease-in-out hover:bg-opacity-70 focus:outline-none focus:ring-4 focus:ring-arcade-yellow">
-                    <h3 class="text-2xl font-semibold text-text-light">Grade 5</h3>
-                </button>
-
-                <!-- Grade 6 Button -->
-                <button class="text-center p-6 rounded-lg border border-border-light bg-card-bg transition-all duration-200 ease-in-out hover:bg-opacity-70 focus:outline-none focus:ring-4 focus:ring-arcade-yellow">
-                    <h3 class="text-2xl font-semibold text-text-light">Grade 6</h3>
-                </button>
-
-                <!-- Grade 7 Button -->
-                <button class="text-center p-6 rounded-lg border border-border-light bg-card-bg transition-all duration-200 ease-in-out hover:bg-opacity-70 focus:outline-none focus:ring-4 focus:ring-arcade-yellow">
-                    <h3 class="text-2xl font-semibold text-text-light">Grade 7</h3>
-                </button>
-
-                <!-- Grade 8 Button -->
-                <button class="text-center p-6 rounded-lg border border-border-light bg-card-bg transition-all duration-200 ease-in-out hover:bg-opacity-70 focus:outline-none focus:ring-4 focus:ring-arcade-yellow">
-                    <h3 class="text-2xl font-semibold text-text-light">Grade 8</h3>
-                </button>
+        </div>
+        
+        <!-- Footer --><footer class="text-center py-6 text-sm border-t border-border-light w-full max-w-6xl mx-auto mt-12">
+            <p class="text-text-medium">
+                &copy; 2025 THE BRAIN BOOST ARCADE. <span class="text-arcade-yellow">SYSTEMS ONLINE.</span>
+            </p>
+            <div class="mt-2 space-x-4">
+                <a href="teacher_parent_hub.html" class="text-text-medium hover:text-arcade-yellow transition-colors text-sm font-semibold">Teacher & Parent Hub</a>
+                <span class="text-text-medium text-xs">|</span>
+                <a href="#" class="text-text-medium hover:text-arcade-yellow transition-colors text-xs">Privacy Protocol</a>
+                <a href="#" class="text-text-medium hover:text-arcade-yellow transition-colors text-xs">Contact Support</a>
             </div>
+        </footer>
 
-
-            <!-- Link to go back to the Teacher Hub -->
-            <div class="text-center mt-10">
-                <a href="teacher_parent_hub.html" class="text-arcade-yellow hover:opacity-80 hover:underline text-sm font-semibold">
-                    &larr; Back to Teacher & Parent Hub
-                </a>
-            </div>
-
-        </main>
     </div>
 
-    <!-- Copied Footer from index.html -->
-    <footer class="text-center py-6 text-sm border-t border-border-light max-w-6xl mx-auto mt-12">
-        <p class="text-text-medium">
-            &copy; 2025 THE BRAIN BOOST ARCADE. <span class="text-arcade-yellow">SYSTEMS ONLINE.</span>
-        </p>
-         <div class="mt-2 space-x-4">
-             <a href="#" class="text-text-medium hover:text-arcade-yellow transition-colors text-xs">Privacy Protocol</a>
-             <a href="#" class="text-text-medium hover:text-arcade-yellow transition-colors text-xs">Contact Support</a>
-         </div>
-    </footer>
-
-    <!-- Copied Parallax Script from index.html -->
     <script>
+        // --- PARALLAX SCROLL LISTENER ---
         window.addEventListener('scroll', function() {
             const scrollPosition = window.scrollY;
-            const factorL1 = 0.05, factorL2 = 0.20, factorL3 = 0.45, factorL4 = 0.70;
+            
+            const factorL1 = 0.05; 
+            const factorL2 = 0.20; 
+            const factorL3 = 0.45; 
+            const factorL4 = 0.70; 
+            
+            // Update the CSS custom properties on the body, affecting all 4 layers
             document.body.style.setProperty('--bg-scroll-y-l1', `-${scrollPosition * factorL1}px`);
             document.body.style.setProperty('--bg-scroll-y-l2', `-${scrollPosition * factorL2}px`);
             document.body.style.setProperty('--bg-scroll-y-l3', `-${scrollPosition * factorL3}px`);
